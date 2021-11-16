@@ -1,0 +1,75 @@
+  com:
+    hhao:
+      config:
+        #基本的convert、format配置
+        common:
+          enable: true
+        #基本的convert、format配置
+        converters-and-formatters:
+          enable: true
+        #全局异常配置
+        error:
+          enable: true
+        #静态资源配置
+        resource:
+          enable: true
+        #locale配置
+        locale-resolver:
+          enable: true
+        #jacckson配置
+        jackson:
+          enable: true
+          #反序列化时是否采用@MoneyFormat设置的格式，还是用元数据格式
+          deserializerUseMoneyFormat: false
+          #序列化时是否采用@MoneyFormat设置的格式，还是用元数据格式
+          serializerUseMoneyFormat: true
+          #序列化时，生成的金额字段的名称
+          amountFieldName: amount
+          #序列化时，生成的货币组织代码字段的名称
+          currencyUnitFieldName: currency
+          #序列化时，生成的Money格式化字符串字段的名称
+          formattedFieldName: formatted
+        #开启全局的rest统一返回
+        global-return:
+          enable: true
+        #开启跨域模块
+        cors:
+          enable: true
+        #过滤器模块
+        filter:
+          enable: true
+          #代理request
+          caching-request:
+            enable: true
+            max-payload-length: 2097152
+            #取值[cache_before,cache_after]
+            #前缓存更浪费资源
+            type: cache_after
+            include:
+            exclude: "/static/**,/favicon.ico"
+          #代理response
+          caching-response:
+            enable: true
+            include:
+            exclude: "/static/**,/favicon.ico"
+          #日志
+          log:
+            enable: true
+            include:
+            #exclude: "/static/**,/favicon.ico"
+            exclude: "/**"
+          #转发头
+          forwarded-header:
+            enable: true
+        #拦截器
+        interceptor:
+          enable: true
+        #开启websocket
+        websocket-server:
+          enable: true
+        #内置服务器特性设置
+        server:
+          tomcat: false
+          jetty: false
+          undertow: false
+

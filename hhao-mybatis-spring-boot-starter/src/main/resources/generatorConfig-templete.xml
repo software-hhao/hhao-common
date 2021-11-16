@@ -1,0 +1,322 @@
+<!DOCTYPE generatorConfiguration PUBLIC
+        "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <!--将类路径位置添加到MyBatis Generator (MBG)运行的类路径中。-->
+    <!--
+    <classPathEntry location="/Program Files/IBM/SQLLIB/java/db2java.zip" />
+    -->
+
+    <!--
+    <properties>元素用于指定在解析配置时使用的外部属性文件。配置中的任何属性都将接受形式为${property}的属性。
+    resource:属性文件的限定名称。当指定资源时，将搜索属性文件的类路径。一个指定为com/myproject/generatorConfig.properties的文件。属性必须在com.myproject中存在。
+    url:要用于属性文件的URL值。当以file:///C:/myfolder/generatorConfig.properties这样的形式使用时，这可以用于在文件系统的特定位置指定属性文件。
+    <properties></properties>
+    -->
+
+    <!--
+    <context>元素用于指定用于生成一组对象的环境。
+    在<generatorConfiguration>元素中可以列出多个<context>元素，以允许在MyBatis Generator (MBG)的同一次运行中，从不同的数据库生成对象，或者使用不同的生成参数。
+    id:此上下文的唯一标识符。这个值将用于一些错误消息中。
+
+    defaultModelType:
+    如果targetRuntime为“MyBatis3Simple”、“MyBatis3DynamicSql”或“MyBatis3Kotlin”，则忽略此属性。
+    此属性用于为生成的模型类型设置默认值。模型类型定义了MBG将如何生成域类。对于某些模型类型，MBG将为每个表生成一个单一的域类，对于其他类型，MBG可能根据表的结构生成不同的类。该属性支持以下值:
+    conditional:这是默认,这个模型类似于分层模型，只是如果一个单独的类只包含一个字段，那么将不会生成一个单独的类。因此，如果一个表只有一个主键字段，那么该字段将合并到基记录类中。
+    flat:这个模型只为任何表生成一个域类。类将保存表中的所有字段。
+    hierarchical:如果表有一个主键，则该模型将生成一个主键类，另一个类保存表中的任何BLOB列，以及另一个类保存其余字段。类之间有适当的继承关系。
+
+    targetRuntime:
+    1、MyBatis3DynamicSql:
+    生成的Java代码
+    不生成XML - MyBatis3注释是专用的
+    生成的模型对象是“扁平的”——没有单独的主键对象
+    生成的代码依赖于MyBatis动态SQL库
+    生成的代码数量相对较少
+    生成的代码使查询构造具有极大的灵活性
+    2、MyBatis3Kotlin
+    3、MyBatis3
+    这是原始运行时。在MBG的1.3.6版本之前，MBG的大多数用法都使用这种风格的代码。
+    生成的Java代码
+    生成MyBatis3兼容的XML和SQL或没有XML的MyBatis3兼容的注释接口
+    生成的模型对象可能具有具有独立主键对象和/或具有BLOB字段的独立对象的层次结构
+    生成的代码没有外部依赖项
+    生成的代码数量非常大
+    生成的代码用于查询构造的能力有限，而且难以扩展
+    4、MyBatis3Simple
+    这是MyBatis3运行时的简化版本。
+    生成的Java代码
+    生成MyBatis3兼容的XML和SQL或没有XML的MyBatis3兼容的注释接口
+    生成的模型对象是“扁平的”——没有单独的主键对象
+    生成的代码没有外部依赖项
+    生成的代码数量相对较少
+    不会生成“by example”或“selective”方法
+    生成的代码不包括用于动态查询构造的方法，而且难以扩展
+
+    introspectedColumnImpl:使用此值指定扩展org.mybatis.generator.api.IntrospectedColumn的类的完全限定名。
+    -->
+    <context id="dsql" targetRuntime="MyBatis3DynamicSql">
+        <!--
+        <property name="" value=""/>
+        autoDelimitKeywords:默认为false,如果为true，那么如果SQL关键字用作表中的列名，那么MBG将对它们进行分隔。MBG为许多不同的数据库维护一个SQL关键字列表。然而，这个列表可能并不全面。如果特定的关键字不在MBG的列表中，可以强制用<columnOverride>分隔列。
+        beginningDelimiter:要用作需要分隔符的SQL标识符的开始标识符分隔符的值。如果标识符包含空格，MBG将自动分隔SQL标识符。默认值是双引号(")。
+        endingDelimiter:要用作需要分隔符的SQL标识符的结束标识符分隔符的值。如果标识符包含空格，MBG将自动分隔SQL标识符。默认值是双引号(")。
+        javaFileEncoding:使用此属性指定在处理Java文件时使用的编码。
+        javaFormatter:使用此属性指定用户为生成的Java文件提供的格式化程序的完整类名。类必须实现org.mybatis.generator.api.JavaFormatter，并且必须有一个默认(无参数)构造函数。每个上下文保存Java格式化程序的一个实例。默认的Java格式化程序是org.mybatis.generator.api.dom.DefaultJavaFormatter。
+        targetJava8:使用此属性可以指定生成的代码可以使用Java 8+特性。默认值为true。
+        kotlinFileEncoding:使用此属性指定在处理Kotlin文件时使用的编码。
+        kotlinFormatter:使用此属性指定用户为生成的Kotlin文件提供的格式化程序的完整类名。
+        xmlFormatter:使用此属性指定用户为生成的XML文件提供的格式化程序的完整类名。
+        -->
+
+        <!--
+        元素的作用是:定义一个插件。插件可以用来扩展或修改MyBatis Generator (MBG)生成的代码。这个元素是<context>元素的子元素。在上下文中可以指定任意数量的插件。插件将按照配置中列出的顺序被调用。
+        支持的插件：http://mybatis.org/generator/reference/plugins.html
+        -->
+        <!--
+        这个插件可以用来指定作为主键的列，即使它们没有被定义为数据库中的主键。这在数据库表没有定义主表的情况下很有用。通常，如果没有主键，MBG将生成一组非常有限的方法。这个插件可以用来使生成完整的恭维的MBG方法。要使用该插件，将属性"virtualKeyColumns"添加到配置中，并将值设置为以逗号或空格分隔的列名列表，这些列名应该被视为主键。
+         <table tableName="foo">
+            <property name="virtualKeyColumns" value="ID1, ID2" />
+         </table>
+        -->
+        <plugin type="org.mybatis.generator.plugins.VirtualPrimaryKeyPlugin"></plugin>
+        <!-- 为模型生成序列化方法-->
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin"/>
+        <!-- 为生成的Java模型创建一个toString方法 -->
+        <plugin type="org.mybatis.generator.plugins.ToStringPlugin"/>
+
+        <!--
+        <commentGenerator>用于定义注释生成器的属性。
+        type:这可以用来指定用户提供的评论生成器的类型。该类必须实现接口org.mybatis.generator.api.CommentGenerator，并且必须有一个公共的默认构造函数。该属性还接受特殊值DEFAULT，在这种情况下将使用默认实现(这与不指定类型的效果相同)。
+        支持的属性:
+        suppressAllComments:用于指定MBG是否将在生成的代码中包含任何注释。该属性支持以下值
+        false默认值,所有生成的元素都将包含注释说该元素是生成的元素。
+        true,不会向任何生成的元素添加任何注释。如果您将此值设置为true，那么所有的代码合并将被禁用。
+
+        suppressDate:此属性用于指定MBG是否将在生成的注释中包含生成时间戳。
+        false默认,当属性为false或未指定时，所有生成的注释都将包含元素生成时的时间戳。
+        true时，生成的注释中不会添加时间戳。
+
+        addRemarkComments:用于指定MBG是否将在生成的注释中包含db表中的表和列注释。
+        false默认值,当属性为false或未指定时，所有生成的注释将不包括元素生成时db表中的表和列注释。
+        true时，db表中的表和列注释将被添加到生成的注释中。
+
+        dateFormat:将日期写入生成的注释时使用的日期格式字符串。
+        -->
+        <commentGenerator>
+            <!--false默认值,所有生成的元素都将包含注释说该元素是生成的元素-->
+            <property name="suppressAllComments" value="false"/>
+            <!-- 是否取消在注释中加上时间 -->
+            <property name="suppressDate" value="true"/>
+            <!--false默认值,所有生成的注释将不包括元素生成时db表中的表和列注释。-->
+            <property name="addRemarkComments" value="true"/>
+        </commentGenerator>
+
+        <!--
+        用于指定一个连接工厂，用于获取表所需的数据库连接。
+        每个<context>元素都需要一个<connectionFactory>或<jdbcConnection>元素。
+        <connectionFactory>
+          <property name="driverClass" value="org.hsqldb.jdbcDriver"/>
+          <property name="connectionURL" value="jdbc:hsqldb:mem:aname"/>
+          <property name="userId" value="sa"/>
+          <property name="password" value="sa"/>
+        </connectionFactory>
+
+        -->
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
+                        connectionURL="jdbc:mysql://192.168.1.100:6446/test"
+                        userId="root"
+                        password="1qazXSW@">
+        </jdbcConnection>
+
+        <!--
+        <javaTypeResolver>元素用于定义Java类型解析器的属性。Java类型解析器用于从数据库列信息计算Java类型。默认的Java类型解析器试图使JDBC DECIMAL和NUMERIC类型更容易使用，如果可能的话，会替换整型类型(Long、Integer、Short等)。如果不需要这种行为，则将属性“forceBigDecimals”设置为“true”。
+        type:这可用于指定用户提供的Java类型解析器。类必须实现接口。JavaTypeResolver，并且必须有一个公共的默认构造函数。该属性还接受特殊值DEFAULT，在这种情况下将使用默认实现(这与不指定类型的效果相同)。
+        forceBigDecimals:此属性用于指定MyBatis Generator是否应该强制对DECIMAL和NUMERIC字段使用java.math.BigDecimal，而不是在可能的情况下替换整型。该属性支持以下值:
+            false默认值,当属性为false或未指定时，默认的Java类型解析器将尝试通过替换Integral类型来使JDBC DECIMAL和NUMERIC类型更容易使用。替换规则如下:
+            如果scale大于0，或者长度大于18，那么将使用java.math.BigDecimal类型
+            如果scale为0，长度为10到18，那么Java类型解析器将替换java.lang.Long。
+            如果scale为0，长度为5到9，那么Java类型解析器将替换java.lang.Integer。
+            如果scale为0，且长度小于5，那么Java类型解析器将替换java.lang.Short。
+        当该属性为true时，如果数据库列的类型为DECIMAL或NUMERIC，则Java类型解析器将始终使用java.math.BigDecimal。
+
+        useJSR310Types:该属性用于指定MyBatis Generator是否应该强制使用JSR-310数据类型的DATE、TIME和TIMESTAMP字段，而不是使用java.util.Date。如果为真，这些类型将被解析如下:
+        JDBC Type	    Resolved Java Type
+        DATE            java.time.LocalDate
+        TIME            java.time.LocalTime
+        TIMESTAMP	    java.time.LocalDateTime
+        注意:类型解析器将始终解析以下JSR-310类型，而不管该属性的值是多少:
+        JDBC Type	                Resolved Java Type
+        TIME_WITH_TIMEZONE	        java.time.OffsetTime
+        TIMESTAMP_WITH_TIMEZONE	    java.time.OffsetDateTime
+        -->
+        <javaTypeResolver >
+            <!--强制对DECIMAL和NUMERIC字段使用java.math.BigDecimal-->
+            <property name="forceBigDecimals" value="true" />
+            <!--强制使用JSR-310数据类型的DATE、TIME和TIMESTAMP字段-->
+            <property name="useJSR310Types" value="true"/>
+        </javaTypeResolver>
+
+        <!--
+        <javaModelGenerator>元素用于定义Java模型生成器的属性。Java Model Generator构建与表匹配的主键类、记录类和按示例查询类。此元素是<context>元素的必需子元素。
+        targetPackage:生成的类将放置在这个包中。在默认生成器中，属性“enableSubPackages”控制如何计算实际的包。
+        targetProject:这用于为生成的对象指定目标项目。
+        constructorBased:默认值为false。是否为类生成全字段构造函数。此外，将为每个字段使用构造函数而不是“setter”来构建SQL结果映射。如果“immutable”属性设置为“true”，该属性将被忽略(并强制为“true”)。这个属性可以被元素中的相应属性覆盖。如果目标运行时为“MyBatis3Kotlin”，则忽略此属性。
+        enableSubPackages:默认值为false。根据表的schema和targetPackage为对象生成不同的Java包。true:Java模型生成器应该使用子包.即:[targetPackage].[表的schema],false:Java模型生成器不使用子包.即:[targetPackage]
+        exampleTargetPackage:此属性用于为生成的example对象指定不同的包。如果没有指定，示例对象将在与其他模型对象相同的包中生成。注意:在基于MyBatis动态SQL的运行时中，此属性被忽略。
+        exampleTargetProject:此属性用于为生成的example对象指定一个不同的项目。如果没有指定，示例对象将在与其他模型对象相同的项目中生成。注意:在基于MyBatis动态SQL的运行时中，此属性被忽略。
+        immutable:默认值为false。该属性用于选择MyBatis Generator是否将生成不可变模型类——这意味着类将没有“setter”方法，构造函数将接受类中每个字段的值。如果为true，则强制使用参数化构造函数构建模型类，而不管“constructorBased”属性的值如何。这个属性可以被元素中的相应属性覆盖。如果目标运行时为“MyBatis3Kotlin”，则忽略此属性。
+        rootClass:此属性可用于为所有生成的Java模型对象指定根类。MyBatis Generator将指定这个值作为主键对象的超类，如果表有一个主键，或者记录对象没有的话。可以通过在Table配置上指定rootClass属性来重写此值。如果指定了，这个属性的值应该是一个完全限定的类名(比如com.mycompany.MyRootClass)。
+        trimStrings:默认值为false。此属性用于选择MyBatis Generator是否添加代码来修剪从数据库返回的字符字段中的空白。如果数据库将数据存储在CHAR字段而不是VARCHAR字段中，那么这将非常有用。当为true时，MyBatis Generator将插入代码来修剪字符字段。可以在或<columnOverride>元素中使用trimStrings属性重写。
+        -->
+        <!--定义Java model生成器的属性-->
+        <javaModelGenerator targetPackage="com.hhao.common.springboot.web.mvc.mybaits.demo.book.model" targetProject="src/main/java">
+            <!--Java模型生成器还应该修剪字符串。这意味着任何String属性的setter将调用trim函数-->
+            <property name="trimStrings" value="true" />
+            <!--为所有生成的Java模型对象指定根类-->
+            <property name="rootClass" value="com.hhao.common.entity.BaseEntity"/>
+        </javaModelGenerator>
+
+
+        <!--
+        <sqlMapGenerator>元素用于定义SQL映射生成器的属性。SQL Map Generator为每个自省表构建一个MyBatis格式的SQL映射XML文件。
+        只有当您选择的javaClientGenerator需要XML时，此元素才会是<context>元素的必需子元素。基于MyBatis Dynamic SQL的运行时不会生成XML，如果指定了这个元素，则会忽略它。
+        如果没有指定javaClientGenerator，则应用以下规则:
+            如果指定sqlMapGenerator，那么MBG将生成SQL映射XML文件和模型类。
+            如果您没有指定sqlMapGenerator，那么MBG将只生成模型类。
+        targetPackage:生成的SQL map将放在这个包中。在默认生成器中，属性“enableSubPackages”控制如何计算实际的包。
+        targetProject:这用于为生成的SQL映射指定目标项目。在Eclipse环境中运行时，这将指定保存对象的项目和源文件夹。在其他环境中，该值应该是本地文件系统上的现有目录。如果该目录不存在，MBG将不会创建该目录。
+        enableSubPackages:同理
+        -->
+        <!--定义SQL映射生成器的属性,只有选择的javaClientGenerator需要XML时，此元素才必需。-->
+        <sqlMapGenerator targetPackage="com.hhao.common.springboot.web.mvc.mybaits.demo.book.mapper" targetProject="src/main/java">
+
+        </sqlMapGenerator>
+
+        <!--
+        <javaClientGenerator>:用于定义Java客户机生成器的属性。用于构建Java接口和类，允许轻松使用生成的Java模型和XML映射文件。对于MyBatis，生成的对象采用映射器接口的形式。这个元素是<context>元素的可选子元素。如果不指定此元素，那么MyBatis Generator (MBG)将不会生成Java客户端接口和类。
+        type:此属性用于选择一个预定义的Java客户机生成器，或指定用户提供的Java客户机生成器。该属性接受以下值以选择一个预定义的生成器:
+            如果<context> targetRuntime是MyBatis3DynamicSql，这个属性是可选的，可以忽略。
+            如果<context> targetRuntime是MyBatis3Kotlin，则此属性是可选的，并被忽略。
+            如果<context> targetRuntime是MyBatis3，可以使用以下预定义值:
+                ANNOTATEDMAPPER:生成的对象将是MyBatis3 mapper的Java接口。这些接口将基于注释和MyBatis 3.x SqlProviders。不会生成任何XML映射器文件。
+                MIXEDMAPPER:生成的对象将是MyBatis3 mapper的Java接口。这些接口将混合基于注解和XML。在简单的地方使用注解。这个客户机将不会生成和Sql Provider，因此所有复杂的动态Sql都将以XML生成。
+                XMLMAPPER:生成的对象将是MyBatis3 mapper的Java接口。接口将依赖于生成的XML映射器文件。
+            如果<context> targetRuntime是MyBatis3Simple，可以使用以下预定义值:
+                ANNOTATEDMAPPER:生成的对象将是MyBatis3 mapper的Java接口。这些接口将基于注解和MyBatis 3.x SqlProviders。不会生成任何XML映射器文件。
+                XMLMAPPER:生成的对象将是MyBatis3 mapper的Java接口。接口将依赖于生成的XML映射器文件。
+        targetPackage:生成的接口和实现类将放在这个包中。属性“enableSubPackages”控制如何计算实际的包。如果为真，那么计算的包将是targetPackage加上表的目录和模式(如果它们存在的话)的子包。如果"enableSubPackages"为false(默认值)，那么计算出来的包将与targetPackage属性中指定的包完全一致。
+        targetProject:这用于为生成的接口和类指定目标项目。在Eclipse环境中运行时，这将指定保存对象的项目和源文件夹。在其他环境中，该值应该是本地文件系统上的现有目录。如果该目录不存在，MBG将不会创建该目录。
+        enableSubPackages:同理
+        rootInterface:此属性可用于为所有生成的接口对象指定一个超级接口。
+        useLegacyBuilder:默认值为false。如果为true，那么带注释的客户机将使用MyBatis的SqlBuilder来生成动态SQL。在MyBatis 3.2及更高版本中，该构建器已被弃用，取而代之的是新的SQL类。如果为false, MBG将生成使用新的SQL构建器的客户端。
+        -->
+        <javaClientGenerator type="MIXEDMAPPER" targetPackage="com.hhao.common.springboot.web.mvc.mybaits.demo.book.mapper"  targetProject="src/main/java">
+            <property name="rootInterface" value="com.hhao.common.entity.BaseMapper"/>
+        </javaClientGenerator>
+
+        <!--表名 tableName 代表你的数据库表，domainObjectName映射后的对象名称-->
+        <!--
+        <table>用于在数据库中选择一个表进行处理。选中的表将为每个表生成以下对象:
+        MyBatis格式的SQL Map文件;
+        构成表格“模型”的一组类，包括:
+            匹配表的主键的类(如果表有主键)。
+            一个类，用于匹配表中不在主键中的字段和非BLOB字段。如果有主键，这个类将扩展主键。
+            用于保存表中任何BLOB字段(如果有的话)的类。这个类将根据表的配置扩展前面两个类中的一个。
+            一个类，用于在不同的“by example”方法(selectByExample, deleteByExample)中生成动态的where子句。
+        (可选)MyBatis映射器接口;
+
+        tableName:数据库表的名称(不包括schema或catalog)。如果需要，指定的值可以包含SQL通配符。
+        schema:数据库schema-如果您的数据库不使用schema，或者有默认schema，则不需要。如果需要，指定的值可以包含SQL通配符。
+        catalog:数据库catalog-如果您的数据库不使用catalog，或者如果有默认catalog，则不需要。
+        alias:如果目标运行时为“MyBatis3DynamicSql”或“MyBatis3Kotlin”，则忽略此属性。如果指定了该值，将用于在任何生成的SQL select语句中对表和所有列名进行别名。列名将使用模式alias_actualColumnName进行别名。
+        domainObjectName:将从中生成的对象名称的基本名称。如果没有指定，MBG将根据tableName自动生成一个名称。
+        mapperName:MyBatis3生成的映射器类和XML文件的名称。如果未指定，该名称将是无论域名对象名称是什么，加上单词“Mapper”。
+        sqlProviderName:如果目标运行时为“MyBatis3DynamicSql”或“MyBatis3Kotlin”，则忽略此属性。生成的MyBatis3 SQL提供程序类的名称(可能根据配置生成，也可能不生成)。如果未指定，则该名称将与域对象的名称相同，并加上单词“SqlProvider”。
+        enableInsert:默认为true。如果目标运行时为“MyBatis3DynamicSql”或“MyBatis3Kotlin”，则忽略此属性。表示是否应该生成插入语句。
+        enableSelectByPrimaryKey:默认为true。如果目标运行时为“MyBatis3DynamicSql”或“MyBatis3Kotlin”，则忽略此属性。指示是否应生成按主键选择语句。无论该设置如何，如果表没有主键，则不会生成语句。
+        enableSelectByExample:默认为true。如果目标运行时为“MyBatis3DynamicSql”或“MyBatis3Kotlin”，则忽略此属性。表示是否应该生成按示例选择语句。该语句允许在运行时生成许多不同的动态查询。
+        enableUpdateByPrimaryKey:默认为true。如果目标运行时为“MyBatis3DynamicSql”或“MyBatis3Kotlin”，则忽略此属性。表示是否生成主键更新语句。无论该设置如何，如果表没有主键，则不会生成语句。
+        enableDeleteByPrimaryKey:默认为true。如果目标运行时为“MyBatis3DynamicSql”或“MyBatis3Kotlin”，则忽略此属性。指示是否应生成按主键删除语句。无论该设置如何，如果表没有主键，则不会生成语句。
+        enableDeleteByExample:默认为true。如果目标运行时为“MyBatis3DynamicSql”或“MyBatis3Kotlin”，则忽略此属性。表示是否应该生成按示例删除语句。该语句允许在运行时生成许多不同的动态删除。
+        enableCountByExample:默认为true。如果目标运行时为“MyBatis3DynamicSql”或“MyBatis3Kotlin”，则忽略此属性。表示是否应该生成按示例计数语句。该语句将返回表中与示例匹配的行数。
+        enableUpdateByExample:默认为true。如果目标运行时为“MyBatis3DynamicSql”或“MyBatis3Kotlin”，则忽略此属性。表示是否应该生成按示例更新语句。该语句将更新表中与示例匹配的行。如果为true，则还将生成一个示例的“selective”更新语句。“selective”语句只会更新记录参数中相应值非空的列。
+        selectByPrimaryKeyQueryId:如果目标运行时为“MyBatis3DynamicSql”或“MyBatis3Kotlin”，则忽略此属性。该值将以"'<value>' as QUERYID"的形式添加到select by primary key语句的选择列表中。这对于在运行时识别DBA跟踪工具中的查询非常有用。如果使用thus value，则应该为MBG生成的每个不同查询指定一个唯一的id。
+        selectByExampleQueryId:如果目标运行时为“MyBatis3DynamicSql”或“MyBatis3Kotlin”，则忽略此属性。该值将以"'<value>' as QUERYID"的形式添加到select by example语句的选择列表中。这对于在运行时识别DBA跟踪工具中的查询非常有用。如果使用thus value，则应该为MBG生成的每个不同查询指定一个唯一的id。
+        modelType:如果目标运行时为“MyBatis3DynamicSql”或“MyBatis3Kotlin”，则忽略此属性。如果您希望覆盖此表的默认模型类型，则使用此属性。如果没有指定，MBG将基于上下文默认模型类型生成域对象。模型类型定义了MBG将如何生成域类。对于某些模型类型，MBG将为每个表生成一个单一的域类，对于其他类型，MBG可能根据表的结构生成不同的类。该属性支持以下值:
+            conditional:这个模型类似于分层模型，只是如果一个单独的类只包含一个字段，那么将不会生成一个单独的类。因此，如果一个表只有一个主键字段，那么该字段将合并到基记录类中。
+            flat:该模型仅为任何表生成一个域类。类将保存表中的所有字段。
+            hierarchical:如果表有一个主键，则该模型将生成一个主键类、另一个类(保存表中的任何BLOB列)和另一个类(保存其余字段)。类之间有适当的继承关系。
+        escapeWildcards:默认为false。表示在搜索列时是否应该转义模式和tableName中的SQL通配符('_'和'%')。如果模式或tableName包含SQL通配符(例如，如果表名是MY_TABLE，有些驱动程序要求下划线字符转义)，则有些驱动程序需要这样做。
+        delimitIdentifiers:默认值为false，表示MBG是否应该使用搜索表时指定的确切大小写，然后在生成的SQL中分隔标识符。更多细节请参阅上面的讨论。分隔符在<context>元素上指定。除非目录、模式或tableName属性包含空格，否则为true。
+        delimitAllColumns:默认为false。表示MBG是否应该向生成的SQL中的所有列名添加分隔符。这是为每列编写<columnOverride>的一种替代方法，指定该列应该分隔。这对于像PostgreSQL这样对标识符区分大小写的数据库很有用。分隔符在<context>元素上指定。
+        constructorBased:默认值为false。如果目标运行时为“MyBatis3Kotlin”，则忽略此属性.此属性用于选择MyBatis Generator是否为接受类中每个字段值的类生成构造函数。
+        ignoreQualifiersAtRuntime:默认值为false。如果为true，则MBG将不会将模式或目录添加到生成的SQL中的表名中。如果在多个模式中有同名的表，这是非常有用的——您可以使用MBG在一个模式中基于表生成对象，但不包括运行时的模式。
+        immutable:默认值为false。如果目标运行时为“MyBatis3Kotlin”，则忽略此属性这个属性用于选择MBG是否将生成不可变的模型类——这意味着类将没有“setter”方法，构造函数将接受类中每个字段的值。如果为true，则强制使用参数化构造函数构建模型类，而不管“constructorBased”属性的值如何。
+        modelOnly:默认值为false。此属性用于选择MBG是否只为表生成模型类。如果为true，则不会生成Java客户机。如果配置了<sqlMapGenerator>并且将此属性设置为true，那么MBG只会在SQL Mapper XML文件中为该表生成结果映射元素。如果为true，那么该值将覆盖元素上的任何“enable*”属性——不会生成任何CRUD方法。
+        rootClass:如果目标运行时为“MyBatis3Kotlin”，则忽略此属性此属性可用于为所有生成的Java模型对象指定根类。如果指定了，这个属性的值应该是一个完全限定的类名(比如com.mycompany.MyRootClass)。
+        rootInterface:如果目标运行时为“MyBatis3DynamicSql”或“MyBatis3Kotlin”，则忽略此属性。此属性可用于为所有生成的DAO接口对象指定超级接口。
+        runtimeCatalog:如果为该属性指定一个值，那么MBG将使用该值作为生成的SQL中的目录，而不是上面配置的目录。如果您想根据一个目录生成代码，但又想在运行时使用不同的目录，那么这是非常有用的。
+        runtimeSchema:如果为该属性指定一个值，那么MBG将使用该值作为生成的SQL中的模式，而不是上面配置的模式。如果您想根据一个模式生成代码，但又想在运行时使用不同的模式，那么这是非常有用的。
+        runtimeTableName:如果为该属性指定一个值，那么MBG将使用该值作为生成的SQL中的表名，而不是上面配置的tableName。如果您想生成使用公共同义词的对象，这在Oracle上特别有用。在这种情况下，您需要根据同义词所指向的实际表生成对象，然后在此属性中指定同义词名称。在大多数情况下，您还应该使用公共同义词指定ignoreQualifiersAtRuntime属性。
+        selectAllOrderByClause:此属性可用于指定将添加到selectAll方法中的order by子句。这只适用于使用MyBatis3Simple目标运行时的情况。MBG将把你在这个属性中指定的任何东西放在顺序前面，所以这个属性应该只包含一个列列表(例如ID1, ID2或ID1 desc, ID2 asc)
+        trimStrings:如果目标运行时为“MyBatis3Kotlin”，则忽略此属性此属性用于选择MyBatis Generator是否添加代码来修剪从数据库返回的字符字段中的空白。如果数据库将数据存储在CHAR字段而不是VARCHAR字段中，那么这将非常有用。
+        useActualColumnNames:默认值为false,如果为true，那么MBG将使用从数据库元数据返回的列名作为生成的域对象的属性。如果为false(默认值)，MBG将尝试用驼峰大小写来处理返回的名称。
+        useColumnIndexes:默认值为false,如果为true，那么MBG将生成在结果映射中使用列索引而不是列名的resultMaps。当表的列名只根据名称的情况区分时(例如。(“first name”和“first name”)。这种支持还有一点性能上的好处。
+        useCompoundPropertyNames:默认值为false。如果为true，那么MBG将通过将列名与列重停连接起来使用generate属性名。这在由第4代语言创建的数据库中非常有用，其中生成了列名(例如FLD2237)，但是注释包含有用的信息(例如FLD2237)。“客户id”)。在本例中，MBG将生成一个属性名FLD2237_CustomerId。
+
+
+
+        <domainObjectRenamingRule>:在计算相应的域对象名称之前，先对数据库表进行重命名。例如，当所有表都有一个公共前缀时，这个前缀在计算域对象名之前应该被删除。
+        <domainObjectRenamingRule searchString="^Sys" replaceString="" />
+
+        <columnOverride>:更改数据库列的某些属性。
+            column:列名
+            property:Java属性的名称。用于覆盖自动生成。
+            javaType:Java属性的类型。如果需要，这可以用于覆盖JavaTypeResolver计算的类型。
+            jdbcType:JDBC类型(INTEGER、DECIMAL、NUMERIC、VARCHAR等)。如果需要，这可以用于覆盖JavaTypeResolver计算的类型。
+            typeHandler:应用于此列的用户定义的类型处理程序。
+            delimitedColumnName:指定是否应该在生成的SQL中分隔列名。分隔符在<context>元素上指定。默认值为false。但是，MBG将自动分隔包含空格的列名，因此在这种情况下不需要重写。
+            isGeneratedAlways:指定该列是否为数据库中的GENERATED ALWAYS列。如果该列是GENERATED ALWAYS，那么MBG将不会在insert或update语句中引用该列。默认值为false。
+
+        <columnRenamingRule>:在计算表中相应的属性名之前，使用<columnRenamingRule>元素重命名数据库列。当表中的所有列都有一个公共前缀时，这很有用，在计算属性名之前应该删除该前缀。
+            如表列名如下：CUST_BUSINESS_NAME、CUST_STREET_ADDRESS、CUST_CITY、CUST_STATE
+            <columnRenamingRule searchString="^CUST_" replaceString="" />将去除前缀;
+            对于<columnOverride>元素匹配列的任何列，该元素将被忽略- <columnOverride>将优先于重命名规则。
+
+        <ignoreColumn>:忽略表中的一列。生成的SQL不会引用该列，也不会为模型对象中的该列生成属性。
+        <ignoreColumnsByRegex>:忽略表中的一组列—该列集是通过与该元素中指定的正则表达式进行匹配确定的。
+        <except>:<ignoreColumnsByRegex>的子元素，用于一组忽略列中的例外定义;
+            column:列名;
+            delimitedColumnName:如果为true，区分大小写的精确匹配。如果为false(默认)，则认为名称不区分大小写。
+
+        <generatedKey>:用于为自动生成的键(从标识字段或序列)指定属性。如果指定了这个元素，MyBatis Generator (MBG)将在SQL映射中生成的<insert>元素中生成一个适当的<selectKey>元素。
+            column:列名;
+            sqlStatement:返回新值的SQL语句。不同数据库值如下:
+                Cloudscape	This will translate to: VALUES IDENTITY_VAL_LOCAL()
+                DB2	This will translate to: VALUES IDENTITY_VAL_LOCAL()
+                DB2_MF	This will translate to:SELECT IDENTITY_VAL_LOCAL() FROM SYSIBM.SYSDUMMY1,Use this value for DB2 on zOS (Main Frames) and, in some cases, iSeries (AS/400)
+                Derby	This will translate to: VALUES IDENTITY_VAL_LOCAL()
+                HSQLDB	This will translate to: CALL IDENTITY()
+                Informix	This will translate to: select dbinfo('sqlca.sqlerrd1') from systables where tabid=1
+                MySql	This will translate to: SELECT LAST_INSERT_ID()
+                SqlServer	This will translate to: SELECT SCOPE_IDENTITY()
+                SYBASE	This will translate to: SELECT @@IDENTITY
+                JDBC	This will configure MBG to generate code for MyBatis3 support of JDBC standard generated keys. This is a database independent method of obtaining the value from identity columns.
+            identity: 默认为false。如果为true，则将该列标记为标识列，并且生成的<selectKey>元素将放置在插入(对于标识列)之后。如果为false，则生成的<selectKey>将放置在插入之前(通常用于一个序列)。
+            type:如果指定了，那么这个值将作为生成的<selectKey>元素的类型添加。此属性的值应为“pre”或“post”。重要提示:如果为该属性指定了一个值，那么生成的<selectKey>元素将始终放在insert语句之前。
+        -->
+        <table schema="DB2ADMIN" tableName="ALLTYPES" domainObjectName="Customer" modelType="flat"  >
+            <property name="trimStrings" value="true"/>
+            <generatedKey column="ID" sqlStatement="MySql" identity="true" />
+
+            <!--
+            去除前缀
+            <columnRenamingRule searchString="^CUST_" replaceString="" />
+            忽略列
+            <ignoreColumn column=""/>
+            <ignoreColumnsByRegex pattern=""></ignoreColumnsByRegex>
+            -->
+        </table>
+    </context>
+</generatorConfiguration>

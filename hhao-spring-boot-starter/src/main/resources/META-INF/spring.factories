@@ -1,0 +1,9 @@
+# Auto Configure
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.hhao.common.springboot.config.aop.AopAdvisorConfig,\
+com.hhao.common.springboot.config.AppContextConfig,\
+com.hhao.common.springboot.config.AppSmartLifecycleConfig,\
+com.hhao.common.springboot.config.MessageSourceConfig,\
+com.hhao.common.springboot.config.MetadataConfig,\
+com.hhao.common.springboot.config.SafeConfig,\
+com.hhao.common.springboot.config.ValidatorConfig

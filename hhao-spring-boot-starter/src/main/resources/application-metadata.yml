@@ -1,0 +1,26 @@
+com:
+  hhao:
+    metadata:
+      values:
+        DATE_TIME_FORMATTER: "yyyy-MM-dd HH:mm:ss"
+        DATE_FORMATTER: "yyyy-MM-dd"
+        TIME_FORMATTER: "HH:mm:ss"
+        #时区
+        ZONE: "UTC+8"
+        #设置默认的Locale
+        #格式[system|context|语言-国家]
+        #system:采用系统默认
+        #context:采用上下文
+        #语言-国家:如zh-CN,en-US
+        LOCALE: "system"
+        #Money类型从Money->String采用的样式定义
+        #Locale:CurrencyStyle:PATTERN,如:[default|system|context|语言-国家]:[SYMBOL,CODE]:¤####,####,####,###0.########
+        MONETARY_AMOUNT_TO_STRING: "default:SYMBOL:¤####,####,####,###0.00######"
+        #Money类型从String->Money采用的样式定义
+        #Locale:CurrencyStyle:PATTERN,如:[default|system|context|语言-国家]:[SYMBOL,CODE]:¤####,####,####,###0.########
+        MONETARY_AMOUNT_FROM_STRING: "default:CODE:¤ ####,####,####,###0.########"
+        #设置Money类型的精度
+        #格式：Scale:RoundingMode,例如:2:HALF_UP
+        MONETARY_ROUNDING: "2:HALF_UP"
+        #货币组织代码
+        CURRENCY_UNIT: "CNY"
