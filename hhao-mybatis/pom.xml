@@ -14,6 +14,11 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>io.github.software-hhao</groupId>
+            <artifactId>hhao-utils</artifactId>
+        </dependency>
+
         <!--MyBatis-->
         <!--https://mybatis.org/mybatis-3/index.html-->
         <dependency>
@@ -26,6 +31,12 @@
         <dependency>
             <groupId>org.mybatis.dynamic-sql</groupId>
             <artifactId>mybatis-dynamic-sql</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.jsqlparser</groupId>
+            <artifactId>jsqlparser</artifactId>
+            <version>4.2</version>
         </dependency>
     </dependencies>
 </project>

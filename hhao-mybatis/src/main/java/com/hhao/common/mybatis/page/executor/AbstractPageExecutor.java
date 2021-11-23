@@ -18,16 +18,24 @@ package com.hhao.common.mybatis.page.executor;
 
 import com.hhao.common.mybatis.page.PageInfo;
 import com.hhao.common.mybatis.page.PageMetaData;
-import org.apache.ibatis.binding.MapperMethod;
+import com.hhao.common.mybatis.page.executor.sql.SqlExecutor;
+import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.*;
 import org.apache.ibatis.plugin.Invocation;
+import org.apache.ibatis.reflection.MetaObject;
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
+import org.apache.ibatis.type.TypeHandlerRegistry;
 
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 分页执行器基类
@@ -36,128 +44,33 @@ import java.util.Map;
  * @since 1.0.0
  */
 public abstract class AbstractPageExecutor implements PageExecutor {
-    private final String DEFAULT_PAGE_INFO_PARAM_NAME = PageMetaData.PAGE_INFO_PARAM_NAME;
-    private PageExecutorType[] executorTypes;
+    private static final Log log = LogFactory.getLog(AbstractPageExecutor.class);
 
-    /**
-     * 执行器支持的分页类型
-     *
-     * @param executorTypes the executor types
-     */
-    public AbstractPageExecutor(PageExecutorType[] executorTypes) {
-        this.executorTypes = executorTypes;
+    private List<SqlExecutor> sqlExecutors=new CopyOnWriteArrayList<>();
+
+    public AbstractPageExecutor(){
+
     }
 
-    /**
-     * 判断是否支持
-     * 1、存在PageInfo参数
-     * 2、支持pageInfo.getExecutorType()
-     */
+    public AbstractPageExecutor(List<SqlExecutor> sqlExecutors){
+        if(sqlExecutors!=null){
+            this.sqlExecutors=sqlExecutors;
+        }
+    }
+
+    public void registerSqlExecutor(SqlExecutor sqlExecutor) {
+        sqlExecutors.add(sqlExecutor);
+    }
+
     @Override
-    public boolean support(Invocation invocation) {
-        Object[] args = invocation.getArgs();
-        MappedStatement mappedStatement = (MappedStatement) args[0];
-        Object parameter = args[1];
-        //获取PageInfo参数，如果未获取，则不支持
-        PageInfo pageInfo = getPageInfo(parameter);
-        if (pageInfo == null) {
-            return false;
-        }
-        //执行器类型比较
-        if (pageInfo.getPageExecutorType() == null || !supportExecutorType(pageInfo.getPageExecutorType())) {
-            return false;
-        }
-        return support(pageInfo, mappedStatement);
-    }
-
-    /**
-     * 执行器类型是否适合
-     *
-     * @param executorType the executor type
-     * @return boolean
-     */
-    protected boolean supportExecutorType(PageExecutorType executorType) {
-        for (PageExecutorType et : executorTypes) {
-            if (et.equals(executorType)) {
-                return true;
+    public SqlExecutor getSqlExecutor(PageInfo pageInfo,String dbName){
+        for(SqlExecutor sqlExecutor:sqlExecutors){
+            if (sqlExecutor.support(pageInfo,dbName)){
+                return sqlExecutor;
             }
         }
-        return false;
+        return null;
     }
-
-    /**
-     * 子类可以重写
-     *
-     * @param pageInfo        the page info
-     * @param mappedStatement the mapped statement
-     * @return boolean
-     */
-    protected boolean support(PageInfo pageInfo, MappedStatement mappedStatement) {
-        return true;
-    }
-
-    /**
-     * 获取PageInfo参数
-     *
-     * @param parameter the parameter
-     * @return page info
-     */
-    protected PageInfo getPageInfo(Object parameter) {
-        PageInfo pageInfo = null;
-        //针对动态SQL的SelectStatementProvider
-        if (parameter instanceof SelectStatementProvider) {
-            Map<String, Object> parameters=((SelectStatementProvider) parameter).getParameters();
-            //先按名称查PageInfo参数
-            pageInfo = (PageInfo) ((SelectStatementProvider) parameter).getParameters().get(DEFAULT_PAGE_INFO_PARAM_NAME);
-            //再按类型查PageInfo参数
-            if (pageInfo==null){
-                for(Map.Entry<String, Object> entry:parameters.entrySet()){
-                    if (entry.getValue() instanceof PageInfo){
-                        pageInfo=(PageInfo)entry.getValue();
-                        break;
-                    }
-                }
-            }
-        } else if (parameter instanceof MapperMethod.ParamMap) {
-            //针对Mapper传参
-            //先按名称
-            MapperMethod.ParamMap paramMap = (MapperMethod.ParamMap) parameter;
-            try {
-                pageInfo = (PageInfo) paramMap.get(DEFAULT_PAGE_INFO_PARAM_NAME);
-            } catch (Exception e) {
-            }
-            //再按类型
-            if (pageInfo==null){
-                for(Object key:paramMap.keySet()){
-                    Object value=paramMap.get(key);
-                    if (value instanceof PageInfo){
-                        pageInfo=(PageInfo) value;
-                        break;
-                    }
-                }
-            }
-        }
-        return pageInfo;
-    }
-
-    /**
-     * 分页拦截处理
-     */
-    @Override
-    public Object execute(Invocation invocation) throws Throwable {
-        Object parameter = this.getParameter(invocation);
-        return execute(this.getPageInfo(parameter), invocation);
-    }
-
-    /**
-     * 子类重写该方法
-     *
-     * @param pageInfo   the page info
-     * @param invocation the invocation
-     * @return object
-     * @throws Throwable the throwable
-     */
-    protected abstract Object execute(PageInfo pageInfo, Invocation invocation) throws Throwable;
 
     /**
      * 返回MappedStatement
@@ -183,7 +96,7 @@ public abstract class AbstractPageExecutor implements PageExecutor {
      * 返回输入参数
      *
      * @param invocation the invocation
-     * @return parameter
+     * @return parameter parameter
      */
     protected Object getParameter(Invocation invocation) {
         return invocation.getArgs()[1];
@@ -210,17 +123,12 @@ public abstract class AbstractPageExecutor implements PageExecutor {
     }
 
 
-    /**
-     * 根据分页执行器类型判断是否需要count处理
-     *
-     * @param executorType the executor type
-     * @return boolean
-     */
-    protected boolean isIncludeCount(PageExecutorType executorType){
-        if (executorType==null || executorType.name().indexOf("INCLUDE_COUNT",0)==-1){
-            return false;
+    protected Executor getExecutor(Invocation invocation){
+        Object target=invocation.getTarget();
+        if (target instanceof Executor) {
+            return (Executor)target;
         }
-        return true;
+        return null;
     }
 
     /**
@@ -228,82 +136,62 @@ public abstract class AbstractPageExecutor implements PageExecutor {
      *
      * @param pageInfo the page info
      * @param result   the result
-     * @return object
+     * @return object object
      */
     protected Object doResult(PageInfo pageInfo, Object result) {
         //包含count语句的结果集
-        if (isIncludeCount(pageInfo.getPageExecutorType())){
+        if (pageInfo.isIncludeTotalRows()){
             List<List<Object>> newResult = (List<List<Object>>) result;
-            pageInfo.setResult((List<Object>)newResult.get(0));
-            pageInfo.setTotalRow((Long) newResult.get(1).get(0));
+            setPageResult(pageInfo,newResult.get(0));
+            setCountResult(pageInfo,newResult.get(1));
             return newResult.get(0);
         }else{
             //不包含count语句的结果集
-            List<Object> newResult = (List<Object>) result;
-            pageInfo.setResult(newResult);
+            setPageResult(pageInfo,result);
             pageInfo.setTotalRow(-1);
-            return newResult;
+            return result;
         }
+    }
+
+    protected List<Object> setPageResult(PageInfo pageInfo, Object result){
+        List<Object> newResult = (List<Object>) result;
+        pageInfo.setResult(newResult);
+        return newResult;
+    }
+
+    protected Long setCountResult(PageInfo pageInfo, Object result){
+        List<Object> newResult = (List<Object>) result;
+        long total = 0;
+        if (newResult!=null && !newResult.isEmpty()){
+            // 个别数据库 count 没数据不会返回 0
+            Object o = newResult.get(0);
+            if (o != null) {
+                total = Long.parseLong(o.toString());
+            }
+        }
+        pageInfo.setTotalRow(total);
+        return total;
+    }
+
+
+    private String arrayToString(String [] arrays){
+        String result="";
+        if (arrays!=null) {
+            for (String s : arrays) {
+                if (result.isBlank()) {
+                    result = s;
+                } else {
+                    result = result + "," + s;
+                }
+            }
+        }
+        return result;
     }
 
     /**
      * 构建新的MappedStatement
-     *
-     * @param pageInfo  the page info
-     * @param ms        the ms
-     * @param sqlSource the sql source
-     * @return mapped statement
      */
-    protected MappedStatement newMappedStatement(PageInfo pageInfo, MappedStatement ms, SqlSource sqlSource){
-        String keyProperty="";
-        if (ms.getKeyProperties()!=null) {
-            for (String s : ms.getKeyProperties()) {
-                if (keyProperty.isBlank()) {
-                    keyProperty = s;
-                } else {
-                    keyProperty = keyProperty + "," + s;
-                }
-            }
-        }
-
-        String keyColumn="";
-        if (ms.getKeyColumns()!=null) {
-            for (String s : ms.getKeyColumns()) {
-                if (keyColumn.isBlank()) {
-                    keyColumn = s;
-                } else {
-                    keyColumn = keyColumn + "," + s;
-                }
-            }
-        }
-
-        String resultSet="";
-        if (ms.getResultSets()!=null) {
-            for (String s : ms.getResultSets()) {
-                if (resultSet.isBlank()) {
-                    resultSet = s;
-                } else {
-                    resultSet = resultSet + "," + s;
-                }
-            }
-        }
-
-        //添加count结果集映射
-        List<ResultMap> newResultMaps=new ArrayList<>();
-        for(ResultMap resultMap:ms.getResultMaps()){
-            newResultMaps.add(resultMap);
-        }
-
-        //如果有加count,加一个结果集
-        if (isIncludeCount(pageInfo.getPageExecutorType())) {
-            String id = "-count";
-            if (ms.getResultMaps() != null) {
-                id = ms.getResultMaps().get(0).getId() + "-count";
-            }
-            ResultMap resultMap = new ResultMap.Builder(null, id, Long.class, new ArrayList()).build();
-            newResultMaps.add(resultMap);
-        }
-
+    protected MappedStatement buildMappedStatement(MappedStatement ms, SqlSource sqlSource,List<ResultMap> resultMaps){
         //构建新的MappedStatement
         MappedStatement.Builder statementBuilder = new MappedStatement.Builder(ms.getConfiguration(), ms.getId(), sqlSource, ms.getSqlCommandType())
                 .resource(ms.getResource())
@@ -311,13 +199,13 @@ public abstract class AbstractPageExecutor implements PageExecutor {
                 .timeout(ms.getTimeout())
                 .statementType(ms.getStatementType())
                 .keyGenerator(ms.getKeyGenerator())
-                .keyProperty(keyProperty)
-                .keyColumn(keyColumn)
+                .keyProperty(arrayToString(ms.getKeyProperties()))
+                .keyColumn(arrayToString(ms.getKeyColumns()))
                 .databaseId(ms.getDatabaseId())
                 .lang(ms.getLang())
                 .resultOrdered(ms.isResultOrdered())
-                .resultSets(resultSet)
-                .resultMaps(newResultMaps)
+                .resultSets(arrayToString(ms.getResultSets()))
+                .resultMaps(resultMaps)
                 .resultSetType(ms.getResultSetType())
                 .flushCacheRequired(ms.isFlushCacheRequired())
                 .useCache(ms.isUseCache())
@@ -327,17 +215,114 @@ public abstract class AbstractPageExecutor implements PageExecutor {
         return statementBuilder.build();
     }
 
+
+    protected List<ResultMap> buildResultMap(PageInfo pageInfo,MappedStatement ms) {
+        List<ResultMap> resultMaps=copyResultMap(ms);
+        if (pageInfo.isIncludeTotalRows()){
+            addCountResultMap(resultMaps);
+        }
+        return resultMaps;
+    }
+
+    protected List<ResultMap> copyResultMap(MappedStatement ms) {
+        //添加count结果集映射
+        List<ResultMap> newResultMaps = new ArrayList<>();
+        for (ResultMap resultMap : ms.getResultMaps()) {
+            newResultMaps.add(resultMap);
+        }
+
+        return newResultMaps;
+    }
+
+    protected List<ResultMap> addCountResultMap(List<ResultMap> resultMaps) {
+        String id="_count_resultMap";
+        ResultMap resultMap = new ResultMap.Builder(null, id, Long.class, new ArrayList()).build();
+        resultMaps.add(resultMap);
+        return resultMaps;
+    }
+
     /**
      * 根据数据源返回数据库标记
      *
      * @param mappedStatement the mapped statement
-     * @return string
+     * @return string string
      */
+    private static Map<DataSource,String> databaseIdCache=new ConcurrentHashMap<>();
     protected String getDatabaseId(MappedStatement mappedStatement){
         String dataBaseId=mappedStatement.getDatabaseId();
         if (dataBaseId==null || dataBaseId.isEmpty()){
-            dataBaseId=new VendorDatabaseIdProvider().getDatabaseId(mappedStatement.getConfiguration().getEnvironment().getDataSource());
+            dataBaseId=databaseIdCache.get(mappedStatement.getConfiguration().getEnvironment().getDataSource());
+            if (dataBaseId==null) {
+                dataBaseId = new VendorDatabaseIdProvider().getDatabaseId(mappedStatement.getConfiguration().getEnvironment().getDataSource());
+                databaseIdCache.put(mappedStatement.getConfiguration().getEnvironment().getDataSource(),dataBaseId);
+            }
         }
         return dataBaseId;
     }
+
+    /**
+     * 分页溢出处理
+     */
+    protected boolean pageOverflowToLast(PageInfo pageInfo, MappedStatement mappedStatement, Object parameterObject){
+        if (PageMetaData.PAGE_OVERFLOW_TO_LAST){
+            if (pageInfo.getPageNum()> pageInfo.getTotalPage()){
+                pageInfo.setPageNum(pageInfo.getTotalPage());
+
+                BoundSql pageBoundSql=mappedStatement.getBoundSql(parameterObject);
+                List<ParameterMapping> parameterMappings=pageBoundSql.getParameterMappings();
+                boolean containLimitParam=false;
+                boolean containOffsetParam=false;
+                for(ParameterMapping p:parameterMappings){
+                    log.debug("params:"+p.toString());
+                    if(p.getProperty().equalsIgnoreCase(pageInfo.getLimitParamName())){
+                        containLimitParam=true;
+                    }else if(p.getProperty().equalsIgnoreCase(pageInfo.getOffsetParamName())){
+                        containOffsetParam=true;
+                    }
+                }
+                if (!containLimitParam || !containOffsetParam){
+                    log.debug("can't find limit or offset param name");
+                    return false;
+
+                }
+                //修正原来的分页参数
+                //ParameterHandler parameterHandler=new DefaultParameterHandler(mappedStatement,parameterObject,pageBoundSql);
+                setParameters(mappedStatement,parameterObject);
+                pageBoundSql.setAdditionalParameter(pageInfo.getLimitParamName(), pageInfo.getLimit());
+                pageBoundSql.setAdditionalParameter(pageInfo.getOffsetParamName(),pageInfo.getOffset());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void setParameters(MappedStatement mappedStatement, Object parameterObject) {
+        TypeHandlerRegistry typeHandlerRegistry = mappedStatement.getConfiguration().getTypeHandlerRegistry();
+        Configuration configuration=mappedStatement.getConfiguration();
+        BoundSql boundSql=mappedStatement.getBoundSql(parameterObject);
+        List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
+
+        if (parameterMappings != null) {
+            for (int i = 0; i < parameterMappings.size(); i++) {
+                ParameterMapping parameterMapping = parameterMappings.get(i);
+                if (parameterMapping.getMode() != ParameterMode.OUT) {
+                    Object value;
+                    String propertyName = parameterMapping.getProperty();
+                    //if (boundSql.hasAdditionalParameter(propertyName)) { // issue #448 ask first for additional params
+                    //    value = boundSql.getAdditionalParameter(propertyName);
+                    //} else
+                    if (parameterObject == null) {
+                        value = null;
+                    } else if (typeHandlerRegistry.hasTypeHandler(parameterObject.getClass())) {
+                        value = parameterObject;
+                    } else {
+                        MetaObject metaObject = configuration.newMetaObject(parameterObject);
+                        value = metaObject.getValue(propertyName);
+                    }
+                    boundSql.setAdditionalParameter(propertyName,value);
+                }
+            }
+        }
+    }
+
 }

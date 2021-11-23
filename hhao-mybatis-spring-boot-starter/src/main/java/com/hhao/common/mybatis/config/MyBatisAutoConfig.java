@@ -18,20 +18,12 @@
 package com.hhao.common.mybatis.config;
 
 import com.hhao.common.mybatis.page.PageMetaData;
-import com.hhao.common.mybatis.page.executor.PageExecutor;
-import com.hhao.common.mybatis.page.executor.PageExecutorBuilder;
-import com.hhao.common.mybatis.page.executor.StaticPageExecutor;
-import com.hhao.common.mybatis.page.executor.DynamicPageExecutor;
-import com.hhao.common.mybatis.page.executor.sql.SqlExecutor;
-import com.hhao.common.mybatis.page.executor.sql.SqlExecutorBuilder;
-import com.hhao.common.mybatis.page.executor.sql.SqlExecutorWithMysql;
 import com.hhao.common.mybatis.page.interceptor.PageInterceptor;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -41,9 +33,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.AbstractResourceBasedMessageSource;
 
 import java.util.List;
 
@@ -94,34 +84,9 @@ public class MyBatisAutoConfig implements ApplicationContextAware {
      * @param myBatisProperties the my batis properties
      */
     public void init(MyBatisProperties myBatisProperties){
-        if (myBatisProperties.getPageExecutors()!=null){
-            for(String name:myBatisProperties.getPageExecutors()) {
-                try {
-                    Class clazz = Class.forName(name);
-                    PageExecutor pageExecutor = (PageExecutor) BeanUtils.instantiateClass(clazz);
-                    PageExecutorBuilder.register(pageExecutor);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            PageMetaData.PRE_CACHED_PAGE= myBatisProperties.getPreCachedPage();
-            PageMetaData.POST_CACHED_PAGE= myBatisProperties.getPostCachedPage();
-        }
-        if (myBatisProperties.getSqlExecutors()!=null){
-            for(String name:myBatisProperties.getSqlExecutors()) {
-                try {
-                    Class clazz = Class.forName(name);
-                    SqlExecutor sqlExecutor = (SqlExecutor) BeanUtils.instantiateClass(clazz);
-                    SqlExecutorBuilder.register(sqlExecutor);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        //默认注册的跟在最后
-        PageExecutorBuilder.register(new DynamicPageExecutor());
-        PageExecutorBuilder.register(new StaticPageExecutor());
-        SqlExecutorBuilder.register(new SqlExecutorWithMysql());
+        PageMetaData.PRE_CACHED_PAGE= myBatisProperties.getPreCachedPage();
+        PageMetaData.POST_CACHED_PAGE= myBatisProperties.getPostCachedPage();
+        PageMetaData.PAGE_SIZE_LIMIT=myBatisProperties.getPageSizeLimit();
     }
 
     /**

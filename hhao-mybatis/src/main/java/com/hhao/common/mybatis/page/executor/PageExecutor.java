@@ -16,6 +16,8 @@
 
 package com.hhao.common.mybatis.page.executor;
 
+import com.hhao.common.mybatis.page.PageInfo;
+import com.hhao.common.mybatis.page.executor.sql.SqlExecutor;
 import org.apache.ibatis.plugin.Invocation;
 
 /**
@@ -25,20 +27,16 @@ import org.apache.ibatis.plugin.Invocation;
  * @since 1.0.0
  */
 public interface PageExecutor {
-    /**
-     * 是否支持本次拦截
-     *
-     * @param invocation the invocation
-     * @return boolean
-     */
-    boolean support(Invocation invocation);
+
+    SqlExecutor getSqlExecutor(PageInfo pageInfo,String dbName);
 
     /**
      * 拦截处理
      *
      * @param invocation the invocation
-     * @return object
+     * @param pageInfo   the page info
+     * @return object object
      * @throws Throwable the throwable
      */
-    Object execute(Invocation invocation) throws Throwable;
+    Object execute(Invocation invocation, PageInfo pageInfo) throws Throwable;
 }

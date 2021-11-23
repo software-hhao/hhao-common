@@ -30,22 +30,30 @@ public class PageMetaData {
     /**
      * 默认的limit参数的名称
      */
-    public static String LIMIT_PARAM_NAME="LIMIT_PARAM";
+    public static String LIMIT_PARAM_NAME="PAGE_INFO.limit";
     /**
      * 默认的offset参数的名称
      */
-    public static String OFFSET_PARAM_NAME="OFFSET_PARAM";
+    public static String OFFSET_PARAM_NAME="PAGE_INFO.offset";
 
     /**
      * 默认情况下向前缓冲的页数
      */
-    public static Integer PRE_CACHED_PAGE=0;
+    public static Long PRE_CACHED_PAGE=0L;
     /**
      * 默认情况下向后缓冲的页数
      */
-    public static Integer POST_CACHED_PAGE=0;
+    public static Long POST_CACHED_PAGE=0L;
     /**
      * 默认情况页面大小
      */
-    public static Integer PAGE_SIZE=10;
+    public static Long PAGE_SIZE=10L;
+
+    public static Long PAGE_SIZE_LIMIT=20L;
+
+    /**
+     * 是否支持分页溢出跳转到最后一页
+     * 需要正确指定PageInfo#setLimitParamName、PageInfo#setOffsetParamName
+     */
+    public static Boolean PAGE_OVERFLOW_TO_LAST=true;
 }

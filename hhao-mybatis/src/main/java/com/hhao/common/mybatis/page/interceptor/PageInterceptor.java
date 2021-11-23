@@ -16,8 +16,9 @@
 
 package com.hhao.common.mybatis.page.interceptor;
 
-import com.hhao.common.mybatis.page.executor.PageExecutor;
-import com.hhao.common.mybatis.page.executor.PageExecutorBuilder;
+import com.hhao.common.mybatis.page.PageInfo;
+import com.hhao.common.mybatis.page.PageMetaData;
+import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
@@ -28,7 +29,9 @@ import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
+import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -42,14 +45,14 @@ import java.util.Properties;
 })
 public class PageInterceptor implements Interceptor {
     private static final Log log = LogFactory.getLog(PageInterceptor.class);
+    private final String DEFAULT_PAGE_INFO_PARAM_NAME = PageMetaData.PAGE_INFO_PARAM_NAME;
     private Properties properties;
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
-        PageExecutor pageExecutor= PageExecutorBuilder.findPageExecutor(invocation);
-        if (pageExecutor!=null){
-            log.debug("find PageExecutor");
-            return pageExecutor.execute(invocation);
+        PageInfo pageInfo=getPageInfo(invocation);
+        if (pageInfo!=null){
+            return pageInfo.getPageExecutor().execute(invocation,pageInfo);
         }
         log.debug("no find PageExecutor");
         return invocation.proceed();
@@ -63,5 +66,64 @@ public class PageInterceptor implements Interceptor {
     @Override
     public void setProperties(Properties properties) {
         this.properties=properties;
+    }
+
+
+    /**
+     * Gets page info.
+     *
+     * @param invocation the invocation
+     * @return the page info
+     */
+    protected PageInfo getPageInfo(Invocation invocation) {
+        Object[] args = invocation.getArgs();
+        MappedStatement mappedStatement = (MappedStatement) args[0];
+        Object parameter = args[1];
+        //获取PageInfo参数，如果未获取，则不支持
+        return getPageInfo(parameter);
+    }
+
+    /**
+     * 获取PageInfo参数
+     *
+     * @param parameter the parameter
+     * @return page info
+     */
+    protected PageInfo getPageInfo(Object parameter) {
+        PageInfo pageInfo = null;
+        //针对动态SQL的SelectStatementProvider
+        if (parameter instanceof SelectStatementProvider) {
+            Map<String, Object> parameters=((SelectStatementProvider) parameter).getParameters();
+            //先按名称查PageInfo参数
+            pageInfo = (PageInfo) ((SelectStatementProvider) parameter).getParameters().get(DEFAULT_PAGE_INFO_PARAM_NAME);
+            //再按类型查PageInfo参数
+            if (pageInfo==null){
+                for(Map.Entry<String, Object> entry:parameters.entrySet()){
+                    if (entry.getValue() instanceof PageInfo){
+                        pageInfo=(PageInfo)entry.getValue();
+                        break;
+                    }
+                }
+            }
+        } else if (parameter instanceof MapperMethod.ParamMap) {
+            //针对Mapper传参
+            //先按名称
+            MapperMethod.ParamMap paramMap = (MapperMethod.ParamMap) parameter;
+            try {
+                pageInfo = (PageInfo) paramMap.get(DEFAULT_PAGE_INFO_PARAM_NAME);
+            } catch (Exception e) {
+            }
+            //再按类型
+            if (pageInfo==null){
+                for(Object key:paramMap.keySet()){
+                    Object value=paramMap.get(key);
+                    if (value instanceof PageInfo){
+                        pageInfo=(PageInfo) value;
+                        break;
+                    }
+                }
+            }
+        }
+        return pageInfo;
     }
 }

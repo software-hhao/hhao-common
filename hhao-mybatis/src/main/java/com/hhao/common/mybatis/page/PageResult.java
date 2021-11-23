@@ -33,6 +33,9 @@ public class PageResult<T> implements Page<T>{
     private long postCachedPage;
     private long totalRow;
     private long totalPage;
+    private boolean includeTotalRows=true;
+    private OrderDirection orderDirection=OrderDirection.ASC;
+    private String [] orderColumns;
 
     private Map<Integer, List<T>> result;
 
@@ -62,8 +65,36 @@ public class PageResult<T> implements Page<T>{
     }
 
     @Override
+    public boolean isIncludeTotalRows() {
+        return this.includeTotalRows;
+    }
+
+    @Override
+    public String[] getOrderColumns() {
+        return this.orderColumns;
+    }
+
+    @Override
+    public OrderDirection getOrderDirection() {
+        return this.orderDirection;
+    }
+
+    @Override
     public Map<Integer, List<T>> getResult() {
         return this.result;
+    }
+
+
+    public void setIncludeTotalRows(boolean includeTotalRows) {
+        this.includeTotalRows = includeTotalRows;
+    }
+
+    public void setOrderDirection(OrderDirection orderDirection) {
+        this.orderDirection = orderDirection;
+    }
+
+    public void setOrderColumns(String[] orderColumns) {
+        this.orderColumns = orderColumns;
     }
 
     /**
