@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018-2021 WangSheng.
  *
@@ -14,22 +15,24 @@
  * limitations under the License.
  */
 
-package com.hhao.common.mybatis.page.executor.sql.parse;
+package com.hhao.common.mybatis.page.executor.sql;
 
-import java.util.List;
+import com.hhao.common.mybatis.page.PageInfo;
 
 /**
- * The interface Parse.
- *
- * @author Wang
- * @since 2021 /11/20 14:08
+ * The type Sql executor factory.
  */
-public interface SqlParse {
+public class SqlExecutorFactory {
+    private static SqlExecutor sqlExecutor=new DefaultSqlExecutor();
+
     /**
-     * 将sql解析成token
+     * Get sql executor sql executor.
      *
-     * @param sql       the sql
-     * @return the parse result
+     * @param pageInfo the page info
+     * @param dbName   the db name
+     * @return the sql executor
      */
-    List<TokenInfo> parseSql(String sql);
+    public static SqlExecutor getSqlExecutor(PageInfo pageInfo,String dbName){
+        return sqlExecutor;
+    }
 }

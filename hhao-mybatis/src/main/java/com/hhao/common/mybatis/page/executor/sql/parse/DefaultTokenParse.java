@@ -16,7 +16,12 @@
 
 package com.hhao.common.mybatis.page.executor.sql.parse;
 
-import com.hhao.common.mybatis.page.executor.sql.token.*;
+import com.hhao.common.mybatis.page.executor.sql.token.FragmentToken;
+import com.hhao.common.mybatis.page.executor.sql.token.ParamToken;
+import com.hhao.common.mybatis.page.executor.sql.token.SelectToken;
+import com.hhao.common.mybatis.page.executor.sql.token.Token;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,13 +62,17 @@ import java.util.Stack;
  *   | INTO DUMPFILE 'file_name'
  *   | INTO var_name [, var_name] ...
  * }
- * }*
+ * }**
  * </pre>
  *
  * @author Wang
  * @since 2021 /11/18 19:46
  */
 public class DefaultTokenParse implements TokenParse {
+    /**
+     * The Logger.
+     */
+    protected final Log logger = LogFactory.getLog(this.getClass());
     /**
      * token清除规则
      */
@@ -81,11 +90,13 @@ public class DefaultTokenParse implements TokenParse {
      */
     protected boolean union = false;
     /**
-     * 语句中是否包含count
+     * The Contain limit.
      */
-    protected boolean containCount=false;
     protected boolean containLimit=false;
 
+    /**
+     * The Token infos.
+     */
     protected List<TokenInfo> tokenInfos = new ArrayList<>();
     /**
      * 是否跳过order by 子句
@@ -225,16 +236,16 @@ public class DefaultTokenParse implements TokenParse {
      * 如果为true,保留
      * 如果为false,去除
      *
-     * @param token
-     * @return
+     * @param token the token
+     * @return boolean
      */
     protected boolean filterClean(Token token) {
         FragmentToken currentFragment = this.getCurrentFragment();
-        if (currentFragment.getValue().equalsIgnoreCase("order")) {
+        if (SqlKeyword.ORDER.getValue().equalsIgnoreCase(currentFragment.getValue())) {
             token.setClean(skipOrderBy);
-        } else if (currentFragment.getValue().equalsIgnoreCase("limit")) {
+        } else if (SqlKeyword.LIMIT.getValue().equalsIgnoreCase(currentFragment.getValue())) {
             token.setClean(skipLimit);
-        } else if (currentFragment.getValue().equalsIgnoreCase("offset")) {
+        } else if (SqlKeyword.OFFSET.getValue().equalsIgnoreCase(currentFragment.getValue())) {
             token.setClean(skipOffset);
         } else if (getRootSelectToken() != null && getRootSelectToken().getFromToken() == null) {
             token.setClean(skipRootSelectItems);
@@ -251,7 +262,7 @@ public class DefaultTokenParse implements TokenParse {
      * @return the token
      */
     protected Token filterParam(Token token) {
-        if (token.getValue().equalsIgnoreCase("?")) {
+        if (SqlKeyword.PARAM.getValue().equalsIgnoreCase(token.getValue())) {
             ParamToken paramToken = ParamToken.of(token);
             paramToken.setParamIndex(paramIndex);
             paramIndex++;
@@ -270,20 +281,20 @@ public class DefaultTokenParse implements TokenParse {
     protected Token filterParentheses(Token token) {
         FragmentToken leftToken = null;
         FragmentToken rightToken = null;
-        if (token.getValue().equalsIgnoreCase("(")) {
+        if (SqlKeyword.LEFT_PARENTHESIS.getValue().equalsIgnoreCase(token.getValue())) {
             leftToken = FragmentToken.of(token);
             parenthesesStack.push(leftToken);
             leftToken.setBeginToken(leftToken);
             token = leftToken;
-        } else if (token.getValue().equalsIgnoreCase(")")) {
+        } else if (SqlKeyword.RIGHT_PARENTHESIS.getValue().equalsIgnoreCase(token.getValue())) {
             rightToken = FragmentToken.of(token);
             leftToken = (FragmentToken) parenthesesStack.pop();
             leftToken.setEndToken(rightToken);
             rightToken.setBeginToken(leftToken);
             rightToken.setEndToken(rightToken);
 
-            Token leftNext = this.getNext(leftToken);
-            if (leftNext.getValue().equalsIgnoreCase("select")) {
+            Token leftNext = this.getNextToken(leftToken);
+            if (SqlKeyword.SELECT.getValue().equalsIgnoreCase(leftNext.getValue())) {
                 currentFragmentStack.pop();
             }
 
@@ -293,8 +304,11 @@ public class DefaultTokenParse implements TokenParse {
     }
 
 
+    /**
+     * The Select finish tag.
+     */
     protected String[] selectFinishTag = new String[]{
-            "union"
+            SqlKeyword.UNION.getValue()
     };
 
     /**
@@ -306,17 +320,16 @@ public class DefaultTokenParse implements TokenParse {
     protected boolean selectFragmentFinish(Token token) {
         FragmentToken currentFragment = this.getCurrentFragment();
 
-        //if (this.getCurrentFragment().getValue().equalsIgnoreCase("select")) {
         if (matchAny(token, selectFinishTag)) {
             return true;
         }
-        if (token.getValue().equalsIgnoreCase(")")) {
+        if (SqlKeyword.RIGHT_PARENTHESIS.getValue().equalsIgnoreCase(token.getValue())) {
             FragmentToken rightToken = (FragmentToken) token;
-            if (this.getNext(rightToken.getBeginToken()).getValue().equalsIgnoreCase("select")) {
+            Token nexToken=this.getNextToken(rightToken.getBeginToken());
+            if (nexToken!=null && SqlKeyword.SELECT.getValue().equalsIgnoreCase(nexToken.getValue())){
                 return true;
             }
         }
-        //}
         return false;
     }
 
@@ -327,7 +340,7 @@ public class DefaultTokenParse implements TokenParse {
      * @return the token
      */
     protected Token filterSelect(Token token) {
-        if (token.getValue().equalsIgnoreCase("select")) {
+        if (SqlKeyword.SELECT.getValue().equalsIgnoreCase(token.getValue())) {
             SelectToken selectToken = SelectToken.of(token);
             selectToken.setBeginToken(selectToken);
 
@@ -347,8 +360,18 @@ public class DefaultTokenParse implements TokenParse {
         return token;
     }
 
+    /**
+     * The From finish tag.
+     */
     protected String[] fromFinishTag = new String[]{
-            "where", "group", "order", "limit", "offset", "for", ";", "union"
+            SqlKeyword.WHERE.getValue(),
+            SqlKeyword.GROUP.getValue(),
+            SqlKeyword.ORDER.getValue(),
+            SqlKeyword.LIMIT.getValue(),
+            SqlKeyword.OFFSET.getValue(),
+            SqlKeyword.FOR.getValue(),
+            SqlKeyword.UNION.getValue(),
+            SqlKeyword.SEPARATOR.getValue()
     };
 
     /**
@@ -360,7 +383,7 @@ public class DefaultTokenParse implements TokenParse {
     protected boolean fromFragmentFinish(Token token) {
         FragmentToken currentFragment = this.getCurrentFragment();
 
-        if (this.getCurrentFragment().getValue().equalsIgnoreCase("from")) {
+        if (currentFragment!=null && SqlKeyword.FROM.getValue().equalsIgnoreCase(currentFragment.getValue())) {
             if (matchAny(token, fromFinishTag)) {
                 return true;
             }
@@ -375,7 +398,7 @@ public class DefaultTokenParse implements TokenParse {
      * @return the token
      */
     protected Token filterFrom(Token token) {
-        if (token.getValue().equalsIgnoreCase("from")) {
+        if (SqlKeyword.FROM.getValue().equalsIgnoreCase(token.getValue())) {
             FragmentToken fromToken = FragmentToken.of(token);
             fromStack.push(fromToken);
             currentFragmentStack.push(fromToken);
@@ -397,8 +420,17 @@ public class DefaultTokenParse implements TokenParse {
         return token;
     }
 
+    /**
+     * The Where finish tag.
+     */
     protected String[] whereFinishTag = new String[]{
-            "group", "order", "limit", "offset", "for", ";", "union"
+            SqlKeyword.GROUP.getValue(),
+            SqlKeyword.ORDER.getValue(),
+            SqlKeyword.LIMIT.getValue(),
+            SqlKeyword.OFFSET.getValue(),
+            SqlKeyword.FOR.getValue(),
+            SqlKeyword.UNION.getValue(),
+            SqlKeyword.SEPARATOR.getValue()
     };
 
     /**
@@ -410,7 +442,7 @@ public class DefaultTokenParse implements TokenParse {
     protected boolean whereFragmentFinish(Token token) {
         FragmentToken currentFragment = this.getCurrentFragment();
 
-        if (this.getCurrentFragment().getValue().equalsIgnoreCase("where")) {
+        if (currentFragment!=null && SqlKeyword.WHERE.getValue().equalsIgnoreCase(currentFragment.getValue())) {
             if (matchAny(token, whereFinishTag)) {
                 return true;
             }
@@ -425,7 +457,7 @@ public class DefaultTokenParse implements TokenParse {
      * @return the token
      */
     protected Token filterWhere(Token token) {
-        if (token.getValue().equalsIgnoreCase("where")) {
+        if (SqlKeyword.WHERE.getValue().equalsIgnoreCase(token.getValue())) {
             FragmentToken whereToken = FragmentToken.of(token);
 
             whereStack.push(whereToken);
@@ -445,8 +477,17 @@ public class DefaultTokenParse implements TokenParse {
         return token;
     }
 
+    /**
+     * The Group by finish tag.
+     */
     protected String[] groupByFinishTag = new String[]{
-            "having", "order", "limit", "offset", "for", ";", "union"
+            SqlKeyword.HAVING.getValue(),
+            SqlKeyword.ORDER.getValue(),
+            SqlKeyword.LIMIT.getValue(),
+            SqlKeyword.OFFSET.getValue(),
+            SqlKeyword.FOR.getValue(),
+            SqlKeyword.UNION.getValue(),
+            SqlKeyword.SEPARATOR.getValue()
     };
 
     /**
@@ -458,7 +499,7 @@ public class DefaultTokenParse implements TokenParse {
     protected boolean groupByFragmentFinish(Token token) {
         FragmentToken currentFragment = this.getCurrentFragment();
 
-        if (this.getCurrentFragment().getValue().equalsIgnoreCase("group")) {
+        if (currentFragment!=null && SqlKeyword.GROUP.getValue().equalsIgnoreCase(currentFragment.getValue())) {
             if (matchAny(token, groupByFinishTag)) {
                 return true;
             }
@@ -473,7 +514,7 @@ public class DefaultTokenParse implements TokenParse {
      * @return the token
      */
     protected Token filterGroupBy(Token token) {
-        if (token.getValue().equalsIgnoreCase("group")) {
+        if (SqlKeyword.GROUP.getValue().equalsIgnoreCase(token.getValue())) {
             FragmentToken groupByToken = FragmentToken.of(token);
             groupByStack.push(groupByToken);
             currentFragmentStack.push(groupByToken);
@@ -492,8 +533,16 @@ public class DefaultTokenParse implements TokenParse {
         return token;
     }
 
+    /**
+     * The Having finish tag.
+     */
     protected String[] havingFinishTag = new String[]{
-            "order", "limit", "offset", "for", ";", "union"
+            SqlKeyword.ORDER.getValue(),
+            SqlKeyword.LIMIT.getValue(),
+            SqlKeyword.OFFSET.getValue(),
+            SqlKeyword.FOR.getValue(),
+            SqlKeyword.UNION.getValue(),
+            SqlKeyword.SEPARATOR.getValue()
     };
 
     /**
@@ -505,7 +554,7 @@ public class DefaultTokenParse implements TokenParse {
     protected boolean havingFragmentFinish(Token token) {
         FragmentToken currentFragment = this.getCurrentFragment();
 
-        if (this.getCurrentFragment().getValue().equalsIgnoreCase("having")) {
+        if (currentFragment!=null && SqlKeyword.HAVING.getValue().equalsIgnoreCase(currentFragment.getValue())) {
             if (matchAny(token, havingFinishTag)) {
                 return true;
             }
@@ -520,7 +569,7 @@ public class DefaultTokenParse implements TokenParse {
      * @return the token
      */
     protected Token filterHaving(Token token) {
-        if (token.getValue().equalsIgnoreCase("having")) {
+        if (SqlKeyword.HAVING.getValue().equalsIgnoreCase(token.getValue())) {
             FragmentToken havingToken = FragmentToken.of(token);
             havingStack.push(havingToken);
             currentFragmentStack.push(havingToken);
@@ -538,8 +587,15 @@ public class DefaultTokenParse implements TokenParse {
         return token;
     }
 
+    /**
+     * The Order by finish tag.
+     */
     protected String[] orderByFinishTag = new String[]{
-            "limit", "offset", "for", ";", "union"
+            SqlKeyword.LIMIT.getValue(),
+            SqlKeyword.OFFSET.getValue(),
+            SqlKeyword.FOR.getValue(),
+            SqlKeyword.UNION.getValue(),
+            SqlKeyword.SEPARATOR.getValue()
     };
 
     /**
@@ -551,7 +607,7 @@ public class DefaultTokenParse implements TokenParse {
     protected boolean orderByFragmentFinish(Token token) {
         FragmentToken currentFragment = this.getCurrentFragment();
 
-        if (this.getCurrentFragment().getValue().equalsIgnoreCase("order")) {
+        if (currentFragment!=null && SqlKeyword.ORDER.getValue().equalsIgnoreCase(currentFragment.getValue())) {
             if (matchAny(token, orderByFinishTag)) {
                 return true;
             }
@@ -567,7 +623,7 @@ public class DefaultTokenParse implements TokenParse {
      * @return the token
      */
     protected Token filterOrderBy(Token token) {
-        if (token.getValue().equalsIgnoreCase("order")) {
+        if (SqlKeyword.ORDER.getValue().equalsIgnoreCase(token.getValue())) {
             FragmentToken orderByToken = FragmentToken.of(token);
             orderByStack.push(orderByToken);
             currentFragmentStack.push(orderByToken);
@@ -590,8 +646,14 @@ public class DefaultTokenParse implements TokenParse {
         return token;
     }
 
+    /**
+     * The Limit finish tag.
+     */
     protected String[] limitFinishTag = new String[]{
-            "offset", "for", ";", "union"
+            SqlKeyword.OFFSET.getValue(),
+            SqlKeyword.FOR.getValue(),
+            SqlKeyword.UNION.getValue(),
+            SqlKeyword.SEPARATOR.getValue()
     };
 
     /**
@@ -603,7 +665,7 @@ public class DefaultTokenParse implements TokenParse {
     protected boolean limitFragmentFinish(Token token) {
         FragmentToken currentFragment = this.getCurrentFragment();
 
-        if (this.getCurrentFragment().getValue().equalsIgnoreCase("limit")) {
+        if (currentFragment!=null && SqlKeyword.LIMIT.getValue().equalsIgnoreCase(currentFragment.getValue())) {
             if (matchAny(token, limitFinishTag)) {
                 return true;
             }
@@ -618,7 +680,7 @@ public class DefaultTokenParse implements TokenParse {
      * @return the token
      */
     protected Token filterLimit(Token token) {
-        if (token.getValue().equalsIgnoreCase("limit")) {
+        if (SqlKeyword.LIMIT.getValue().equalsIgnoreCase(token.getValue())) {
             FragmentToken limitToken = FragmentToken.of(token);
             limitStack.push(limitToken);
             currentFragmentStack.push(limitToken);
@@ -641,8 +703,13 @@ public class DefaultTokenParse implements TokenParse {
         return token;
     }
 
+    /**
+     * The Offset finish tag.
+     */
     protected String[] offsetFinishTag = new String[]{
-            "for", ";", "union"
+            SqlKeyword.FOR.getValue(),
+            SqlKeyword.UNION.getValue(),
+            SqlKeyword.SEPARATOR.getValue()
     };
 
     /**
@@ -654,7 +721,7 @@ public class DefaultTokenParse implements TokenParse {
     protected boolean offsetFragmentFinish(Token token) {
         FragmentToken currentFragment = this.getCurrentFragment();
 
-        if (this.getCurrentFragment().getValue().equalsIgnoreCase("offset")) {
+        if (currentFragment!=null && SqlKeyword.OFFSET.getValue().equalsIgnoreCase(currentFragment.getValue())) {
             if (matchAny(token, offsetFinishTag)) {
                 return true;
             }
@@ -669,7 +736,7 @@ public class DefaultTokenParse implements TokenParse {
      * @return the token
      */
     protected Token filterOffset(Token token) {
-        if (token.getValue().equalsIgnoreCase("offset")) {
+        if (SqlKeyword.OFFSET.getValue().equalsIgnoreCase(token.getValue())) {
             FragmentToken offsetToken = FragmentToken.of(token);
             offsetStack.push(offsetToken);
             currentFragmentStack.push(offsetToken);
@@ -692,8 +759,13 @@ public class DefaultTokenParse implements TokenParse {
         return token;
     }
 
+    /**
+     * The Union finish tag.
+     */
     protected String[] unionFinishTag = new String[]{
-            "all", "distinct", "select"
+            SqlKeyword.ALL.getValue(),
+            SqlKeyword.DISTINCT.getValue(),
+            SqlKeyword.SELECT.getValue()
     };
 
     /**
@@ -705,7 +777,7 @@ public class DefaultTokenParse implements TokenParse {
     protected boolean unionFragmentFinish(Token token) {
         FragmentToken currentFragment = this.getCurrentFragment();
 
-        if (this.getCurrentFragment().getValue().equalsIgnoreCase("union")) {
+        if (currentFragment!=null && SqlKeyword.UNION.getValue().equalsIgnoreCase(currentFragment.getValue())) {
             if (matchAny(token, unionFinishTag)) {
                 return true;
             }
@@ -720,7 +792,7 @@ public class DefaultTokenParse implements TokenParse {
      * @return the token
      */
     protected Token filterUnion(Token token) {
-        if (token.getValue().equalsIgnoreCase("union")) {
+        if (SqlKeyword.UNION.getValue().equalsIgnoreCase(token.getValue())) {
             FragmentToken unionToken = FragmentToken.of(token);
             unionStack.push(unionToken);
             currentFragmentStack.push(unionToken);
@@ -739,42 +811,73 @@ public class DefaultTokenParse implements TokenParse {
         return token;
     }
 
+    /**
+     * Filter other.
+     *
+     * @param token the token
+     */
     protected void filterOther(Token token){
-        //判断是否包含count
-        if (token.getValue().equalsIgnoreCase("count")){
-            containCount=true;
-        }
-        if (token.getValue().equalsIgnoreCase("limit")){
+        if (SqlKeyword.LIMIT.getValue().equalsIgnoreCase(token.getValue())){
             containLimit=true;
         }
     }
 
+    /**
+     * Check finish one query sql boolean.
+     *
+     * @param token the token
+     * @return the boolean
+     */
     protected boolean checkFinishOneQuerySql(Token token){
-        if (token.getValue().equalsIgnoreCase(";")) {
+        if (SqlKeyword.SEPARATOR.getValue().equalsIgnoreCase(token.getValue())) {
             return true;
         }
         return false;
     }
 
+    /**
+     * 一条sql语句结束后的处理
+     */
     protected void finish() {
-        SelectToken selectToken = (SelectToken)selectStack.pop();
-        selectToken.setEndToken(tokens.get(tokens.size() - 1));
+        if (!selectStack.empty()) {
+            SelectToken selectToken = (SelectToken) selectStack.pop();
+            selectToken.setEndToken(tokens.get(tokens.size() - 1));
 
-        tokenInfos.add(new DefaultTokenInfo(tokens, paramTokens,union,containCount,containLimit));
-        tokens =new ArrayList<>();
-        paramTokens =new ArrayList<>();
-        union=false;
-        containCount=false;
-        containLimit=false;
+            tokenInfos.add(new DefaultTokenInfo(tokens, paramTokens,union,containLimit));
+            tokens =new ArrayList<>();
+            paramTokens =new ArrayList<>();
+            union=false;
+            containLimit=false;
+        }
     }
 
-    protected Token getNext(Token token) {
+    /**
+     * Gets next.
+     *
+     * @param token the token
+     * @return the next
+     */
+    protected Token getNextToken(Token token) {
         if (token.getIndex() > 0 && (token.getIndex() + 1) < tokens.size()) {
             return tokens.get(token.getIndex() + 1);
         }
         return null;
     }
 
+    protected Token getLastToken() {
+        if (tokens.size()>0) {
+            return tokens.get(tokens.size()-1);
+        }
+        return null;
+    }
+
+    /**
+     * 判断values中是否包含token
+     *
+     * @param token  the token
+     * @param values the values
+     * @return the boolean
+     */
     protected boolean matchAny(Token token, String[] values) {
         for (String v : values) {
             if (v.equalsIgnoreCase(token.getValue())) {
@@ -808,6 +911,11 @@ public class DefaultTokenParse implements TokenParse {
         return (SelectToken) selectStack.peek();
     }
 
+    /**
+     * Gets root select token.
+     *
+     * @return the root select token
+     */
     protected SelectToken getRootSelectToken() {
         if (selectStack.empty()) {
             return null;

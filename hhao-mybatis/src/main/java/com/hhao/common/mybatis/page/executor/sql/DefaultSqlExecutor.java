@@ -16,64 +16,32 @@
 package com.hhao.common.mybatis.page.executor.sql;
 
 import com.hhao.common.mybatis.page.PageInfo;
+import com.hhao.common.mybatis.page.executor.sql.dialect.Dialect;
+import com.hhao.common.mybatis.page.executor.sql.dialect.DialectFactory;
 import com.hhao.common.mybatis.page.executor.sql.parse.SqlParse;
 import com.hhao.common.mybatis.page.executor.sql.parse.TokenInfo;
 import com.hhao.common.mybatis.page.executor.sql.token.ParamToken;
 import com.hhao.common.mybatis.page.executor.sql.token.Token;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * sql执行器基类
- * 提供了support基本判断和其它一些方法
+ * sql执行器类
  *
  * @author Wang
  * @since 1.0.0
  */
-public abstract class AbstractSqlExecutor implements SqlExecutor {
-    protected String [] supportDbs;
-    protected SqlParse.Builder parseBuilder;
-
-    public AbstractSqlExecutor(String [] supportDbs,SqlParse.Builder parseBuilder){
-        this.supportDbs=supportDbs;
-        this.parseBuilder=parseBuilder;
-    }
-
-    public AbstractSqlExecutor(String [] supportDbs){
-        this(supportDbs,SqlParse.builder);
-    }
+public class DefaultSqlExecutor implements SqlExecutor {
+    private final Log logger = LogFactory.getLog(this.getClass());
 
     @Override
-    public boolean support(PageInfo pageInfo, String databaseId) {
-        if (databaseId == null || databaseId.isEmpty()) {
-            return true;
-        }
-        if (dbSupport(databaseId)) {
-            return true;
-        }
-        return false;
-    }
+    public SqlPageModel generalSqlPageModel(PageInfo pageInfo, String sql, List<Object> paramMappings,String dbName){
+        Dialect dialect=findDialect(pageInfo,dbName);
+        SqlParse parse=dialect.getSqlParse(pageInfo,dbName);
 
-    /**
-     * 判断是否支持数据库
-     * @param databaseId:数据库标记
-     * @return
-     */
-    private boolean dbSupport(String databaseId){
-        databaseId=databaseId.toLowerCase();
-        for(String db:supportDbs){
-            if (databaseId.indexOf(db.toLowerCase())!=-1){
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-    @Override
-    public SqlPageModel generalSqlPageModel(PageInfo pageInfo, String sql, List<Object> paramMappings){
-        SqlParse parse=parseBuilder.build();
         //解析原始的sql语句
         List<TokenInfo> tokenInfos=parse.parseSql(sql);
         //定位select与count语句
@@ -92,14 +60,14 @@ public abstract class AbstractSqlExecutor implements SqlExecutor {
 
         //对select语句进行处理
         SqlModel selectSqlModel=null;
-        if (!select.isContainLimit()){
+        if (!dialect.hasPaged(pageInfo,select)){
             //说明未包含分页，需要处理
             if(count!=null){
                 //如果是多语句,则解析出select的参数
-                selectSqlModel=buildPageSql(pageInfo,select,resolveParams(select,paramMappings));
+                selectSqlModel=dialect.buildPageSql(pageInfo,select,resolveParams(select,paramMappings));
             }else{
                 //如果是单语句,则参数直接使用
-                selectSqlModel=buildPageSql(pageInfo,select,paramMappings);
+                selectSqlModel=dialect.buildPageSql(pageInfo,select,paramMappings);
             }
         }else{
             //说明已经包含了分页，直接解析成selectSqlModel
@@ -118,7 +86,7 @@ public abstract class AbstractSqlExecutor implements SqlExecutor {
         if (pageInfo.isIncludeTotalRows()){
             if (count==null){
                 //说明不存在count语句
-                countSqlModel=buildCountSql(pageInfo,select,paramMappings);
+                countSqlModel=dialect.buildCountSql(pageInfo,select,paramMappings);
             }else{
                 //说明存在count语句
                 countSqlModel=new SqlModel();
@@ -142,7 +110,7 @@ public abstract class AbstractSqlExecutor implements SqlExecutor {
         return params;
     }
 
-    public abstract SqlModel buildPageSql(PageInfo pageInfo, TokenInfo selectSql, List<Object> paramMappings);
-
-    public abstract SqlModel buildCountSql(PageInfo pageInfo, TokenInfo selectSql, List<Object> paramMappings);
+    private Dialect findDialect(PageInfo pageInfo,String dbName){
+        return DialectFactory.getDialect(pageInfo,dbName);
+    }
 }

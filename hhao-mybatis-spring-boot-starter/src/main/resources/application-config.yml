@@ -6,3 +6,7 @@ com:
         postCachedPage: 3
         pageSizeLimit: 20
         pageOverflowToLast: true
+        supportMultiQueries: true
+        sqlDialects:
+          -
+

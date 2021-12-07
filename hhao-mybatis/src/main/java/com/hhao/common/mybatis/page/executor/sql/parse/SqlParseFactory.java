@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018-2021 WangSheng.
  *
@@ -16,20 +17,18 @@
 
 package com.hhao.common.mybatis.page.executor.sql.parse;
 
-import java.util.List;
-
 /**
- * The interface Parse.
- *
- * @author Wang
- * @since 2021 /11/20 14:08
+ * The type Sql parse factory.
  */
-public interface SqlParse {
+public class SqlParseFactory {
+
     /**
-     * 将sql解析成token
+     * SqlParse非线程安全
      *
-     * @param sql       the sql
-     * @return the parse result
+     * @param dbName the db name
+     * @return the sql parse
      */
-    List<TokenInfo> parseSql(String sql);
+    public static SqlParse getSqlParse(String dbName){
+        return new DefaultSqlParse();
+    }
 }

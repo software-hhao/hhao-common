@@ -26,15 +26,15 @@ public class PageMetaData {
     /**
      * 默认的PageInfo传递参数的名称
      */
-    public static String PAGE_INFO_PARAM_NAME="PAGE_INFO";
+    public static String PAGE_INFO_PARAM_NAME="pageInfo";
     /**
      * 默认的limit参数的名称
      */
-    public static String LIMIT_PARAM_NAME="PAGE_INFO.limit";
+    public static String LIMIT_PARAM_NAME="pageInfo.limit";
     /**
      * 默认的offset参数的名称
      */
-    public static String OFFSET_PARAM_NAME="PAGE_INFO.offset";
+    public static String OFFSET_PARAM_NAME="pageInfo.offset";
 
     /**
      * 默认情况下向前缓冲的页数
@@ -49,6 +49,9 @@ public class PageMetaData {
      */
     public static Long PAGE_SIZE=10L;
 
+    /**
+     * The constant PAGE_SIZE_LIMIT.
+     */
     public static Long PAGE_SIZE_LIMIT=20L;
 
     /**
@@ -56,4 +59,9 @@ public class PageMetaData {
      * 需要正确指定PageInfo#setLimitParamName、PageInfo#setOffsetParamName
      */
     public static Boolean PAGE_OVERFLOW_TO_LAST=true;
+
+    /**
+     * The constant SUPPORT_MULTI_QUERIES.
+     */
+    public static Boolean SUPPORT_MULTI_QUERIES=false;
 }

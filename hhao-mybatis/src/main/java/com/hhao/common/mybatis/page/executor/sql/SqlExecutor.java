@@ -27,16 +27,14 @@ import java.util.List;
  * @since 1.0.0
  */
 public interface SqlExecutor {
-
-
     /**
-     * 判断是否支持处理某个拦截语句
-     * @param pageInfo
-     * @param databaseId
-     * @return
+     * General sql page model sql page model.
+     *
+     * @param pageInfo      the page info
+     * @param sql           原始的sql语句
+     * @param paramMappings 原始的sql语句带的参数
+     * @param dbName        the db name
+     * @return the sql page model
      */
-    boolean support(PageInfo pageInfo,String databaseId);
-
-
-    SqlPageModel generalSqlPageModel(PageInfo pageInfo,String sql,List<Object> paramMappings);
+    SqlPageModel generalSqlPageModel(PageInfo pageInfo,String sql,List<Object> paramMappings,String dbName);
 }

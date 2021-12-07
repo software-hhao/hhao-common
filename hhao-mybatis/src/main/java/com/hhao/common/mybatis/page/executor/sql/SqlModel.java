@@ -25,30 +25,65 @@ import java.util.List;
  * @since 2021 /11/20 21:05
  */
 public class SqlModel {
+    /**
+     * sql语句
+     */
     private String sql;
+    /**
+     * sql语句的参数
+     */
     private List<Object> params;
 
+    /**
+     * Instantiates a new Sql model.
+     */
     public SqlModel(){
 
     }
 
+    /**
+     * Instantiates a new Sql model.
+     *
+     * @param sql    the sql
+     * @param params the params
+     */
     public SqlModel(String sql,List<Object> params){
         this.sql=sql;
         this.params=params;
     }
 
+    /**
+     * Gets sql.
+     *
+     * @return the sql
+     */
     public String getSql() {
         return sql;
     }
 
+    /**
+     * Sets sql.
+     *
+     * @param sql the sql
+     */
     public void setSql(String sql) {
         this.sql = sql;
     }
 
+    /**
+     * Gets params.
+     *
+     * @return the params
+     */
     public List<Object> getParams() {
         return params;
     }
 
+    /**
+     * Sets params.
+     *
+     * @param params the params
+     */
     public void setParams(List<Object> params) {
         this.params = params;
     }

@@ -41,5 +41,4 @@ public interface TokenParse {
      * @return
      */
     List<TokenInfo> getTokenInfos();
-
 }

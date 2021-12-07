@@ -35,6 +35,15 @@ public class PageSelectStatementProvider implements SelectStatementProvider {
     private Map<String,Object> newParams=null;
     private PageInfo pageInfo=null;
 
+
+    public PageInfo getPageInfo() {
+        return pageInfo;
+    }
+
+    public void setPageInfo(PageInfo pageInfo) {
+        this.pageInfo = pageInfo;
+    }
+
     /**
      * Instantiates a new Page select statement provider.
      *

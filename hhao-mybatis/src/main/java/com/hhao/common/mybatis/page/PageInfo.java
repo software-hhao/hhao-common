@@ -20,7 +20,6 @@ import com.hhao.common.mybatis.page.executor.MultiQueriesDynamicPageExecutor;
 import com.hhao.common.mybatis.page.executor.MultiQueriesStaticPageExecutor;
 import com.hhao.common.mybatis.page.executor.PageExecutor;
 import com.hhao.common.mybatis.page.executor.SingleQueryDynamicPageExecutor;
-import com.hhao.common.mybatis.page.executor.sql.SqlExecutor;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SqlColumn;
 
@@ -543,16 +542,6 @@ public class PageInfo<T> implements Page<T> {
             return this;
         }
 
-        /**
-         * With multi queries dynamic page executor builder.
-         *
-         * @param sqlExecutors the sql executors
-         * @return the builder
-         */
-        public Builder withMultiQueriesDynamicPageExecutor(List<SqlExecutor> sqlExecutors){
-            pageInfo.setPageExecutor(new MultiQueriesDynamicPageExecutor(sqlExecutors));
-            return this;
-        }
 
         /**
          * With multi queries static page executor builder.
@@ -569,10 +558,6 @@ public class PageInfo<T> implements Page<T> {
             return this;
         }
 
-        public Builder withSingleQueryDynamicPageExecutor(List<SqlExecutor> sqlExecutors){
-            pageInfo.setPageExecutor(new SingleQueryDynamicPageExecutor(sqlExecutors));
-            return this;
-        }
 
         /**
          * Build page info.
@@ -580,11 +565,6 @@ public class PageInfo<T> implements Page<T> {
          * @return the page info
          */
         public PageInfo build(){
-            //PageExecutor必须设置
-            if (pageInfo.getPageExecutor()==null){
-                throw new RuntimeException("pageExecutor muster be set");
-            }
-
             //动态order sql处理
             if (pageInfo.getOrderColumns()!=null && this.orderTables!=null && !pageInfo.getOrderDirection().equals(OrderDirection.NO)){
                 StringBuffer orderSql=new StringBuffer();

@@ -18,11 +18,12 @@ package com.hhao.common.mybatis.page.executor;
 
 import com.hhao.common.mybatis.page.PageInfo;
 import com.hhao.common.mybatis.page.PageMetaData;
-import com.hhao.common.mybatis.page.executor.sql.MySqlExecutor;
 import com.hhao.common.mybatis.page.executor.sql.SqlExecutor;
 import com.hhao.common.mybatis.page.executor.sql.SqlPageModel;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ParameterMapping;
@@ -48,18 +49,10 @@ import java.util.List;
  * @since 1.0.0
  */
 public class MultiQueriesDynamicPageExecutor extends AbstractPageExecutor {
-
-    public MultiQueriesDynamicPageExecutor(List<SqlExecutor> sqlExecutors) {
-        super(sqlExecutors);
-    }
-
-    public MultiQueriesDynamicPageExecutor() {
-        initSqlExecute();
-    }
-
-    protected void initSqlExecute(){
-        this.registerSqlExecutor(new MySqlExecutor());
-    }
+    /**
+     * The Logger.
+     */
+    protected final Log logger = LogFactory.getLog(this.getClass());
 
     /**
      * 拦截处理过程
@@ -89,7 +82,9 @@ public class MultiQueriesDynamicPageExecutor extends AbstractPageExecutor {
         //分页溢出处理
         if (PageMetaData.PAGE_OVERFLOW_TO_LAST){
             BoundSql boundSql=newSqlSource.getBoundSql(parameter);
-            if (pageOverflowToLast(pageInfo,newMappedStatement,parameter)){
+            //调整分页参数
+            if (pageOverflowToLast(pageInfo,newMappedStatement,parameter,boundSql)){
+                //重新执行一遍
                 Executor executor=this.getExecutor(invocation);
                 RowBounds rowBounds=this.getRowBounds(invocation);
                 ResultHandler resultHandler=this.getResultHandler(invocation);
@@ -112,12 +107,13 @@ public class MultiQueriesDynamicPageExecutor extends AbstractPageExecutor {
      * @return
      */
     private SqlSource newSqlSource(PageInfo pageInfo,MappedStatement mappedStatement, Object parameter, SqlExecutor sqlExecutor){
+        String dbName=this.getDatabaseId(mappedStatement);
         //原来select的BoundSql
         BoundSql selectBoundSql=mappedStatement.getBoundSql(parameter);
         //原来select的参数
         List<Object> selectParameterMappings= Collections.unmodifiableList(selectBoundSql.getParameterMappings());
 
-        SqlPageModel sqlPageModel=sqlExecutor.generalSqlPageModel(pageInfo,selectBoundSql.getSql(),selectParameterMappings);
+        SqlPageModel sqlPageModel=sqlExecutor.generalSqlPageModel(pageInfo,selectBoundSql.getSql(),selectParameterMappings,dbName);
 
         //生成sql语句
         StringBuffer sql=new StringBuffer();

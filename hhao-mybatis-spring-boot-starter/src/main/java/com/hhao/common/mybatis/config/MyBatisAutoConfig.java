@@ -18,12 +18,16 @@
 package com.hhao.common.mybatis.config;
 
 import com.hhao.common.mybatis.page.PageMetaData;
+import com.hhao.common.mybatis.page.executor.sql.dialect.Dialect;
+import com.hhao.common.mybatis.page.executor.sql.dialect.DialectFactory;
+import com.hhao.common.mybatis.page.executor.sql.dialect.MySqlDialect;
 import com.hhao.common.mybatis.page.interceptor.PageInterceptor;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -87,6 +91,21 @@ public class MyBatisAutoConfig implements ApplicationContextAware {
         PageMetaData.PRE_CACHED_PAGE= myBatisProperties.getPreCachedPage();
         PageMetaData.POST_CACHED_PAGE= myBatisProperties.getPostCachedPage();
         PageMetaData.PAGE_SIZE_LIMIT=myBatisProperties.getPageSizeLimit();
+        PageMetaData.SUPPORT_MULTI_QUERIES=myBatisProperties.getSupportMultiQueries();
+
+        //注册sql方言
+        if (myBatisProperties.getSqlDialects()!=null){
+            for(String name:myBatisProperties.getSqlDialects()) {
+                try {
+                    Class clazz = Class.forName(name);
+                    Dialect dialect = (Dialect) BeanUtils.instantiateClass(clazz);
+                    DialectFactory.register(dialect);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        DialectFactory.register(new MySqlDialect());
     }
 
     /**

@@ -19,8 +19,6 @@ package com.hhao.common.mybatis.page.executor;
 
 import com.hhao.common.mybatis.page.PageInfo;
 import com.hhao.common.mybatis.page.PageInfoWithCount;
-import com.hhao.common.mybatis.page.executor.sql.MySqlExecutor;
-import com.hhao.common.mybatis.page.executor.sql.SqlExecutor;
 import com.hhao.common.utils.StringUtils;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
@@ -47,40 +45,16 @@ import java.util.List;
  * @since 2021 /11/22 20:23
  */
 public class SingleQueryStaticPageExecutor extends AbstractPageExecutor {
-    /**
-     * The Logger.
-     */
     protected final Log logger = LogFactory.getLog(this.getClass());
     private final String DOT=".";
 
-    /**
-     * Instantiates a new Simple static page executor.
-     *
-     * @param sqlExecutors the sql executors
-     */
-    public SingleQueryStaticPageExecutor(List<SqlExecutor> sqlExecutors) {
-        super(sqlExecutors);
-    }
-
-    /**
-     * Instantiates a new Simple static page executor.
-     */
-    public SingleQueryStaticPageExecutor() {
-        initSqlExecute();
-    }
-
-    /**
-     * Init sql execute.
-     */
-    protected void initSqlExecute(){
-        this.registerSqlExecutor(new MySqlExecutor());
-    }
 
     @Override
     public Object execute(Invocation invocation, PageInfo pageInfo) throws Throwable {
         //取出各种参数
         Executor executor=this.getExecutor(invocation);
         if (executor==null){
+            logger.debug("SingleQueryStaticPageExecutor need org.apache.ibatis.executor.Executor,Please change other PageExecutor.");
             return invocation.proceed();
         }
         MappedStatement mappedStatement=this.getMappedStatement(invocation);
@@ -98,9 +72,8 @@ public class SingleQueryStaticPageExecutor extends AbstractPageExecutor {
                 CacheKey cacheKey = executor.createCacheKey(countMs, parameter, rowBounds, countSql);
                 List<Object> result = executor.query(countMs, parameter, rowBounds, resultHandler, cacheKey, countSql);
                 setCountResult(pageInfo, result);
-
                 //分页溢出处理
-                pageOverflowToLast(pageInfo,mappedStatement,parameter);
+                pageOverflowToLast(pageInfo,mappedStatement,parameter,boundSql);
             }
         }
         //对结果集进行处理

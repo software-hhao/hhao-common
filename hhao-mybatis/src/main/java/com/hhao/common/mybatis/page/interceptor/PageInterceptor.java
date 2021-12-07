@@ -17,7 +17,11 @@
 package com.hhao.common.mybatis.page.interceptor;
 
 import com.hhao.common.mybatis.page.PageInfo;
+import com.hhao.common.mybatis.page.PageInfoWithCount;
 import com.hhao.common.mybatis.page.PageMetaData;
+import com.hhao.common.mybatis.page.executor.MultiQueriesDynamicPageExecutor;
+import com.hhao.common.mybatis.page.executor.SingleQueryDynamicPageExecutor;
+import com.hhao.common.mybatis.page.executor.SingleQueryStaticPageExecutor;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.logging.Log;
@@ -52,9 +56,28 @@ public class PageInterceptor implements Interceptor {
     public Object intercept(Invocation invocation) throws Throwable {
         PageInfo pageInfo=getPageInfo(invocation);
         if (pageInfo!=null){
+            //pageExecutor使用的优先级
+            //1、pageInfo中自定义
+            //2、如果是PageInfoWithCount，优先使用指定的CountMappedStatementId
+            //3、如果开启多查询支持，优先使用MultiQueriesDynamicPageExecutor
+            //4、使用SingleQueryDynamicPageExecutor
+            if (pageInfo.getPageExecutor()==null) {
+                if (pageInfo instanceof PageInfoWithCount) {
+                    if (((PageInfoWithCount) pageInfo).getCountMappedStatementId() != null) {
+                        pageInfo.setPageExecutor(new SingleQueryStaticPageExecutor());
+                    }
+                }
+            }
+            if (pageInfo.getPageExecutor()==null) {
+                if (PageMetaData.SUPPORT_MULTI_QUERIES){
+                    pageInfo.setPageExecutor(new MultiQueriesDynamicPageExecutor());
+                }else{
+                    pageInfo.setPageExecutor(new SingleQueryDynamicPageExecutor());
+                }
+            }
+            log.debug("Use PageExecutor:" + pageInfo.getPageExecutor());
             return pageInfo.getPageExecutor().execute(invocation,pageInfo);
         }
-        log.debug("no find PageExecutor");
         return invocation.proceed();
     }
 

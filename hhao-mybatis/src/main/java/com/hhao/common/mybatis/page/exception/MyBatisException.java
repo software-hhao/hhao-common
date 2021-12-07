@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018-2021 WangSheng.
  *
@@ -14,22 +15,21 @@
  * limitations under the License.
  */
 
-package com.hhao.common.mybatis.page.executor.sql.parse;
-
-import java.util.List;
+package com.hhao.common.mybatis.page.exception;
 
 /**
- * The interface Parse.
+ * The type My batis exception.
  *
  * @author Wang
- * @since 2021 /11/20 14:08
+ * @since 2021 /11/24 20:46
  */
-public interface SqlParse {
+public class MyBatisException extends RuntimeException{
     /**
-     * 将sql解析成token
+     * Instantiates a new My batis exception.
      *
-     * @param sql       the sql
-     * @return the parse result
+     * @param message the message
      */
-    List<TokenInfo> parseSql(String sql);
+    public MyBatisException(String message) {
+        super(message);
+    }
 }

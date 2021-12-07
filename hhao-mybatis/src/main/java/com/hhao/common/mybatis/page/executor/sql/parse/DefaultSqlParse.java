@@ -15,8 +15,11 @@
  */
 
 package com.hhao.common.mybatis.page.executor.sql.parse;
+
 import com.hhao.common.mybatis.page.executor.sql.token.SqlToken;
 import com.hhao.common.mybatis.page.executor.sql.token.Token;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 
 import java.util.List;
 
@@ -27,16 +30,34 @@ import java.util.List;
  * @since 2021 /11/18 19:06
  */
 public class DefaultSqlParse implements SqlParse {
+    /**
+     * The Logger.
+     */
+    protected final Log logger = LogFactory.getLog(this.getClass());
+
     private TokenParse tokenParse;
 
+    /**
+     * Instantiates a new Default sql parse.
+     *
+     * @param tokenParse the token parse
+     */
     public DefaultSqlParse(TokenParse tokenParse){
         this.tokenParse=tokenParse;
     }
 
+    /**
+     * Instantiates a new Default sql parse.
+     *
+     * @param parseRule the parse rule
+     */
     public DefaultSqlParse(ParseRule parseRule){
         this.tokenParse=new DefaultTokenParse(parseRule);
     }
 
+    /**
+     * Instantiates a new Default sql parse.
+     */
     public DefaultSqlParse(){
         this.tokenParse=new DefaultTokenParse(new ParseRule());
     }
@@ -76,6 +97,7 @@ public class DefaultSqlParse implements SqlParse {
         if (tokenBuffer.length()>0) {
             tokenParse.parseToken(new SqlToken(tokenBuffer.toString()));
         }
+        logger.debug(tokenParse.getTokenInfos().toString());
         return tokenParse.getTokenInfos();
     }
 

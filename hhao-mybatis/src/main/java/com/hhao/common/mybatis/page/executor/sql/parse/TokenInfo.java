@@ -62,13 +62,6 @@ public interface TokenInfo {
     boolean isUnion();
 
     /**
-     * 判断语句是否包含count
-     *
-     * @return the boolean
-     */
-    boolean isContainCount();
-
-    /**
      * 是否包含limit
      * @return
      */

@@ -30,6 +30,27 @@ public class MyBatisProperties {
     private Long postCachedPage=0L;
     private Long pageSizeLimit=20L;
     private Boolean pageOverflowToLast=true;
+    private Boolean supportMultiQueries=false;
+    private String [] sqlDialects;
+
+
+    /**
+     * jdbc是否支持多语句
+     *
+     * @return the support multi queries
+     */
+    public Boolean getSupportMultiQueries() {
+        return supportMultiQueries;
+    }
+
+    /**
+     * Sets support multi queries.
+     *
+     * @param supportMultiQueries the support multi queries
+     */
+    public void setSupportMultiQueries(Boolean supportMultiQueries) {
+        this.supportMultiQueries = supportMultiQueries;
+    }
 
     /**
      * Gets page size limit.
@@ -85,11 +106,39 @@ public class MyBatisProperties {
         this.postCachedPage = postCachedPage;
     }
 
+    /**
+     * Gets page overflow to last.
+     *
+     * @return the page overflow to last
+     */
     public Boolean getPageOverflowToLast() {
         return pageOverflowToLast;
     }
 
+    /**
+     * Sets page overflow to last.
+     *
+     * @param pageOverflowToLast the page overflow to last
+     */
     public void setPageOverflowToLast(Boolean pageOverflowToLast) {
         this.pageOverflowToLast = pageOverflowToLast;
+    }
+
+    /**
+     * Get sql dialects string [ ].
+     *
+     * @return the string [ ]
+     */
+    public String[] getSqlDialects() {
+        return sqlDialects;
+    }
+
+    /**
+     * Sets sql dialects.
+     *
+     * @param sqlDialects the sql dialects
+     */
+    public void setSqlDialects(String[] sqlDialects) {
+        this.sqlDialects = sqlDialects;
     }
 }

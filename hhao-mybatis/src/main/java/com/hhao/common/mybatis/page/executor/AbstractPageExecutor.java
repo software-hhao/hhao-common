@@ -19,6 +19,7 @@ package com.hhao.common.mybatis.page.executor;
 import com.hhao.common.mybatis.page.PageInfo;
 import com.hhao.common.mybatis.page.PageMetaData;
 import com.hhao.common.mybatis.page.executor.sql.SqlExecutor;
+import com.hhao.common.mybatis.page.executor.sql.SqlExecutorFactory;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
@@ -35,7 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 分页执行器基类
@@ -44,32 +44,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @since 1.0.0
  */
 public abstract class AbstractPageExecutor implements PageExecutor {
-    private static final Log log = LogFactory.getLog(AbstractPageExecutor.class);
-
-    private List<SqlExecutor> sqlExecutors=new CopyOnWriteArrayList<>();
-
-    public AbstractPageExecutor(){
-
-    }
-
-    public AbstractPageExecutor(List<SqlExecutor> sqlExecutors){
-        if(sqlExecutors!=null){
-            this.sqlExecutors=sqlExecutors;
-        }
-    }
-
-    public void registerSqlExecutor(SqlExecutor sqlExecutor) {
-        sqlExecutors.add(sqlExecutor);
-    }
+    /**
+     * The Logger.
+     */
+    protected final Log logger = LogFactory.getLog(this.getClass());
 
     @Override
     public SqlExecutor getSqlExecutor(PageInfo pageInfo,String dbName){
-        for(SqlExecutor sqlExecutor:sqlExecutors){
-            if (sqlExecutor.support(pageInfo,dbName)){
-                return sqlExecutor;
-            }
-        }
-        return null;
+        return SqlExecutorFactory.getSqlExecutor(pageInfo,dbName);
     }
 
     /**
@@ -123,6 +105,12 @@ public abstract class AbstractPageExecutor implements PageExecutor {
     }
 
 
+    /**
+     * Get executor executor.
+     *
+     * @param invocation the invocation
+     * @return the executor
+     */
     protected Executor getExecutor(Invocation invocation){
         Object target=invocation.getTarget();
         if (target instanceof Executor) {
@@ -153,12 +141,26 @@ public abstract class AbstractPageExecutor implements PageExecutor {
         }
     }
 
+    /**
+     * Set page result list.
+     *
+     * @param pageInfo the page info
+     * @param result   the result
+     * @return the list
+     */
     protected List<Object> setPageResult(PageInfo pageInfo, Object result){
         List<Object> newResult = (List<Object>) result;
         pageInfo.setResult(newResult);
         return newResult;
     }
 
+    /**
+     * Set count result long.
+     *
+     * @param pageInfo the page info
+     * @param result   the result
+     * @return the long
+     */
     protected Long setCountResult(PageInfo pageInfo, Object result){
         List<Object> newResult = (List<Object>) result;
         long total = 0;
@@ -190,6 +192,11 @@ public abstract class AbstractPageExecutor implements PageExecutor {
 
     /**
      * 构建新的MappedStatement
+     *
+     * @param ms         the ms
+     * @param sqlSource  the sql source
+     * @param resultMaps the result maps
+     * @return the mapped statement
      */
     protected MappedStatement buildMappedStatement(MappedStatement ms, SqlSource sqlSource,List<ResultMap> resultMaps){
         //构建新的MappedStatement
@@ -216,6 +223,13 @@ public abstract class AbstractPageExecutor implements PageExecutor {
     }
 
 
+    /**
+     * Build result map list.
+     *
+     * @param pageInfo the page info
+     * @param ms       the ms
+     * @return the list
+     */
     protected List<ResultMap> buildResultMap(PageInfo pageInfo,MappedStatement ms) {
         List<ResultMap> resultMaps=copyResultMap(ms);
         if (pageInfo.isIncludeTotalRows()){
@@ -224,6 +238,12 @@ public abstract class AbstractPageExecutor implements PageExecutor {
         return resultMaps;
     }
 
+    /**
+     * Copy result map list.
+     *
+     * @param ms the ms
+     * @return the list
+     */
     protected List<ResultMap> copyResultMap(MappedStatement ms) {
         //添加count结果集映射
         List<ResultMap> newResultMaps = new ArrayList<>();
@@ -234,6 +254,12 @@ public abstract class AbstractPageExecutor implements PageExecutor {
         return newResultMaps;
     }
 
+    /**
+     * Add count result map list.
+     *
+     * @param resultMaps the result maps
+     * @return the list
+     */
     protected List<ResultMap> addCountResultMap(List<ResultMap> resultMaps) {
         String id="_count_resultMap";
         ResultMap resultMap = new ResultMap.Builder(null, id, Long.class, new ArrayList()).build();
@@ -248,6 +274,13 @@ public abstract class AbstractPageExecutor implements PageExecutor {
      * @return string string
      */
     private static Map<DataSource,String> databaseIdCache=new ConcurrentHashMap<>();
+
+    /**
+     * Get database id string.
+     *
+     * @param mappedStatement the mapped statement
+     * @return the string
+     */
     protected String getDatabaseId(MappedStatement mappedStatement){
         String dataBaseId=mappedStatement.getDatabaseId();
         if (dataBaseId==null || dataBaseId.isEmpty()){
@@ -260,20 +293,28 @@ public abstract class AbstractPageExecutor implements PageExecutor {
         return dataBaseId;
     }
 
+
     /**
      * 分页溢出处理
+     *
+     * @param pageInfo        the page info
+     * @param mappedStatement the mapped statement
+     * @param parameterObject the parameter object
+     * @param pageBoundSql    the page bound sql
+     * @return the boolean
      */
-    protected boolean pageOverflowToLast(PageInfo pageInfo, MappedStatement mappedStatement, Object parameterObject){
+    protected boolean pageOverflowToLast(PageInfo pageInfo, MappedStatement mappedStatement, Object parameterObject,BoundSql pageBoundSql){
         if (PageMetaData.PAGE_OVERFLOW_TO_LAST){
             if (pageInfo.getPageNum()> pageInfo.getTotalPage()){
                 pageInfo.setPageNum(pageInfo.getTotalPage());
 
-                BoundSql pageBoundSql=mappedStatement.getBoundSql(parameterObject);
+                //判断是否存在分页参数,分页参数名称在PageInfo中设置
+                //BoundSql pageBoundSql=mappedStatement.getBoundSql(parameterObject);
                 List<ParameterMapping> parameterMappings=pageBoundSql.getParameterMappings();
                 boolean containLimitParam=false;
                 boolean containOffsetParam=false;
                 for(ParameterMapping p:parameterMappings){
-                    log.debug("params:"+p.toString());
+                    logger.debug("params:"+p.toString());
                     if(p.getProperty().equalsIgnoreCase(pageInfo.getLimitParamName())){
                         containLimitParam=true;
                     }else if(p.getProperty().equalsIgnoreCase(pageInfo.getOffsetParamName())){
@@ -281,25 +322,36 @@ public abstract class AbstractPageExecutor implements PageExecutor {
                     }
                 }
                 if (!containLimitParam || !containOffsetParam){
-                    log.debug("can't find limit or offset param name");
+                    logger.debug("can't find limit or offset param name");
                     return false;
 
                 }
                 //修正原来的分页参数
-                //ParameterHandler parameterHandler=new DefaultParameterHandler(mappedStatement,parameterObject,pageBoundSql);
-                setParameters(mappedStatement,parameterObject);
+                setParameters(mappedStatement,parameterObject,pageBoundSql);
                 pageBoundSql.setAdditionalParameter(pageInfo.getLimitParamName(), pageInfo.getLimit());
                 pageBoundSql.setAdditionalParameter(pageInfo.getOffsetParamName(),pageInfo.getOffset());
+
+                logger.debug(pageBoundSql.getSql());
+                logger.debug(pageBoundSql.getAdditionalParameter(pageInfo.getLimitParamName()).toString());
+                logger.debug(pageBoundSql.getAdditionalParameter(pageInfo.getOffsetParamName()).toString());
+
                 return true;
             }
         }
         return false;
     }
 
-    public void setParameters(MappedStatement mappedStatement, Object parameterObject) {
+    /**
+     * 设置参数,参照DefaultParameterHandler
+     *
+     * @param mappedStatement the mapped statement
+     * @param parameterObject the parameter object
+     * @param boundSql        the bound sql
+     */
+    public void setParameters(MappedStatement mappedStatement, Object parameterObject,BoundSql boundSql) {
         TypeHandlerRegistry typeHandlerRegistry = mappedStatement.getConfiguration().getTypeHandlerRegistry();
         Configuration configuration=mappedStatement.getConfiguration();
-        BoundSql boundSql=mappedStatement.getBoundSql(parameterObject);
+        //BoundSql boundSql=mappedStatement.getBoundSql(parameterObject);
         List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
 
         if (parameterMappings != null) {
@@ -320,6 +372,7 @@ public abstract class AbstractPageExecutor implements PageExecutor {
                         value = metaObject.getValue(propertyName);
                     }
                     boundSql.setAdditionalParameter(propertyName,value);
+                    logger.debug(propertyName + ":" + value);
                 }
             }
         }

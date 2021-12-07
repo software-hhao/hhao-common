@@ -17,7 +17,6 @@
 package com.hhao.common.mybatis.page.executor;
 
 import com.hhao.common.mybatis.page.PageInfo;
-import com.hhao.common.mybatis.page.executor.sql.MySqlExecutor;
 import com.hhao.common.mybatis.page.executor.sql.SqlExecutor;
 import com.hhao.common.mybatis.page.executor.sql.SqlPageModel;
 import org.apache.ibatis.cache.CacheKey;
@@ -50,25 +49,14 @@ import java.util.List;
  */
 public class SingleQueryDynamicPageExecutor extends AbstractPageExecutor {
     protected final Log logger = LogFactory.getLog(this.getClass());
-    private final String DOT=".";
 
-    public SingleQueryDynamicPageExecutor(List<SqlExecutor> sqlExecutors) {
-        super(sqlExecutors);
-    }
-
-    public SingleQueryDynamicPageExecutor() {
-        initSqlExecute();
-    }
-
-    protected void initSqlExecute(){
-       this.registerSqlExecutor(new MySqlExecutor());
-    }
 
     @Override
     public Object execute(Invocation invocation, PageInfo pageInfo) throws Throwable {
         //取出各种参数
         Executor executor=this.getExecutor(invocation);
         if (executor==null){
+            logger.debug("SingleQueryDynamicPageExecutor need org.apache.ibatis.executor.Executor,Please change other PageExecutor.");
             return invocation.proceed();
         }
         MappedStatement mappedStatement=this.getMappedStatement(invocation);
@@ -82,7 +70,8 @@ public class SingleQueryDynamicPageExecutor extends AbstractPageExecutor {
         SqlExecutor sqlExecutor = this.getSqlExecutor(pageInfo, this.getDatabaseId(mappedStatement));
         //解析SQL语句
         //生成的SqlPageModel包含select语句、select语句的入参;count语句、count语句的入参
-        SqlPageModel sqlPageModel=sqlExecutor.generalSqlPageModel(pageInfo,boundSql.getSql(),parameterMappings);
+        String dbName=this.getDatabaseId(mappedStatement);
+        SqlPageModel sqlPageModel=sqlExecutor.generalSqlPageModel(pageInfo,boundSql.getSql(),parameterMappings,dbName);
 
         //select分页处理
         SqlSource pageSqlSource=buildPageSqlSource(pageInfo,sqlPageModel,mappedStatement,parameter);
@@ -102,7 +91,7 @@ public class SingleQueryDynamicPageExecutor extends AbstractPageExecutor {
             setCountResult(pageInfo, result);
 
             //分页溢出处理
-            pageOverflowToLast(pageInfo,pageMappedStatement,parameter);
+            pageOverflowToLast(pageInfo,pageMappedStatement,parameter,pageSqlSource.getBoundSql(parameter));
         }
         //对结果集进行处理
         return setPageResult(pageInfo, invocation.proceed());

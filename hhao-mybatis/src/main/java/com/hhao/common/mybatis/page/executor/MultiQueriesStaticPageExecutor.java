@@ -20,6 +20,8 @@ import com.hhao.common.mybatis.page.PageInfo;
 import com.hhao.common.mybatis.page.PageMetaData;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.plugin.Invocation;
@@ -37,10 +39,10 @@ import org.apache.ibatis.session.RowBounds;
  * @since 1.0.0
  */
 public class MultiQueriesStaticPageExecutor extends AbstractPageExecutor {
-
-    public MultiQueriesStaticPageExecutor() {
-        super(null);
-    }
+    /**
+     * The Logger.
+     */
+    protected final Log logger = LogFactory.getLog(this.getClass());
 
     @Override
     public Object execute(Invocation invocation,PageInfo pageInfo) throws Throwable {
@@ -62,7 +64,9 @@ public class MultiQueriesStaticPageExecutor extends AbstractPageExecutor {
         if (PageMetaData.PAGE_OVERFLOW_TO_LAST){
             Object parameter=this.getParameter(invocation);
             BoundSql boundSql=mappedStatement.getBoundSql(parameter);
-            if (pageOverflowToLast(pageInfo,mappedStatement,parameter)){
+            //调整分页参数
+            if (pageOverflowToLast(pageInfo,mappedStatement,parameter,boundSql)){
+                //重新执行一遍
                 Executor executor=this.getExecutor(invocation);
                 RowBounds rowBounds=this.getRowBounds(invocation);
                 ResultHandler resultHandler=this.getResultHandler(invocation);
