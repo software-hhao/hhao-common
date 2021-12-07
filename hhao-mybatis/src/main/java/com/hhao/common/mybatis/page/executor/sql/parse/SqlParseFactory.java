@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018-2021 WangSheng.
  *
@@ -14,29 +15,20 @@
  * limitations under the License.
  */
 
-package com.hhao.common.mybatis.page.executor;
-
-import com.hhao.common.mybatis.page.PageInfo;
-import com.hhao.common.mybatis.page.executor.sql.SqlExecutor;
-import org.apache.ibatis.plugin.Invocation;
+package com.hhao.common.mybatis.page.executor.sql.parse;
 
 /**
- * 分页处理器
- *
- * @author Wang
- * @since 1.0.0
+ * The type Sql parse factory.
  */
-public interface PageExecutor {
-
-    SqlExecutor getSqlExecutor(PageInfo pageInfo,String dbName);
+public class SqlParseFactory {
 
     /**
-     * 拦截处理
+     * SqlParse非线程安全
      *
-     * @param invocation the invocation
-     * @param pageInfo   the page info
-     * @return object object
-     * @throws Throwable the throwable
+     * @param dbName the db name
+     * @return the sql parse
      */
-    Object execute(Invocation invocation, PageInfo pageInfo) throws Throwable;
+    public static SqlParse getSqlParse(String dbName){
+        return new DefaultSqlParse();
+    }
 }

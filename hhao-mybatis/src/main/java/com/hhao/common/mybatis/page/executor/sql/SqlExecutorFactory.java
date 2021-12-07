@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018-2021 WangSheng.
  *
@@ -14,29 +15,24 @@
  * limitations under the License.
  */
 
-package com.hhao.common.mybatis.page.executor;
+package com.hhao.common.mybatis.page.executor.sql;
 
 import com.hhao.common.mybatis.page.PageInfo;
-import com.hhao.common.mybatis.page.executor.sql.SqlExecutor;
-import org.apache.ibatis.plugin.Invocation;
 
 /**
- * 分页处理器
- *
- * @author Wang
- * @since 1.0.0
+ * The type Sql executor factory.
  */
-public interface PageExecutor {
-
-    SqlExecutor getSqlExecutor(PageInfo pageInfo,String dbName);
+public class SqlExecutorFactory {
+    private static SqlExecutor sqlExecutor=new DefaultSqlExecutor();
 
     /**
-     * 拦截处理
+     * Get sql executor sql executor.
      *
-     * @param invocation the invocation
-     * @param pageInfo   the page info
-     * @return object object
-     * @throws Throwable the throwable
+     * @param pageInfo the page info
+     * @param dbName   the db name
+     * @return the sql executor
      */
-    Object execute(Invocation invocation, PageInfo pageInfo) throws Throwable;
+    public static SqlExecutor getSqlExecutor(PageInfo pageInfo,String dbName){
+        return sqlExecutor;
+    }
 }

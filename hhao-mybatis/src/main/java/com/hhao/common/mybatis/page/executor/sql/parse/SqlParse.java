@@ -14,33 +14,22 @@
  * limitations under the License.
  */
 
-package com.hhao.common.mybatis.page.executor;
+package com.hhao.common.mybatis.page.executor.sql.parse;
+
+import java.util.List;
 
 /**
- * 分页处理器类型
+ * The interface Parse.
  *
  * @author Wang
- * @since 1.0.0
+ * @since 2021 /11/20 14:08
  */
-public enum PageExecutorType {
+public interface SqlParse {
     /**
-     * 自动处理select
-     * 不包含count
+     * 将sql解析成token
+     *
+     * @param sql       the sql
+     * @return the parse result
      */
-    DYNAMIC_EXCLUDE_COUNT,
-    /**
-     * 自动处理select、count
-     * 包含count
-     */
-    DYNAMIC_INCLUDE_COUNT,
-    /**
-     * 只对结果集处理
-     * 结果集包含count
-     */
-    STATIC_INCLUDE_COUNT,
-    /**
-     * 只对结果集处理
-     * 结果集不包含count
-     */
-    STATIC_EXCLUDE_COUNT
+    List<TokenInfo> parseSql(String sql);
 }

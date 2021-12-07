@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018-2021 WangSheng.
  *
@@ -14,29 +15,21 @@
  * limitations under the License.
  */
 
-package com.hhao.common.mybatis.page.executor;
-
-import com.hhao.common.mybatis.page.PageInfo;
-import com.hhao.common.mybatis.page.executor.sql.SqlExecutor;
-import org.apache.ibatis.plugin.Invocation;
+package com.hhao.common.mybatis.page.exception;
 
 /**
- * 分页处理器
+ * The type My batis exception.
  *
  * @author Wang
- * @since 1.0.0
+ * @since 2021 /11/24 20:46
  */
-public interface PageExecutor {
-
-    SqlExecutor getSqlExecutor(PageInfo pageInfo,String dbName);
-
+public class MyBatisException extends RuntimeException{
     /**
-     * 拦截处理
+     * Instantiates a new My batis exception.
      *
-     * @param invocation the invocation
-     * @param pageInfo   the page info
-     * @return object object
-     * @throws Throwable the throwable
+     * @param message the message
      */
-    Object execute(Invocation invocation, PageInfo pageInfo) throws Throwable;
+    public MyBatisException(String message) {
+        super(message);
+    }
 }

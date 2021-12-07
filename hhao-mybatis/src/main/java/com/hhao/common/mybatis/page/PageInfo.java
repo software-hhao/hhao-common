@@ -16,10 +16,14 @@
 
 package com.hhao.common.mybatis.page;
 
+import com.hhao.common.mybatis.page.executor.MultiQueriesDynamicPageExecutor;
+import com.hhao.common.mybatis.page.executor.MultiQueriesStaticPageExecutor;
 import com.hhao.common.mybatis.page.executor.PageExecutor;
-import com.hhao.common.mybatis.page.executor.PageExecutorType;
-import com.hhao.common.mybatis.page.executor.sql.SqlExecutor;
+import com.hhao.common.mybatis.page.executor.SingleQueryDynamicPageExecutor;
+import org.mybatis.dynamic.sql.BasicColumn;
+import org.mybatis.dynamic.sql.SqlColumn;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,37 +37,87 @@ import java.util.Map;
  * @since 1.0.0
  */
 public class PageInfo<T> implements Page<T> {
-    private long pageNum = 1;
+    private PageExecutor pageExecutor;
+    private Map<Integer, List<T>> result;
+
+    private long pageNum = 1L;
     private long pageSize = PageMetaData.PAGE_SIZE;
     private long preCachedPage = PageMetaData.PRE_CACHED_PAGE;
     private long postCachedPage = PageMetaData.POST_CACHED_PAGE;
-    private long totalRow;
+    private long totalRow=-1L;
+    private boolean includeTotalRows=true;
+    private OrderDirection orderDirection=OrderDirection.ASC;
+    private String [] orderColumns;
+    private String orderBySql;
+    private String limitParamName=PageMetaData.LIMIT_PARAM_NAME;
+    private String offsetParamName=PageMetaData.OFFSET_PARAM_NAME;
 
-    private Map<Integer, List<T>> result;
-    private PageExecutorType pageExecutorType = PageExecutorType.DYNAMIC_INCLUDE_COUNT;
-    private SqlExecutor sqlExecutor;
-
-    /**
-     * Instantiates a new Page info.
-     *
-     * @param pageNum  the page num
-     * @param pageSize the page size
-     */
-    public PageInfo(long pageNum,long pageSize){
-        this(pageNum,pageSize, PageExecutorType.DYNAMIC_INCLUDE_COUNT);
+    @Override
+    public String[] getOrderColumns() {
+        return orderColumns;
     }
 
     /**
-     * Instantiates a new Page info.
+     * Sets order columns.
      *
-     * @param pageNum          the page num
-     * @param pageSize         the page size
-     * @param pageExecutorType the page executor type
+     * @param orderColumns the order columns
      */
-    public PageInfo(long pageNum,long pageSize,PageExecutorType pageExecutorType){
-        this.pageNum=pageNum;
-        this.pageSize=pageSize;
-        this.pageExecutorType=pageExecutorType;
+    public void setOrderColumns(String[] orderColumns) {
+        this.orderColumns = orderColumns;
+    }
+
+    /**
+     * Gets order by sql.
+     *
+     * @return the order by sql
+     */
+    public String getOrderBySql() {
+        return orderBySql;
+    }
+
+    /**
+     * Sets order by sql.
+     *
+     * @param orderBySql the order by sql
+     */
+    public void setOrderBySql(String orderBySql) {
+        this.orderBySql = orderBySql;
+    }
+
+    @Override
+    public OrderDirection getOrderDirection() {
+        return orderDirection;
+    }
+
+    /**
+     * Sets order direction.
+     *
+     * @param orderDirection the order direction
+     */
+    public void setOrderDirection(OrderDirection orderDirection) {
+        this.orderDirection = orderDirection;
+    }
+
+    @Override
+    public boolean isIncludeTotalRows() {
+        return includeTotalRows;
+    }
+
+    /**
+     * Sets include total rows.
+     *
+     * @param includeTotalRows the include total rows
+     */
+    public void setIncludeTotalRows(boolean includeTotalRows) {
+        this.includeTotalRows = includeTotalRows;
+    }
+
+
+    /**
+     * Instantiates a new Page info.
+     */
+    protected PageInfo(){
+
     }
 
     @Override
@@ -94,6 +148,24 @@ public class PageInfo<T> implements Page<T> {
     @Override
     public Map<Integer, List<T>> getResult() {
         return this.result;
+    }
+
+
+    public String getLimitParamName() {
+        return limitParamName;
+    }
+
+    public void setLimitParamName(String limitParamName) {
+        this.limitParamName = limitParamName;
+    }
+
+
+    public String getOffsetParamName() {
+        return offsetParamName;
+    }
+
+    public void setOffsetParamName(String offsetParamName) {
+        this.offsetParamName = offsetParamName;
     }
 
     /**
@@ -140,39 +212,21 @@ public class PageInfo<T> implements Page<T> {
     }
 
     /**
-     * Gets sql executor.
+     * Gets page executor.
      *
-     * @return the sql executor
+     * @return the page executor
      */
-    public SqlExecutor getSqlExecutor() {
-        return sqlExecutor;
+    public PageExecutor getPageExecutor() {
+        return pageExecutor;
     }
 
     /**
-     * Sets sql executor.
+     * Sets page executor.
      *
-     * @param sqlExecutor the sql executor
+     * @param pageExecutor the page executor
      */
-    public void setSqlExecutor(SqlExecutor sqlExecutor) {
-        this.sqlExecutor = sqlExecutor;
-    }
-
-    /**
-     * Gets page executor type.
-     *
-     * @return the page executor type
-     */
-    public PageExecutorType getPageExecutorType() {
-        return pageExecutorType;
-    }
-
-    /**
-     * Sets page executor type.
-     *
-     * @param pageExecutorType the page executor type
-     */
-    public void setPageExecutorType(PageExecutorType pageExecutorType) {
-        this.pageExecutorType = pageExecutorType;
+    public void setPageExecutor(PageExecutor pageExecutor) {
+        this.pageExecutor = pageExecutor;
     }
 
     /**
@@ -183,6 +237,7 @@ public class PageInfo<T> implements Page<T> {
     public void setTotalRow(long totalRow) {
         this.totalRow = totalRow;
     }
+
 
 
     /**
@@ -232,34 +287,161 @@ public class PageInfo<T> implements Page<T> {
         pageResult.setTotalPage(this.getTotalPage());
         pageResult.setPostCachedPage(this.getPostCachedPage());
         pageResult.setPreCachedPage(this.getPreCachedPage());
+        pageResult.setIncludeTotalRows(this.isIncludeTotalRows());
+        pageResult.setOrderColumns(this.getOrderColumns());
+        pageResult.setOrderDirection(this.getOrderDirection());
         return pageResult;
     }
+
+    /**
+     * The type Order table.
+     */
+    public static class OrderTable{
+        private BasicColumn[] columns;
+        private String tableAlias;
+        private String tableName;
+
+
+        /**
+         * Instantiates a new Order table.
+         *
+         * @param tableName the table name
+         * @param columns   the columns
+         */
+        public OrderTable(String tableName,BasicColumn[] columns){
+            this.tableName=tableName;
+            this.columns=columns;
+        }
+
+
+        /**
+         * Instantiates a new Order table.
+         *
+         * @param tableName  the table name
+         * @param columns    the columns
+         * @param tableAlias the table alias
+         */
+        public OrderTable(String tableName,BasicColumn[] columns,String tableAlias){
+            this.tableName=tableName;
+            this.columns=columns;
+            this.tableAlias=tableAlias;
+        }
+
+        public String getTableName() {
+            return tableName;
+        }
+
+        /**
+         * Sets table name.
+         *
+         * @param tableName the table name
+         */
+        public void setTableName(String tableName) {
+            this.tableName = tableName;
+        }
+
+        /**
+         * Get columns basic column [ ].
+         *
+         * @return the basic column [ ]
+         */
+        public BasicColumn[] getColumns() {
+            return columns;
+        }
+
+        /**
+         * Sets columns.
+         *
+         * @param columns the columns
+         */
+        public void setColumns(BasicColumn[] columns) {
+            this.columns = columns;
+        }
+
+        /**
+         * Gets table alias.
+         *
+         * @return the table alias
+         */
+        public String getTableAlias() {
+            return tableAlias;
+        }
+
+        /**
+         * Sets table alias.
+         *
+         * @param tableAlias the table alias
+         */
+        public void setTableAlias(String tableAlias) {
+            this.tableAlias = tableAlias;
+        }
+    }
+
 
     /**
      * The type Builder.
      */
     public static class Builder{
-        private PageInfo pageInfo;
+        protected List<OrderTable> orderTables=new ArrayList<>();
+        protected PageInfo pageInfo;
 
         /**
          * Instantiates a new Builder.
          *
-         * @param pageNum          the page num
-         * @param pageSize         the page size
-         * @param pageExecutorType the page executor type
+         * @param pageNum the page num
          */
-        public Builder(long pageNum,long pageSize,PageExecutorType pageExecutorType){
-            pageInfo=new PageInfo(pageNum,pageSize,pageExecutorType);
+        public Builder(long pageNum){
+            this(PageInfo.class,pageNum);
         }
 
         /**
          * Instantiates a new Builder.
          *
-         * @param pageNum  the page num
-         * @param pageSize the page size
+         * @param tClass  the t class
+         * @param pageNum the page num
          */
-        public Builder(long pageNum,long pageSize){
-            pageInfo=new PageInfo(pageNum,pageSize);
+        public <M extends PageInfo> Builder(Class<M> tClass,long pageNum){
+            try {
+                pageInfo=tClass.getDeclaredConstructor().newInstance();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+            if (pageInfo==null){
+                throw new RuntimeException("PageInfo new instance wrong");
+            }
+            pageInfo.setPageNum(pageNum);
+        }
+
+        /**
+         * Set page num builder.
+         *
+         * @param pageNum the page num
+         * @return the builder
+         */
+        public Builder setPageNum(long pageNum){
+            pageInfo.setPageNum(pageNum);
+            return this;
+        }
+
+        /**
+         * Set page size builder.
+         *
+         * @param pageSize the page size
+         * @return the builder
+         */
+        public Builder setPageSize(long pageSize){
+            if (pageSize>PageMetaData.PAGE_SIZE_LIMIT){
+                pageInfo.setPageSize(PageMetaData.PAGE_SIZE_LIMIT);
+            }else {
+                pageInfo.setPageSize(pageSize);
+            }
+            return this;
         }
 
         /**
@@ -285,26 +467,97 @@ public class PageInfo<T> implements Page<T> {
         }
 
         /**
-         * Sets page executor type.
+         * Sets include total rows.
          *
-         * @param pageExecutorType the page executor type
-         * @return the page executor type
+         * @param includeTotalRows the include total rows
+         * @return the include total rows
          */
-        public Builder setPageExecutorType(PageExecutorType pageExecutorType) {
-            pageInfo.setPageExecutorType(pageExecutorType);
+        public Builder setIncludeTotalRows(boolean includeTotalRows) {
+            pageInfo.setIncludeTotalRows(includeTotalRows);
             return this;
         }
 
         /**
-         * Sets sql executor.
+         * Sets page executor.
          *
-         * @param sqlExecutor the sql executor
-         * @return the sql executor
+         * @param pageExecutor the page executor
+         * @return the page executor
          */
-        public Builder setSqlExecutor(SqlExecutor sqlExecutor) {
-            pageInfo.setSqlExecutor(sqlExecutor);
+        public Builder setPageExecutor(PageExecutor pageExecutor) {
+            pageInfo.setPageExecutor(pageExecutor);
             return this;
         }
+
+        /**
+         * Sets order direction.
+         *
+         * @param orderDirection the order direction
+         * @return the order direction
+         */
+        public Builder setOrderDirection(OrderDirection orderDirection) {
+            pageInfo.setOrderDirection(orderDirection);
+            return this;
+        }
+
+        /**
+         * Add order table builder.
+         *
+         * @param orderTable the order table
+         * @return the builder
+         */
+        public Builder addOrderTable(OrderTable orderTable) {
+            this.orderTables.add(orderTable);
+            return this;
+        }
+
+        /**
+         * Sets order columns.
+         *
+         * @param orderColumns the order columns
+         * @return the order columns
+         */
+        public Builder setOrderColumns(String [] orderColumns) {
+            pageInfo.setOrderColumns(orderColumns);
+            return this;
+        }
+
+
+        public Builder setLimitParamName(String limitParamName) {
+            pageInfo.setLimitParamName(limitParamName);
+            return this;
+        }
+
+        public Builder setOffsetParamName(String offsetParamName) {
+            pageInfo.setOffsetParamName(offsetParamName);
+            return this;
+        }
+
+        /**
+         * With multi queries dynamic page executor builder.
+         *
+         * @return the builder
+         */
+        public Builder withMultiQueriesDynamicPageExecutor(){
+            pageInfo.setPageExecutor(new MultiQueriesDynamicPageExecutor());
+            return this;
+        }
+
+
+        /**
+         * With multi queries static page executor builder.
+         *
+         * @return the builder
+         */
+        public Builder withMultiQueriesStaticPageExecutor(){
+            pageInfo.setPageExecutor(new MultiQueriesStaticPageExecutor());
+            return this;
+        }
+
+        public Builder withSingleQueryDynamicPageExecutor(){
+            pageInfo.setPageExecutor(new SingleQueryDynamicPageExecutor());
+            return this;
+        }
+
 
         /**
          * Build page info.
@@ -312,6 +565,52 @@ public class PageInfo<T> implements Page<T> {
          * @return the page info
          */
         public PageInfo build(){
+            //动态order sql处理
+            if (pageInfo.getOrderColumns()!=null && this.orderTables!=null && !pageInfo.getOrderDirection().equals(OrderDirection.NO)){
+                StringBuffer orderSql=new StringBuffer();
+                boolean isSet=false;
+                for(String orderColumn: pageInfo.getOrderColumns()){
+                    isSet=false;
+                    //表名.列名分解
+                    String [] colInfos=orderColumn.split("\\.");
+                    if (colInfos.length!=2){
+                        throw new RuntimeException("The order column format wrong; format is table.column");
+                    }
+                    for(OrderTable table:orderTables){
+                        //判断表名是否一致
+                        if (!table.getTableName().equalsIgnoreCase(colInfos[0])){
+                            continue;
+                        }
+                        for(BasicColumn basicColumnColumn:table.getColumns()){
+                            SqlColumn sqlColumn=(SqlColumn)basicColumnColumn;
+                            //判断列名是否一致
+                            if (sqlColumn.name().equalsIgnoreCase(colInfos[1])){
+                                if (orderSql.length()>0){
+                                    orderSql.append(",");
+                                }
+                                if (table.getTableAlias()!=null && !table.getTableAlias().isBlank()){
+                                    orderSql.append(table.getTableAlias() + "." +  sqlColumn.orderByName());
+                                }else {
+                                    orderSql.append(sqlColumn.orderByName());
+                                }
+                                isSet=true;
+                                break;
+                            }
+                        }
+                        if (isSet){
+                            break;
+                        }
+                    }
+                    if (!isSet){
+                        throw new RuntimeException("error order by column:" + orderColumn);
+                    }
+                }
+                //生成order sql
+                if (orderSql.length()>0){
+                    pageInfo.setOrderBySql(" order by " + orderSql.toString() + " " + pageInfo.getOrderDirection().name() + " ");
+                }
+            }
+
             return pageInfo;
         }
     }

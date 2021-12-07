@@ -14,29 +14,31 @@
  * limitations under the License.
  */
 
-package com.hhao.common.mybatis.page.executor;
+package com.hhao.common.mybatis.page.executor.sql.parse;
+import com.hhao.common.mybatis.page.executor.sql.token.Token;
 
-import com.hhao.common.mybatis.page.PageInfo;
-import com.hhao.common.mybatis.page.executor.sql.SqlExecutor;
-import org.apache.ibatis.plugin.Invocation;
+import java.util.List;
 
 /**
- * 分页处理器
+ * sql解析结果
  *
  * @author Wang
- * @since 1.0.0
+ * @since 2021 /11/20 14:10
  */
-public interface PageExecutor {
+public interface TokenParse {
+    /**
+     * token解析
+     *
+     * @param token the token
+     */
+    void parseToken(Token token);
 
-    SqlExecutor getSqlExecutor(PageInfo pageInfo,String dbName);
 
     /**
-     * 拦截处理
+     * 返回解析后的结果
+     * @{code List<TokenInfo>}每行一条sql语句的解析结果
      *
-     * @param invocation the invocation
-     * @param pageInfo   the page info
-     * @return object object
-     * @throws Throwable the throwable
+     * @return
      */
-    Object execute(Invocation invocation, PageInfo pageInfo) throws Throwable;
+    List<TokenInfo> getTokenInfos();
 }

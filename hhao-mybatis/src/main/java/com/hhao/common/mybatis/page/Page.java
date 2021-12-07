@@ -16,6 +16,7 @@
 
 package com.hhao.common.mybatis.page;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +27,9 @@ import java.util.Map;
  * @author Wang
  * @since 1.0.0
  */
-public interface Page<T> {
+public interface Page<T> extends Serializable {
+
+
     /**
      * 当前页
      *
@@ -39,7 +42,7 @@ public interface Page<T> {
      *
      * @return page size
      */
-    public long getPageSize();
+    long getPageSize();
 
     /**
      * 总行数
@@ -63,6 +66,12 @@ public interface Page<T> {
      * @return post cached page
      */
     long getPostCachedPage();
+
+    boolean isIncludeTotalRows();
+
+    String [] getOrderColumns();
+
+    OrderDirection getOrderDirection();
 
     /**
      * 分页结果集
@@ -114,5 +123,9 @@ public interface Page<T> {
             return 0L;
         }
         return pages * getPageSize();
+    }
+
+    enum OrderDirection{
+        ASC,DESC,NO
     }
 }

@@ -1,0 +1,12 @@
+com:
+  hhao:
+    config:
+      mybatis:
+        preCachedPage: 0
+        postCachedPage: 3
+        pageSizeLimit: 20
+        pageOverflowToLast: true
+        supportMultiQueries: true
+        sqlDialects:
+          -
+

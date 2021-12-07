@@ -26,45 +26,48 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties(prefix = "com.hhao.config.mybatis")
 public class MyBatisProperties {
-    private String [] pageExecutors;
-    private String [] sqlExecutors;
-    private Integer preCachedPage=0;
-    private Integer postCachedPage=0;
+    private Long preCachedPage=0L;
+    private Long postCachedPage=0L;
+    private Long pageSizeLimit=20L;
+    private Boolean pageOverflowToLast=true;
+    private Boolean supportMultiQueries=false;
+    private String [] sqlDialects;
+
 
     /**
-     * Get page executors string [ ].
+     * jdbc是否支持多语句
      *
-     * @return the string [ ]
+     * @return the support multi queries
      */
-    public String[] getPageExecutors() {
-        return pageExecutors;
+    public Boolean getSupportMultiQueries() {
+        return supportMultiQueries;
     }
 
     /**
-     * Sets page executors.
+     * Sets support multi queries.
      *
-     * @param pageExecutors the page executors
+     * @param supportMultiQueries the support multi queries
      */
-    public void setPageExecutors(String[] pageExecutors) {
-        this.pageExecutors = pageExecutors;
+    public void setSupportMultiQueries(Boolean supportMultiQueries) {
+        this.supportMultiQueries = supportMultiQueries;
     }
 
     /**
-     * Get sql executors string [ ].
+     * Gets page size limit.
      *
-     * @return the string [ ]
+     * @return the page size limit
      */
-    public String[] getSqlExecutors() {
-        return sqlExecutors;
+    public Long getPageSizeLimit() {
+        return pageSizeLimit;
     }
 
     /**
-     * Sets sql executors.
+     * Sets page size limit.
      *
-     * @param sqlExecutors the sql executors
+     * @param pageSizeLimit the page size limit
      */
-    public void setSqlExecutors(String[] sqlExecutors) {
-        this.sqlExecutors = sqlExecutors;
+    public void setPageSizeLimit(Long pageSizeLimit) {
+        this.pageSizeLimit = pageSizeLimit;
     }
 
     /**
@@ -72,7 +75,7 @@ public class MyBatisProperties {
      *
      * @return the pre cached page
      */
-    public Integer getPreCachedPage() {
+    public Long getPreCachedPage() {
         return preCachedPage;
     }
 
@@ -81,7 +84,7 @@ public class MyBatisProperties {
      *
      * @param preCachedPage the pre cached page
      */
-    public void setPreCachedPage(Integer preCachedPage) {
+    public void setPreCachedPage(Long preCachedPage) {
         this.preCachedPage = preCachedPage;
     }
 
@@ -90,7 +93,7 @@ public class MyBatisProperties {
      *
      * @return the post cached page
      */
-    public Integer getPostCachedPage() {
+    public Long getPostCachedPage() {
         return postCachedPage;
     }
 
@@ -99,7 +102,43 @@ public class MyBatisProperties {
      *
      * @param postCachedPage the post cached page
      */
-    public void setPostCachedPage(Integer postCachedPage) {
+    public void setPostCachedPage(Long postCachedPage) {
         this.postCachedPage = postCachedPage;
+    }
+
+    /**
+     * Gets page overflow to last.
+     *
+     * @return the page overflow to last
+     */
+    public Boolean getPageOverflowToLast() {
+        return pageOverflowToLast;
+    }
+
+    /**
+     * Sets page overflow to last.
+     *
+     * @param pageOverflowToLast the page overflow to last
+     */
+    public void setPageOverflowToLast(Boolean pageOverflowToLast) {
+        this.pageOverflowToLast = pageOverflowToLast;
+    }
+
+    /**
+     * Get sql dialects string [ ].
+     *
+     * @return the string [ ]
+     */
+    public String[] getSqlDialects() {
+        return sqlDialects;
+    }
+
+    /**
+     * Sets sql dialects.
+     *
+     * @param sqlDialects the sql dialects
+     */
+    public void setSqlDialects(String[] sqlDialects) {
+        this.sqlDialects = sqlDialects;
     }
 }
