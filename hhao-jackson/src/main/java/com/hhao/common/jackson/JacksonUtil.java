@@ -183,4 +183,7 @@ public interface JacksonUtil {
      * @return string
      */
     String map2String(Map map);
+
+    <T,H> T string2Pojo(String text, Class<T> clazz, Class<H> valueRefClass,Class<?> classView);
+
 }

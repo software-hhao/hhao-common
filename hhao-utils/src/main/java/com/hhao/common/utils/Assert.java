@@ -2,9 +2,6 @@ package com.hhao.common.utils;
 
 
 import com.hhao.common.lang.Nullable;
-import com.hhao.common.utils.CollectionUtils;
-import com.hhao.common.utils.ObjectUtils;
-import com.hhao.common.utils.StringUtils;
 
 import java.util.Collection;
 import java.util.Map;
@@ -17,7 +14,7 @@ import java.util.function.Supplier;
  * @author Wang
  * @since 1.0.0
  */
-public abstract class Assert {
+public class Assert {
 
 
     /**

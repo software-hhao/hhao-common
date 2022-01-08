@@ -2,7 +2,6 @@ package com.hhao.common.utils;
 
 
 import com.hhao.common.lang.Nullable;
-import com.hhao.common.utils.Assert;
 
 import java.util.*;
 
@@ -13,7 +12,7 @@ import java.util.*;
  * @author Wang
  * @since 1.0.0
  */
-public abstract class CollectionUtils {
+public  class CollectionUtils {
 
     /**
      * The Default load factor.

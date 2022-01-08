@@ -17,7 +17,6 @@
 package com.hhao.common.springboot.response;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 /**
  * The type Result wrapper properties.
@@ -29,14 +28,14 @@ public class ResultWrapperProperties {
     /**
      * The Status succeed.
      */
-    @Value("${com.hhao.config.result.status.succeed:200}")
-    public   String statusSucceed = "200";
+    //@Value("${com.hhao.config.result.status.succeed:200}")
+    public int statusSucceed = ResultWrapperConstant.STATUS_SUCCEED;
 
     /**
      * The Status error.
      */
     @Value("${com.hhao.config.result.status.error:500}")
-    public   String statusError = "500";
+    public int statusError = 500;
 
     /**
      * The Msg succeed.
@@ -55,7 +54,7 @@ public class ResultWrapperProperties {
      *
      * @return the status succeed
      */
-    public String getStatusSucceed() {
+    public int getStatusSucceed() {
         return statusSucceed;
     }
 
@@ -64,7 +63,7 @@ public class ResultWrapperProperties {
      *
      * @param statusSucceed the status succeed
      */
-    public void setStatusSucceed(String statusSucceed) {
+    public void setStatusSucceed(int statusSucceed) {
         this.statusSucceed = statusSucceed;
     }
 
@@ -73,7 +72,7 @@ public class ResultWrapperProperties {
      *
      * @return the status error
      */
-    public String getStatusError() {
+    public int getStatusError() {
         return statusError;
     }
 
@@ -82,7 +81,7 @@ public class ResultWrapperProperties {
      *
      * @param statusError the status error
      */
-    public void setStatusError(String statusError) {
+    public void setStatusError(int statusError) {
         this.statusError = statusError;
     }
 

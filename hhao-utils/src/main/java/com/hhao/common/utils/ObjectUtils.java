@@ -14,7 +14,7 @@ import java.util.*;
  * @author Wang
  * @since 1.0.0
  */
-public abstract class ObjectUtils {
+public  class ObjectUtils {
 
     private static final int INITIAL_HASH = 7;
     private static final int MULTIPLIER = 31;

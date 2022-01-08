@@ -169,6 +169,7 @@ public class HtmlCharacterEntityReferences {
                     return "&amp;";
                 case '\'':
                     return "&#39;";
+                default:
             }
         }
         else if (character < 1000 || (character >= 8000 && character < 10000)) {

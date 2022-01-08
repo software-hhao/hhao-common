@@ -17,7 +17,6 @@
 package com.hhao.common.springboot.web.config;
 
 import com.hhao.common.metadata.Mdm;
-import com.hhao.common.springboot.config.AbstractBaseConfig;
 import com.hhao.common.springboot.convert.*;
 import com.hhao.common.springboot.format.DateTimeAnnotationFormatterFactory;
 import com.hhao.extend.money.spring.CurrencyUnitAndStringConvert;
@@ -54,7 +53,8 @@ public class ConvertersAndFormattersConfig extends AbstractBaseMvcConfig {
     @Override
     public void addFormatters(FormatterRegistry registry) {
         //日期时间类与字符串互换
-        registry.addConverter(new InstantAndStringConverter());
+        //registry.addConverter(new InstantAndLocalDateTimeStringConverter());
+        registry.addConverter(new InstantAndNumberStringConverter());
         registry.addConverter(new LocalDateAndStringConverter());
         registry.addConverter(new LocalTimeAndStringConverter());
         registry.addConverter(new LocalDateTimeAndStringConverter());
@@ -103,4 +103,6 @@ public class ConvertersAndFormattersConfig extends AbstractBaseMvcConfig {
 
         return conversionService;
     }
+
+
 }

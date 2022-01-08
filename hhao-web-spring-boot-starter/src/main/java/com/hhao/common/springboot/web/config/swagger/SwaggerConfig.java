@@ -118,7 +118,7 @@ public class SwaggerConfig extends AbstractBaseMvcConfig {
             description = bufferedReader
                     .lines()
                     .map(line->{
-                        line=line.replaceAll("\s|\t","&nbsp;&nbsp;&nbsp;");
+                        line=line.replaceAll("\\s|\\t","&nbsp;&nbsp;&nbsp;");
                         return line + "<br/>";
                     })
                     .collect(Collectors.joining(System.lineSeparator()));

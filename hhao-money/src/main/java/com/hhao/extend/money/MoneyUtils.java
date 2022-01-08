@@ -24,6 +24,7 @@ import javax.money.MonetaryAmount;
 import javax.money.format.AmountFormatQueryBuilder;
 import javax.money.format.MonetaryAmountFormat;
 import javax.money.format.MonetaryFormats;
+import java.math.BigDecimal;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
@@ -34,6 +35,25 @@ import java.util.Locale;
  * @since 1.0.0
  */
 public class MoneyUtils {
+    public static Money bigDecimalToMoney(BigDecimal value, String currencyCode){
+        if (value==null || currencyCode==null){
+            return null;
+        }
+//        MonetaryContext monetaryContext= MonetaryContextBuilder.of(Money.class)
+//                .setMaxScale(2)
+//                .setFixedScale(true)
+//                .setPrecision(16)
+//                .build();
+        return Money.of(value,currencyCode);
+    };
+
+    public static BigDecimal moneyToBigDecimal(Money money){
+        if (money==null){
+            return null;
+        }
+        return money.getNumberStripped();
+    };
+
     /**
      * money到字符串的转换
      *

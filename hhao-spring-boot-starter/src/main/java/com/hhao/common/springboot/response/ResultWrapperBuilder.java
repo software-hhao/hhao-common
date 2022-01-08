@@ -43,7 +43,7 @@ public class ResultWrapperBuilder {
      * @param message the message
      * @return the result wrapper
      */
-    public static <T> ResultWrapper<T> ok(T data, String status, String message) {
+    public static <T> ResultWrapper<T> ok(T data, int status, String message) {
         if (data instanceof ResultWrapper) {
             return (ResultWrapper) data;
         }
@@ -70,7 +70,7 @@ public class ResultWrapperBuilder {
      * @param message the message
      * @return the result wrapper
      */
-    public static <T> ResultWrapper<T> error(T data, String status, String message) {
+    public static <T> ResultWrapper<T> error(T data, int status, String message) {
         if (data instanceof ResultWrapper) {
             return (ResultWrapper) data;
         }
@@ -97,7 +97,7 @@ public class ResultWrapperBuilder {
      * @param throwable the throwable
      * @return the result wrapper
      */
-    public static <T> ResultWrapper<T> error(T data,String status,Throwable throwable) {
+    public static <T> ResultWrapper<T> error(T data,int status,Throwable throwable) {
         return error(data,status,throwable.getMessage());
     }
 

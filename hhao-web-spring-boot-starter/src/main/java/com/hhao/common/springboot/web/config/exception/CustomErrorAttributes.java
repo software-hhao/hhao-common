@@ -20,7 +20,9 @@ package com.hhao.common.springboot.web.config.exception;
 import com.hhao.common.springboot.exception.AbstractBaseRuntimeException;
 import com.hhao.common.springboot.exception.BaseException;
 import com.hhao.common.springboot.exception.ExceptionTransfer;
+import com.hhao.common.springboot.exception.entity.other.ResultWrapperException;
 import com.hhao.common.springboot.exception.entity.request.ValidateException;
+import com.hhao.common.springboot.exception.util.ErrorAttributeConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
@@ -28,9 +30,11 @@ import org.springframework.boot.web.error.ErrorAttributeOptions.Include;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -80,8 +84,14 @@ public class CustomErrorAttributes extends DefaultErrorAttributes {
      */
     @Override
     public Map<String, Object> getErrorAttributes(WebRequest webRequest, ErrorAttributeOptions options) {
+        //个异常已包含异常属性，可直接返回
+        Map<String, Object> errorAttributes =directReturnErrorAttributes(webRequest);
+        if (errorAttributes!=null){
+            return errorAttributes;
+        }
+
         //从基类获取包含所有的异常信息
-        Map<String, Object> errorAttributes =super.getErrorAttributes(webRequest, ERROR_ATTRIBUTE_OPTIONS);
+        errorAttributes =super.getErrorAttributes(webRequest, ERROR_ATTRIBUTE_OPTIONS);
 
         //自定义对errorAttributes的处理
         getErrorAttributes(errorAttributes,webRequest,options);
@@ -89,16 +99,16 @@ public class CustomErrorAttributes extends DefaultErrorAttributes {
 
         //移除不显示的异常信息
         if (!options.isIncluded(Include.EXCEPTION)) {
-            errorAttributes.remove("exception");
+            errorAttributes.remove(ErrorAttributeConstant.EXCEPTION);
         }
         if (!options.isIncluded(Include.STACK_TRACE)) {
-            errorAttributes.remove("trace");
+            errorAttributes.remove(ErrorAttributeConstant.TRACE);
         }
         if (!options.isIncluded(Include.MESSAGE) && errorAttributes.get("message") != null) {
-            errorAttributes.remove("message");
+            errorAttributes.remove(ErrorAttributeConstant.MESSAGE);
         }
         if (!options.isIncluded(Include.BINDING_ERRORS)) {
-            errorAttributes.remove("errors");
+            errorAttributes.remove(ErrorAttributeConstant.ERRORS);
         }
         return errorAttributes;
     }
@@ -110,6 +120,18 @@ public class CustomErrorAttributes extends DefaultErrorAttributes {
      */
     protected void storageErrorAttributes(Map<String, Object> errorAttributes){
 
+    }
+
+    private Map<String, Object> directReturnErrorAttributes(WebRequest webRequest){
+        Throwable error=getError(webRequest);
+        if (error!=null && error instanceof ResultWrapperException){
+            ResultWrapperException resultWrapperException=((ResultWrapperException)error);
+            //补齐当前链路
+            String path = (String)webRequest.getAttribute(RequestDispatcher.ERROR_REQUEST_URI, RequestAttributes.SCOPE_REQUEST);
+            resultWrapperException.addPath(path);
+            return ((ResultWrapperException)error).getErrorAttributes();
+        }
+        return null;
     }
 
     /**
@@ -128,11 +150,12 @@ public class CustomErrorAttributes extends DefaultErrorAttributes {
         //如果是数据验证错误异常，进行错误字段的处理。
         //父类中有相关代码，但是getError方法中将异常转成了自定义的异常类了，所以执行不到，这里补执行
         if (exception instanceof ValidateException && options.isIncluded(ErrorAttributeOptions.Include.BINDING_ERRORS)){
-            errorAttributes.put("errors", ((ValidateException) exception).getBindingResult().getAllErrors());
+            errorAttributes.put(ErrorAttributeConstant.ERRORS, ((ValidateException) exception).getBindingResult().getAllErrors());
         }
 
         //添加自定义异常的code
         addErrorCode(errorAttributes,exception);
+
         return errorAttributes;
     }
 
@@ -145,10 +168,10 @@ public class CustomErrorAttributes extends DefaultErrorAttributes {
     private void addErrorCode(Map<String, Object> errorAttributes, Throwable exception) {
         if (exception instanceof AbstractBaseRuntimeException) {
             AbstractBaseRuntimeException error = (AbstractBaseRuntimeException) exception;
-            errorAttributes.put("errorCode", error.getErrorInfo().getCode());
+            errorAttributes.put(ErrorAttributeConstant.ERROR_CODE, error.getErrorInfo().getCode());
         }else{
-            Integer status =(Integer) errorAttributes.get("status");
-            errorAttributes.put("errorCode", status!=null?status:999);
+            Integer status =(Integer) errorAttributes.get(ErrorAttributeConstant.STATUS);
+            errorAttributes.put(ErrorAttributeConstant.ERROR_CODE, status!=null?status:999);
         }
     }
 

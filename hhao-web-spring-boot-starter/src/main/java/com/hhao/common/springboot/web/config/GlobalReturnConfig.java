@@ -20,6 +20,9 @@ import com.hhao.common.springboot.annotations.ResponseAutoWrapper;
 import com.hhao.common.springboot.response.ResultWrapper;
 import com.hhao.common.springboot.response.ResultWrapperBuilder;
 import com.hhao.common.springboot.response.ResultWrapperProperties;
+import com.hhao.common.springboot.response.UnResultWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -50,6 +53,7 @@ import javax.servlet.RequestDispatcher;
 @ConditionalOnMissingBean(GlobalReturnConfig.class)
 @ConditionalOnProperty(prefix = "com.hhao.config.global-return",name = "enable",havingValue = "true",matchIfMissing = true)
 public class GlobalReturnConfig {
+    protected final Logger logger = LoggerFactory.getLogger(GlobalReturnConfig.class);
 
     /**
      * Result wrapper properties result wrapper properties.
@@ -70,7 +74,7 @@ public class GlobalReturnConfig {
      */
     @Bean
     @ConditionalOnMissingBean(ResultWrapperBuilder.class)
-    public ResultWrapperBuilder ResultWrapperBuilder(ResultWrapperProperties resultWrapperProperties){
+    public ResultWrapperBuilder resultWrapperBuilder(ResultWrapperProperties resultWrapperProperties){
         return new ResultWrapperBuilder(resultWrapperProperties);
     }
 
@@ -85,6 +89,10 @@ public class GlobalReturnConfig {
         return new ResponseBodyAdvice<Object>() {
             @Override
             public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
+                //如果继承自UnResultWrapper,则不支持自动包装
+                if (returnType.getMethod()!=null && returnType.getMethod().getReturnType()!=null && returnType.getMethod().getReturnType().isAssignableFrom(UnResultWrapper.class)){
+                    return false;
+                }
                 //判断是否有ResponseAutoWrapper的注解
                 ResponseAutoWrapper  responseAutoWrapper=returnType.getMethod().getAnnotation(ResponseAutoWrapper.class);
                 if (responseAutoWrapper==null){
@@ -98,17 +106,20 @@ public class GlobalReturnConfig {
 
             @Override
             public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
+                logger.info("MediaType:{}",selectedContentType.toString());
+                //对json或xml返回进行包装
                 if (selectedContentType.includes(MediaType.APPLICATION_JSON) || selectedContentType.includes(MediaType.APPLICATION_XML)){
-                    //对json返回进行包装
+                    //如果已经是ResultWrapper,则直接返回
                     if (body instanceof ResultWrapper) {
                         return body;
                     } else if ((((ServletServerHttpRequest) request).getServletRequest().getDispatcherType().ordinal()== DispatcherType.ERROR.ordinal()) || body instanceof Exception){
                         Integer status=getStatue((ServletServerHttpRequest)request);
                         String msg=HttpStatus.valueOf(status).getReasonPhrase();
-                        return ResultWrapperBuilder.error(body,String.valueOf(status),msg!=null?msg:"Http Status " + status);
+                        return ResultWrapperBuilder.error(body,status,msg!=null?msg:"Http Status " + status);
                     }
                     return ResultWrapperBuilder.ok(body);
                 }
+                logger.warn("Return not wrapper");
                 return body;
             }
         };

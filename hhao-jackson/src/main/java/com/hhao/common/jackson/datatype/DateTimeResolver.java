@@ -189,7 +189,7 @@ public class DateTimeResolver<T> {
             }
             DateTimeFormatter dtf = setDateTimeFormatter(format, dateTimeFormatter);
             if (dtf != dateTimeFormatter) {
-                return new DateTimeDeserializer(property.getType().getTypeHandler(), dtf, this.jsonFormatFilterFunction);
+                return new DateTimeDeserializer((Class<T>) property.getType().getRawClass(), dtf, this.jsonFormatFilterFunction);
             }
             return this;
         }

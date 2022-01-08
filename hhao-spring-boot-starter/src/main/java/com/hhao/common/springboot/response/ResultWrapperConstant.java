@@ -1,5 +1,6 @@
+
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2018-2022 WangSheng.
  *
  * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +15,18 @@
  * limitations under the License.
  */
 
-package com.hhao.common.entity;
+package com.hhao.common.springboot.response;
 
 /**
- * MyBatis Map的基类
+ * The interface Result wrapper constant.
+ *
  * @author Wang
- * @since  1.0.0
+ * @since 2022 /1/8 12:41
  */
-public interface BaseMapper {
+public interface ResultWrapperConstant {
+    /**
+     * 成功的状态
+     * The constant STATUS_SUCCEED.
+     */
+    int STATUS_SUCCEED = 200;
 }

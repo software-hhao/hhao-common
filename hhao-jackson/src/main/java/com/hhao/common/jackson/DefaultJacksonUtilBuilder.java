@@ -123,7 +123,7 @@ public class DefaultJacksonUtilBuilder<T extends ObjectMapper> implements Jackso
             if (feature instanceof SerializationFeature) {
                 objectMapper.configure((SerializationFeature) feature, value);
             } else if (feature instanceof MapperFeature) {
-                objectMapper.configure((MapperFeature) feature, value);
+                //objectMapper.configure((MapperFeature) feature, value);
             } else if (feature instanceof DeserializationFeature) {
                 objectMapper.configure((DeserializationFeature) feature, value);
             } else if (feature instanceof JsonGenerator.Feature) {
@@ -143,6 +143,16 @@ public class DefaultJacksonUtilBuilder<T extends ObjectMapper> implements Jackso
         }else{
             mapper=(T)new XmlMapper();
         }
+        registerModule(mapper);
+        configure(mapper);
+        if (consumer != null) {
+            consumer.accept(mapper);
+        }
+        return new DefaultJacksonUtil(mapper);
+    }
+
+    @Override
+    public JacksonUtil build(ObjectMapper mapper,Consumer<ObjectMapper> consumer) {
         registerModule(mapper);
         configure(mapper);
         if (consumer != null) {

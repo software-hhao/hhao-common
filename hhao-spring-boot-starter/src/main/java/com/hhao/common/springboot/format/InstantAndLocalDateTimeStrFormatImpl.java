@@ -36,7 +36,7 @@ import java.util.Locale;
  * @author Wang
  * @since 1.0.0
  */
-public class InstantFormatImpl implements Formatter<Instant> {
+public class InstantAndLocalDateTimeStrFormatImpl implements Formatter<Instant> {
     private String pattern;
     private String[] fallbackPatterns;
     private DateTimeFormatter dateTimeFormatter;
@@ -48,7 +48,7 @@ public class InstantFormatImpl implements Formatter<Instant> {
      * @param pattern          the pattern
      * @param fallbackPatterns the fallback patterns
      */
-    public InstantFormatImpl(String pattern,String[] fallbackPatterns) {
+    public InstantAndLocalDateTimeStrFormatImpl(String pattern, String[] fallbackPatterns) {
         this.pattern = pattern;
         this.fallbackPatterns=fallbackPatterns;
         this.dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);

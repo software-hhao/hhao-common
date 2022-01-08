@@ -17,6 +17,8 @@
 package com.hhao.common.utils;
 
 import com.hhao.common.metadata.Mdm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -28,6 +30,7 @@ import java.time.format.DateTimeFormatter;
  * @since 1.0.0
  */
 public class DateTimeUtils {
+    protected static final Logger logger = LoggerFactory.getLogger(DateTimeUtils.class);
     /**
      * Now instant.
      *
@@ -278,5 +281,81 @@ public class DateTimeUtils {
      */
     public static String format(ZonedDateTime zonedDateTime, DateTimeFormatter formatter) {
         return zonedDateTime.format(formatter);
+    }
+
+    public static String localDateToString(LocalDate localDate){
+        if (localDate==null){
+            return "";
+        }
+        return Mdm.DATE_FORMATTER.value(DateTimeFormatter.class).format(localDate);
+    }
+
+    public static String localTimeToString(LocalTime localTime){
+        if (localTime==null){
+            return "";
+        }
+        return Mdm.TIME_FORMATTER.value(DateTimeFormatter.class).format(localTime);
+    }
+
+    public static String localDateTimeToString(LocalDateTime localDateTime){
+        if (localDateTime==null){
+            return "";
+        }
+        return Mdm.DATE_TIME_FORMATTER.value(DateTimeFormatter.class).format(localDateTime);
+    }
+
+    public static String instantToLocalDateTimeString(Instant instant,ZoneId zoneId){
+        if (instant==null){
+            return "";
+        }
+        return instant.atZone(zoneId).format( Mdm.DATE_TIME_FORMATTER.value(DateTimeFormatter.class));
+    }
+
+    public static LocalDate localDateFromString(String localDateStr){
+        if (!StringUtils.hasText(localDateStr)){
+            return null;
+        }
+        try {
+            return LocalDate.parse(localDateStr,Mdm.DATE_FORMATTER.value(DateTimeFormatter.class));
+        } catch (Exception e) {
+            logger.warn(e.getMessage());
+        }
+        return null;
+    }
+
+    public static LocalTime localTimeFromString(String localTimeStr){
+        if (!StringUtils.hasText(localTimeStr)){
+            return null;
+        }
+        try {
+            return LocalTime.parse(localTimeStr,Mdm.TIME_FORMATTER.value(DateTimeFormatter.class));
+        } catch (Exception e) {
+            logger.warn(e.getMessage());
+        }
+        return null;
+    }
+
+    public static LocalDateTime localDateTimeFromString(String localDateTimeStr){
+        if (!StringUtils.hasText(localDateTimeStr)){
+            return null;
+        }
+        try {
+            return LocalDateTime.parse(localDateTimeStr,Mdm.DATE_TIME_FORMATTER.value(DateTimeFormatter.class));
+        } catch (Exception e) {
+            logger.warn(e.getMessage());
+        }
+        return null;
+    }
+
+    public static Instant instantFromLocalDateTimeString(String instantStr,ZoneId zoneId){
+        if (!StringUtils.hasText(instantStr)){
+            return null;
+        }
+        try {
+            return ZonedDateTime.of(LocalDateTime.parse(instantStr, Mdm.DATE_TIME_FORMATTER.value(DateTimeFormatter.class)),zoneId).toInstant();
+        } catch (Exception e) {
+            logger.warn(e.getMessage());
+        }
+        return null;
     }
 }

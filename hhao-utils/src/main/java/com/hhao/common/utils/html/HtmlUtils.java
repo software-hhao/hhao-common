@@ -31,7 +31,7 @@ public class HtmlUtils {
      */
     public static final String DEFAULT_CHARACTER_ENCODING = "ISO-8859-1";
 
-    private static final HtmlCharacterEntityReferences characterEntityReferences =
+    private static HtmlCharacterEntityReferences characterEntityReferences =
             new HtmlCharacterEntityReferences();
 
 

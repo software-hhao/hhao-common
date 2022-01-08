@@ -35,6 +35,8 @@ public class MonetaryRoundingMetadata implements Metadata<MonetaryRounding> {
     protected final Logger logger = LoggerFactory.getLogger(MonetaryRoundingMetadata.class);
     private final String NAME = "MONETARY_ROUNDING";
     private String value = "2:HALF_UP";
+    private Integer scale=2;
+    private RoundingMode roundingMode=RoundingMode.HALF_UP;
     private MonetaryRounding rounding = Monetary.getRounding(
             RoundingQueryBuilder.of().setScale(2).set(RoundingMode.HALF_UP).build()
     );
@@ -78,10 +80,13 @@ public class MonetaryRoundingMetadata implements Metadata<MonetaryRounding> {
         }
 
         try {
+            scale=Integer.parseInt(values[0]);
+            roundingMode=findRoundingMode(values[1]);
+
             rounding = Monetary.getRounding(
                     RoundingQueryBuilder.of()
-                            .setScale(Integer.parseInt(values[0]))
-                            .set(findRoundingMode(values[1]))
+                            .setScale(scale)
+                            .set(roundingMode)
                             .build()
             );
         } catch (Exception e) {
@@ -103,5 +108,13 @@ public class MonetaryRoundingMetadata implements Metadata<MonetaryRounding> {
             }
         }
         return RoundingMode.HALF_UP;
+    }
+
+    public Integer getScale() {
+        return scale;
+    }
+
+    public RoundingMode getRoundingMode() {
+        return roundingMode;
     }
 }

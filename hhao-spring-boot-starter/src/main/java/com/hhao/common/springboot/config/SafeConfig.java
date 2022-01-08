@@ -42,7 +42,7 @@ public class SafeConfig extends AbstractBaseConfig {
     /**
      * Xss过滤的规则文件
      */
-    @Value("${com.hhao.xss.policy:'classpath:config/antisamy.xml'}")
+    @Value("${com.hhao.xss.policy:classpath:config/antisamy.xml}")
     public String policyUri;
 
     /**

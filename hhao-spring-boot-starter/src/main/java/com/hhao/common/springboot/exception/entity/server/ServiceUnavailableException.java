@@ -1,5 +1,6 @@
+
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2018-2022 WangSheng.
  *
  * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,60 +15,50 @@
  * limitations under the License.
  */
 
-package com.hhao.common.springboot.exception.entity.unknow;
+package com.hhao.common.springboot.exception.entity.server;
 
 import com.hhao.common.springboot.exception.ErrorInfo;
 import com.hhao.common.springboot.exception.ErrorInfos;
-import com.hhao.common.springboot.exception.entity.AbstractUnknowRuntimeException;
 
 /**
- * 未知异常
+ * 系统繁忙错误，如系统被降级、限流
  *
  * @author Wang
- * @since 1.0.0
+ * @since 2022 /1/6 17:06
  */
-public class UnknowException extends AbstractUnknowRuntimeException {
+public class ServiceUnavailableException extends AbstractServerRuntimeException {
     /**
-     * Instantiates a new Unknow exception.
+     * Instantiates a new System busy runtime exception.
      *
      * @param errorInfo the error info
      * @param cause     the cause
      */
-    public UnknowException(ErrorInfo errorInfo, Throwable cause) {
+    public ServiceUnavailableException(ErrorInfo errorInfo, Throwable cause) {
         super(errorInfo, cause);
     }
 
     /**
-     * Instantiates a new Unknow exception.
+     * Instantiates a new System busy runtime exception.
      *
      * @param errorInfo the error info
      */
-    public UnknowException(ErrorInfo errorInfo) {
+    public ServiceUnavailableException(ErrorInfo errorInfo) {
         super(errorInfo);
     }
 
     /**
-     * Instantiates a new Unknow exception.
+     * Instantiates a new System busy runtime exception.
      *
      * @param cause the cause
      */
-    public UnknowException(Throwable cause) {
-        super(ErrorInfos.ERROR_999,cause);
+    public ServiceUnavailableException(Throwable cause) {
+        super(ErrorInfos.ERROR_503, cause);
     }
 
     /**
-     * Instantiates a new Unknow exception.
+     * Instantiates a new System busy runtime exception.
      */
-    public UnknowException() {
-        super(ErrorInfos.ERROR_999);
-    }
-
-    @Override
-    public String getMessage() {
-        String message=super.getMessage();
-        if (this.getCause()!=null){
-            message=message + ":" + this.getCause().getMessage();
-        }
-        return message;
+    public ServiceUnavailableException() {
+        super(ErrorInfos.ERROR_503);
     }
 }

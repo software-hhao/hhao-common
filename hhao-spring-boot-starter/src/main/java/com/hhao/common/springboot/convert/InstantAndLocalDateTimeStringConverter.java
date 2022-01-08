@@ -35,7 +35,7 @@ import java.util.Set;
  * @author Wan
  * @since 1.0.0
  */
-public class InstantAndStringConverter implements ConditionalGenericConverter {
+public class InstantAndLocalDateTimeStringConverter implements ConditionalGenericConverter {
     @Override
     public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
         if (sourceType.getType().equals(String.class) && targetType.getType().equals(Instant.class)) {

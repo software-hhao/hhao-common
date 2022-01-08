@@ -102,6 +102,20 @@ public class DefaultJacksonUtil implements JacksonUtil {
         }
     }
 
+    @Override
+    public <T,H> T string2Pojo(String text,Class<T> clazz,Class<H> valueRefClass, Class<?> classView) {
+        JavaType javaType = mapper.getTypeFactory().constructParametricType(clazz,valueRefClass);
+        try {
+            if (classView != null) {
+                return mapper.readerWithView(classView).forType(javaType).readValue(text);
+            } else {
+                return mapper.readValue(text, javaType);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * 将JSON字符串反序列化为Java对象
      *

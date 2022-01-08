@@ -31,9 +31,13 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
+
+import java.util.List;
 
 /**
  * Spring Boot 默认的Jackson自动化配置类:
@@ -67,10 +71,10 @@ public class JacksonConfig extends AbstractBaseMvcConfig {
      * @param objectMapper the object mapper
      * @return the mapping jackson 2 http message converter
      */
-    @Bean
-    public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter(ObjectMapper objectMapper) {
-        return new MappingJackson2HttpMessageConverter(objectMapper);
-    }
+    //@Bean
+    //public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter(ObjectMapper objectMapper) {
+    //    return new MappingJackson2HttpMessageConverter(objectMapper);
+    //}
 
     /**
      * Mapping jackson 2 xml http message converter mapping jackson 2 xml http message converter.
@@ -78,10 +82,10 @@ public class JacksonConfig extends AbstractBaseMvcConfig {
      * @param xmlMapper the xml mapper
      * @return the mapping jackson 2 xml http message converter
      */
-    @Bean
-    public MappingJackson2XmlHttpMessageConverter mappingJackson2XmlHttpMessageConverter(XmlMapper xmlMapper) {
-        return new MappingJackson2XmlHttpMessageConverter(xmlMapper);
-    }
+    //@Bean
+    //public MappingJackson2XmlHttpMessageConverter mappingJackson2XmlHttpMessageConverter(XmlMapper xmlMapper) {
+    //    return new MappingJackson2XmlHttpMessageConverter(xmlMapper);
+    //}
 
     /***
      * 这部份的代码是借助JacksonAutoConfiguration的Jackson2ObjectMapperBuilder生成ObjectMapper 然后配置生成后的ObjectMapper 这样可以利用Spring的初始化配置功能，同时加入后期需要改进的功能，并使全局的JacksonUtil与Spring的ObjectMapper一致 注意，Bean的名称不能变
@@ -91,10 +95,10 @@ public class JacksonConfig extends AbstractBaseMvcConfig {
     @Primary
     @Bean("jacksonObjectMapper")
     public ObjectMapper jacksonObjectMapper(Jackson2ObjectMapperBuilder builder) {
+        builder.featuresToDisable(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS);
         ObjectMapper objectMapper = builder.createXmlMapper(false).build();
         //允许模块重复注册，以自定义的模块替换原模块
-        objectMapper.configure(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS, false);
-
+        //objectMapper.configure(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS, false);
         //注册一些模块
         objectMapper.registerModule(new MoneyModule(moneyJacksonProperties.deserializerUseMoneyFormat, moneyJacksonProperties.serializerUseMoneyFormat, new MonetaryAmountSerializer.FieldNames(moneyJacksonProperties.amountFieldName, moneyJacksonProperties.currencyUnitFieldName, moneyJacksonProperties.formattedFieldName)));
 
@@ -112,7 +116,7 @@ public class JacksonConfig extends AbstractBaseMvcConfig {
     protected JacksonUtil buildJsonUtil(ObjectMapper objectMapper) {
         JacksonUtil jsonUtil = new DefaultJacksonUtilBuilder<ObjectMapper>()
                 .init()
-                .build(ObjectMapper.class,mapper->{
+                .build(objectMapper,mapper->{
 
                 });
         JacksonUtilFactory.addJsonUtil(JacksonUtilFactory.DEFAULT_KEY, jsonUtil);
@@ -127,11 +131,12 @@ public class JacksonConfig extends AbstractBaseMvcConfig {
      */
     @Bean("xmlMapper")
     public XmlMapper xmlMapper(Jackson2ObjectMapperBuilder builder) {
+        builder.featuresToDisable(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS);
         XmlMapper xmlMapper = builder.createXmlMapper(true).build();
         //允许模块重复注册，以自定义的模块替换原模块
-        xmlMapper.configure(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS, false);
+        //因为方法过时了，所以改用builder.featuresToEnable(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS);
+        //xmlMapper.configure(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS, false);
         //在此步骤中，会用自定义的模块覆盖原来的模块
-
         //注册一些模块
         xmlMapper.registerModule(new MoneyModule(moneyJacksonProperties.deserializerUseMoneyFormat, moneyJacksonProperties.serializerUseMoneyFormat, new MonetaryAmountSerializer.FieldNames(moneyJacksonProperties.amountFieldName, moneyJacksonProperties.currencyUnitFieldName, moneyJacksonProperties.formattedFieldName)));
 
@@ -148,12 +153,33 @@ public class JacksonConfig extends AbstractBaseMvcConfig {
     protected JacksonUtil buildXmlUtil(XmlMapper xmlMapper) {
         JacksonUtil xmlUtil = new DefaultJacksonUtilBuilder<XmlMapper>()
                 .init()
-                .build(XmlMapper.class,mapper->{
+                .build(xmlMapper,mapper->{
 
                 });
         JacksonUtilFactory.addXmlUtil(JacksonUtilFactory.DEFAULT_KEY, xmlUtil);
         return xmlUtil;
     }
+
+
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        int index=0;
+        for(HttpMessageConverter converter:converters){
+            if(converter instanceof StringHttpMessageConverter){
+                break;
+            }
+            index++;
+        }
+        //这两个要加在StringHttpMessageConverter之前，否则当String类型的application/json将会被StringHttpMessageConverter先行转换
+        converters.add(index,new MappingJackson2XmlHttpMessageConverter(JacksonUtilFactory.getXmlUtil().getObjectMapper()));
+        converters.add(index,new MappingJackson2HttpMessageConverter(JacksonUtilFactory.getJsonUtil().getObjectMapper()));
+    }
+
+    @Override
+    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+
+    }
+
 
 
     /**

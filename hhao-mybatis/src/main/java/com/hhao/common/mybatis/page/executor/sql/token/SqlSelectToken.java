@@ -111,6 +111,7 @@ public class SqlSelectToken extends SqlFragmentToken implements SelectToken{
         this.havingToken = havingToken;
     }
 
+    @Override
     public SelectToken of(Token token){
         SelectToken selectToken=new SqlSelectToken(token.getValue());
         selectToken.setFragmentToken(token.getFragmentToken());

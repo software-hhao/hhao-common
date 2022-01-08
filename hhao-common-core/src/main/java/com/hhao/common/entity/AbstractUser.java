@@ -20,6 +20,7 @@ import java.security.Principal;
 
 /**
  * The type User.
+ * 用户类的基类
  *
  * @author Wang
  * @since 1.0.0

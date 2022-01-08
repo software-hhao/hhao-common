@@ -63,7 +63,7 @@ public class DateTimeAnnotationFormatterFactory implements AnnotationFormatterFa
     private Formatter<Instant> getInstantFormatter(String pattern,String[] fallbackPatterns) {
         Formatter<Instant> formatter = instantFormatterMap.get(pattern);
         if (formatter == null) {
-            formatter = new InstantFormatImpl(pattern,fallbackPatterns);
+            formatter = new InstantAndLocalDateTimeStrFormatImpl(pattern,fallbackPatterns);
             instantFormatterMap.put(pattern, formatter);
         }
         return formatter;
