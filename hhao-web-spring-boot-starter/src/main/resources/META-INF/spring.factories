@@ -4,7 +4,6 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.hhao.common.springboot.web.config.component.CustomConfig,\
 com.hhao.common.springboot.web.config.filter.FilterConfig,\
 com.hhao.common.springboot.web.config.interceptor.InterceptorConfig,\
-com.hhao.common.springboot.web.config.swagger.SwaggerConfig,\
 com.hhao.common.springboot.web.config.webserver.JettyServletWebServerConfig,\
 com.hhao.common.springboot.web.config.webserver.TomcatServletWebServerConfig,\
 com.hhao.common.springboot.web.config.webserver.UndertowServletWebServerConfig,\
@@ -17,4 +16,5 @@ com.hhao.common.springboot.web.config.GlobalReturnConfig,\
 com.hhao.common.springboot.web.config.JacksonConfig,\
 com.hhao.common.springboot.web.config.ResourceConfig,\
 com.hhao.common.springboot.web.config.exception.ErrorConfig,\
-com.hhao.common.springboot.web.config.mybatis.MyBatisConfig
+com.hhao.common.springboot.web.config.mybatis.MyBatisConfig,\
+com.hhao.common.springboot.web.config.SwaggerConfig

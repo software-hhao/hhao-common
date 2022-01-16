@@ -41,6 +41,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import javax.servlet.RequestDispatcher;
+import java.lang.reflect.Method;
 
 /**
  * 通过ResponseAutoWrapper注解，执行Rest统一返回
@@ -89,14 +90,23 @@ public class GlobalReturnConfig {
         return new ResponseBodyAdvice<Object>() {
             @Override
             public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-                //如果继承自UnResultWrapper,则不支持自动包装
-                if (returnType.getMethod()!=null && returnType.getMethod().getReturnType()!=null && returnType.getMethod().getReturnType().isAssignableFrom(UnResultWrapper.class)){
+                if (returnType==null){
+                    return false;
+                }
+                Method method=returnType.getMethod();
+                if (method==null){
+                    return false;
+                }
+                //如果返回值类型继承自UnResultWrapper,则不支持自动包装
+                if (method.getReturnType()!=null && method.getReturnType().isAssignableFrom(UnResultWrapper.class)){
                     return false;
                 }
                 //判断是否有ResponseAutoWrapper的注解
-                ResponseAutoWrapper  responseAutoWrapper=returnType.getMethod().getAnnotation(ResponseAutoWrapper.class);
-                if (responseAutoWrapper==null){
-                    responseAutoWrapper=returnType.getDeclaringClass().getAnnotation(ResponseAutoWrapper.class);
+                //方法级注解
+                ResponseAutoWrapper  responseAutoWrapper=method.getAnnotation(ResponseAutoWrapper.class);
+                if (responseAutoWrapper==null && method.getDeclaringClass()!=null){
+                    //类级注解
+                    responseAutoWrapper=method.getDeclaringClass().getAnnotation(ResponseAutoWrapper.class);
                 }
                 if (responseAutoWrapper==null || responseAutoWrapper.value()==false){
                     return false;

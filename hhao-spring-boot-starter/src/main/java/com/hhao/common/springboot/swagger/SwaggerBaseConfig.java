@@ -14,20 +14,13 @@
  * limitations under the License.
  */
 
-package com.hhao.common.springboot.web.config.swagger;
+package com.hhao.common.springboot.swagger;
 
 import com.fasterxml.classmate.TypeResolver;
-import com.hhao.common.springboot.web.config.AbstractBaseMvcConfig;
 import com.hhao.common.springboot.response.ResultWrapper;
 import com.hhao.common.springboot.utils.BeanUtils;
 import org.joda.time.DateTime;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 import springfox.documentation.RequestHandler;
@@ -61,12 +54,7 @@ import java.util.stream.Collectors;
  * @author Wang
  * @since 1.0.0
  */
-@Configuration(proxyBeanMethods = false)
-@ConditionalOnMissingBean(SwaggerConfig.class)
-@ConditionalOnClass({springfox.documentation.spring.web.plugins.Docket.class})
-@Import({springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration.class})
-@ConditionalOnProperty(prefix = "com.hhao.config.swagger",name = "enable",havingValue = "true",matchIfMissing = true)
-public class SwaggerConfig extends AbstractBaseMvcConfig {
+public class SwaggerBaseConfig {
     /**
      * The Type resolver.
      */
@@ -76,6 +64,8 @@ public class SwaggerConfig extends AbstractBaseMvcConfig {
      */
     protected SwaggerGroupProperties swaggerGroupProperties;
 
+    protected ApplicationContext applicationContext;
+
     /**
      * Instantiates a new Swagger config.
      *
@@ -83,11 +73,10 @@ public class SwaggerConfig extends AbstractBaseMvcConfig {
      * @param swaggerGroupProperties the swagger group properties
      * @param applicationContext     the application context
      */
-    @Autowired
-    public SwaggerConfig(TypeResolver typeResolver, SwaggerGroupProperties swaggerGroupProperties, ApplicationContext applicationContext){
+    public SwaggerBaseConfig(TypeResolver typeResolver, SwaggerGroupProperties swaggerGroupProperties, ApplicationContext applicationContext){
         this.typeResolver=typeResolver;
         this.swaggerGroupProperties=swaggerGroupProperties;
-        this.setApplicationContext(applicationContext);
+        this.applicationContext=applicationContext;
         this.generateDocketBean();
     }
 
@@ -97,7 +86,7 @@ public class SwaggerConfig extends AbstractBaseMvcConfig {
     private void generateDocketBean(){
         if (swaggerGroupProperties.getEnable()){
             for(SwaggerProperties properties:swaggerGroupProperties.getSwaggerGroups()){
-                Docket docket= BeanUtils.registerBean(Docket.class,properties.getGroupName()+ UUID.randomUUID().toString(),new Object[]{DocumentationType.SWAGGER_2},this.getApplicationContext());
+                Docket docket= BeanUtils.registerBean(Docket.class,properties.getGroupName()+ UUID.randomUUID().toString(),new Object[]{DocumentationType.SWAGGER_2},this.applicationContext);
                 buildDocket(docket,properties);
             }
         }
@@ -206,7 +195,7 @@ public class SwaggerConfig extends AbstractBaseMvcConfig {
      * @param properties the properties
      * @return the docket
      */
-    protected Docket buildDocket(Docket docket,SwaggerProperties properties){
+    protected Docket buildDocket(Docket docket, SwaggerProperties properties){
         return  docket
                 //指定分组名称
                 .groupName(properties.getGroupName())

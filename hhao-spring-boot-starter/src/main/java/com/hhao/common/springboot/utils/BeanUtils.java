@@ -57,6 +57,6 @@ public class BeanUtils {
         defaultListableBeanFactory.registerBeanDefinition(beanName, beanDefinitionBuilder.getBeanDefinition());
 
         //获取动态注册的bean.
-        return configurableApplicationContext.getBean(requiredType);
+        return configurableApplicationContext.getBean(beanName,requiredType);
     }
 }

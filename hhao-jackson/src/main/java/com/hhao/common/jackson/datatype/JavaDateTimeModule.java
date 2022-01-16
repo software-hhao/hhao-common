@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.hhao.common.metadata.Mdm;
 
-import java.io.Serial;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Function;
@@ -33,7 +32,6 @@ import java.util.function.Function;
  * @since 1.0.0
  */
 public class JavaDateTimeModule extends SimpleModule {
-    @Serial
     private static final long serialVersionUID = 3796028264604640166L;
     private Function<BeanProperty, JsonFormat.Value> jsonFormatFilterFunction;
 

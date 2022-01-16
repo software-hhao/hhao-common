@@ -43,6 +43,7 @@ public abstract class AbstractBaseRuntimeException extends RuntimeException impl
      * @param cause     the cause
      */
     public AbstractBaseRuntimeException(@NotNull ErrorInfo errorInfo, Throwable cause) {
+        super(cause);
         this.errorInfo = errorInfo;
     }
 

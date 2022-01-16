@@ -1,0 +1,14 @@
+# Auto Configure
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.hhao.common.sprintboot.webflux.config.ResourceConfig,\
+  com.hhao.common.sprintboot.webflux.config.LocaleResolverConfig,\
+  com.hhao.common.sprintboot.webflux.config.JacksonConfig,\
+  com.hhao.common.sprintboot.webflux.config.MultipartConfig,\
+  com.hhao.common.sprintboot.webflux.config.ForwardedHeaderConfig,\
+  com.hhao.common.sprintboot.webflux.config.greturn.GlobalReturnConfig,\
+  com.hhao.common.sprintboot.webflux.config.exception.ExceptionConfig,\
+  com.hhao.common.sprintboot.webflux.config.ConvertersAndFormattersConfig,\
+  com.hhao.common.sprintboot.webflux.config.CorsConfig,\
+  com.hhao.common.sprintboot.webflux.config.CommonConfig,\
+  com.hhao.common.sprintboot.webflux.config.safe.SafeConfig,\
+  com.hhao.common.sprintboot.webflux.config.SwaggerConfig

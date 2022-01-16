@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.hhao.common.springboot.web.config.swagger;
+package com.hhao.common.springboot.swagger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -29,12 +29,12 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration(proxyBeanMethods = false)
 @ConfigurationProperties("com.hhao.config.swagger")
-@EnableConfigurationProperties({SwaggerGroupProperties.class,SwaggerProperties.class})
+@EnableConfigurationProperties({SwaggerGroupProperties.class, SwaggerProperties.class})
 public class SwaggerGroupProperties {
     //是否启用swagger
     private Boolean enable=true;
 
-    private SwaggerProperties [] swaggerGroups;
+    private SwaggerProperties[] swaggerGroups;
 
     /**
      * Get swagger groups swagger properties [ ].

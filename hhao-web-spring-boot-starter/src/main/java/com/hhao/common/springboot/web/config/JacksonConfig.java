@@ -24,8 +24,10 @@ import com.hhao.common.jackson.JacksonUtil;
 import com.hhao.common.jackson.JacksonUtilFactory;
 import com.hhao.extend.money.jackson.MonetaryAmountSerializer;
 import com.hhao.extend.money.jackson.MoneyModule;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -51,6 +53,7 @@ import java.util.List;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnMissingBean(JacksonConfig.class)
+@AutoConfigureBefore(JacksonAutoConfiguration.class)
 @EnableConfigurationProperties({JacksonConfig.MoneyJacksonProperties.class})
 @ConditionalOnProperty(prefix = "com.hhao.config.jackson", name = "enable", havingValue = "true", matchIfMissing = true)
 public class JacksonConfig extends AbstractBaseMvcConfig {

@@ -21,13 +21,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 
 /**
  * org.springframework.context.support.DefaultLifecycleProcessor
@@ -36,6 +32,7 @@ import org.springframework.stereotype.Component;
  * @since 1.0.0
  */
 @Configuration(proxyBeanMethods = false)
+@ConditionalOnMissingBean(AppSmartLifecycleConfig.class)
 @ConditionalOnProperty(prefix = "com.hhao.config.app-smart-lifecycle",name = "enable",havingValue = "true",matchIfMissing = true)
 public class AppSmartLifecycleConfig extends AbstractBaseConfig {
 

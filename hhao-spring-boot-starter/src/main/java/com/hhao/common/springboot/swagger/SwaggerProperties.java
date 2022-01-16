@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.hhao.common.springboot.web.config.swagger;
+package com.hhao.common.springboot.swagger;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

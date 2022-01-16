@@ -55,6 +55,16 @@
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
         </dependency>
+
+        <!--https://doc.xiaominfo.com/knife4j/documentation/-->
+        <!--https://github.com/springfox/springfox-demos-->
+        <!--https://github.com/springfox/springfox-->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-spring-boot-starter</artifactId>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>

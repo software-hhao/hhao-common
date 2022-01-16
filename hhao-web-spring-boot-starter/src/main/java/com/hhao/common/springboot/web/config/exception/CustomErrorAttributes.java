@@ -84,7 +84,7 @@ public class CustomErrorAttributes extends DefaultErrorAttributes {
      */
     @Override
     public Map<String, Object> getErrorAttributes(WebRequest webRequest, ErrorAttributeOptions options) {
-        //个异常已包含异常属性，可直接返回
+        //异常已包含异常属性，可直接返回
         Map<String, Object> errorAttributes =directReturnErrorAttributes(webRequest);
         if (errorAttributes!=null){
             return errorAttributes;

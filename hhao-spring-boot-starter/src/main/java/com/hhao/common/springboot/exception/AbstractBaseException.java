@@ -42,6 +42,7 @@ public abstract class AbstractBaseException extends Exception implements BaseExc
      * @param cause     the cause
      */
     public AbstractBaseException(@NotNull ErrorInfo errorInfo, Throwable cause) {
+        super(cause);
         this.errorInfo = errorInfo;
     }
 

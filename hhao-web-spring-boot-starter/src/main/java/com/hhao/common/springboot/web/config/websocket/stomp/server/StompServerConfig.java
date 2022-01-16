@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -78,6 +79,7 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
 @Order(Ordered.HIGHEST_PRECEDENCE + 99)
 @ConditionalOnMissingBean(StompServerConfig.class)
 @ConditionalOnClass({WebSocketMessageBrokerConfigurer.class})
+@EnableConfigurationProperties({StompProperties.class,StompProperties.SimpleBrokerProperties.class,StompProperties.StompBrokerRelayProperties.class})
 @ConditionalOnProperty(prefix = "com.hhao.config.stomp",name = "enable",havingValue = "true",matchIfMissing = false)
 public class StompServerConfig implements WebSocketMessageBrokerConfigurer {
     //属性

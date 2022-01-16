@@ -17,7 +17,7 @@
 package com.hhao.common.springboot.config.aop;
 
 import com.hhao.common.springboot.config.AbstractBaseConfig;
-import com.hhao.common.springboot.safe.SafeHtmlExecutor;
+import com.hhao.common.springboot.safe.filter.SafeFilter;
 import org.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -35,6 +35,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
  * @since 1.0.0
  */
 @Configuration(proxyBeanMethods = false)
+@ConditionalOnMissingBean(AopAdvisorConfig.class)
 @EnableAspectJAutoProxy
 public class AopAdvisorConfig extends AbstractBaseConfig {
     /**
@@ -54,19 +55,16 @@ public class AopAdvisorConfig extends AbstractBaseConfig {
      * 定义api接口的advisor
      * 当设置com.hhao.aop.pointcut-api值时生成Bean
      *
-     * @param safeHtmlExecutor the safe html executor
+     * @param safeFilter the safe filter
      * @return aspect j expression pointcut advisor
      */
     @Bean
     @ConditionalOnExpression("not ('${com.hhao.aop.pointcut:}' matches '(\\s)*')")
-    public AspectJExpressionPointcutAdvisor apiAdvisor(SafeHtmlExecutor safeHtmlExecutor) {
+    public AspectJExpressionPointcutAdvisor apiAdvisor(SafeFilter safeFilter) {
         AspectJExpressionPointcutAdvisor advisor = new AspectJExpressionPointcutAdvisor();
         advisor.setExpression(pointcutApi);
-        ApiAroundAdvice apiAroundAdvice=new ApiAroundAdvice();
-        apiAroundAdvice
-                //xss拦截设置
-                .setSafeHtmlExecutor(safeHtmlExecutor)
-                .setEnableSafeFilter(enableSafeFilter);
+        ApiAroundAdvice apiAroundAdvice=new ApiAroundAdvice(safeFilter);
+        apiAroundAdvice.setEnableSafeFilter(enableSafeFilter);
 
         advisor.setAdvice(apiAroundAdvice);
         return advisor;

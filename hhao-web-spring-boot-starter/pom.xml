@@ -62,11 +62,14 @@
             <scope>provided</scope>
         </dependency>
 
+        <!--https://doc.xiaominfo.com/knife4j/documentation/-->
+        <!--https://github.com/springfox/springfox-demos-->
+        <!--https://github.com/springfox/springfox-->
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
             <artifactId>knife4j-spring-boot-starter</artifactId>
+            <scope>compile</scope>
             <optional>true</optional>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 
