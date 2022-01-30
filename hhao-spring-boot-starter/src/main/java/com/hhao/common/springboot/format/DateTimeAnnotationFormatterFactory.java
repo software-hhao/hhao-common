@@ -42,16 +42,17 @@ public class DateTimeAnnotationFormatterFactory implements AnnotationFormatterFa
     private Map<String, Formatter<LocalTime>> localTimeFormatterMap = new ConcurrentHashMap<>();
     private Map<String, Formatter<LocalDateTime>> localDateTimeFormatterMap = new ConcurrentHashMap<>();
     private Map<String, Formatter<ZonedDateTime>> zonedDateTimeFormatterMap = new ConcurrentHashMap<>();
-
+    private Boolean dataTimeErrorThrow;
     /**
      * Instantiates a new Date time annotation formatter factory.
      */
-    public DateTimeAnnotationFormatterFactory() {
+    public DateTimeAnnotationFormatterFactory(Boolean dataTimeErrorThrow) {
         this.fieldTypes.add(Instant.class);
         this.fieldTypes.add(LocalDate.class);
         this.fieldTypes.add(LocalTime.class);
         this.fieldTypes.add(LocalDateTime.class);
         this.fieldTypes.add(ZonedDateTime.class);
+        this.dataTimeErrorThrow=dataTimeErrorThrow;
     }
 
     @Override
@@ -63,7 +64,7 @@ public class DateTimeAnnotationFormatterFactory implements AnnotationFormatterFa
     private Formatter<Instant> getInstantFormatter(String pattern,String[] fallbackPatterns) {
         Formatter<Instant> formatter = instantFormatterMap.get(pattern);
         if (formatter == null) {
-            formatter = new InstantAndLocalDateTimeStrFormatImpl(pattern,fallbackPatterns);
+            formatter = new InstantAndLocalDateTimeStrFormatImpl(pattern,dataTimeErrorThrow,fallbackPatterns);
             instantFormatterMap.put(pattern, formatter);
         }
         return formatter;
@@ -72,7 +73,7 @@ public class DateTimeAnnotationFormatterFactory implements AnnotationFormatterFa
     private Formatter<LocalDate> getLocalDateFormatter(String pattern,String[] fallbackPatterns) {
         Formatter<LocalDate> formatter = localDateFormatterMap.get(pattern);
         if (formatter == null) {
-            formatter = new LocalDateFormatImpl(pattern,fallbackPatterns);
+            formatter = new LocalDateFormatImpl(pattern,dataTimeErrorThrow,fallbackPatterns);
             localDateFormatterMap.put(pattern, formatter);
         }
         return formatter;
@@ -81,7 +82,7 @@ public class DateTimeAnnotationFormatterFactory implements AnnotationFormatterFa
     private Formatter<LocalTime> getLocalTimeFormatter(String pattern,String[] fallbackPatterns) {
         Formatter<LocalTime> formatter = localTimeFormatterMap.get(pattern);
         if (formatter == null) {
-            formatter = new LocalTimeFormatImpl(pattern,fallbackPatterns);
+            formatter = new LocalTimeFormatImpl(pattern,dataTimeErrorThrow,fallbackPatterns);
             localTimeFormatterMap.put(pattern, formatter);
         }
         return formatter;
@@ -90,7 +91,7 @@ public class DateTimeAnnotationFormatterFactory implements AnnotationFormatterFa
     private Formatter<LocalDateTime> getLocalDateTimeFormatter(String pattern,String[] fallbackPatterns) {
         Formatter<LocalDateTime> formatter = localDateTimeFormatterMap.get(pattern);
         if (formatter == null) {
-            formatter = new LocalDateTimeFormatImpl(pattern,fallbackPatterns);
+            formatter = new LocalDateTimeFormatImpl(pattern,dataTimeErrorThrow,fallbackPatterns);
             localDateTimeFormatterMap.put(pattern, formatter);
         }
         return formatter;
@@ -99,7 +100,7 @@ public class DateTimeAnnotationFormatterFactory implements AnnotationFormatterFa
     private Formatter<ZonedDateTime> getZonedDateTimeFormatter(String pattern,String[] fallbackPatterns) {
         Formatter<ZonedDateTime> formatter = zonedDateTimeFormatterMap.get(pattern);
         if (formatter == null) {
-            formatter = new ZonedDateTimeFormatImpl(pattern,fallbackPatterns);
+            formatter = new ZonedDateTimeFormatImpl(pattern,dataTimeErrorThrow,fallbackPatterns);
             zonedDateTimeFormatterMap.put(pattern, formatter);
         }
         return formatter;

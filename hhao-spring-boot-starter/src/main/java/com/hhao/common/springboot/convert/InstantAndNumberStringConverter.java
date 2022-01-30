@@ -17,6 +17,8 @@
 
 package com.hhao.common.springboot.convert;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.ConditionalGenericConverter;
 import org.springframework.util.StringUtils;
@@ -30,6 +32,12 @@ import java.util.Set;
  * @since 2021/12/14 21:13
  */
 public class InstantAndNumberStringConverter  implements ConditionalGenericConverter {
+    protected final Logger logger = LoggerFactory.getLogger(InstantAndNumberStringConverter.class);
+    private Boolean dataTimeErrorThrow=false;
+
+    public InstantAndNumberStringConverter(Boolean dataTimeErrorThrow){
+        this.dataTimeErrorThrow=dataTimeErrorThrow;
+    }
     @Override
     public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
         if (sourceType.getType().equals(String.class) && targetType.getType().equals(Instant.class)) {
@@ -62,7 +70,10 @@ public class InstantAndNumberStringConverter  implements ConditionalGenericConve
                     return Instant.ofEpochSecond(Long.parseLong((String)source));
                 }
             }catch (Exception e){
-                e.printStackTrace();
+                if (dataTimeErrorThrow){
+                    throw new RuntimeException(e);
+                }
+                logger.debug(e.getMessage());
             }
         } else {
             Instant instant = (Instant) source;

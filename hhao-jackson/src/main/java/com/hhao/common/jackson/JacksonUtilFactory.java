@@ -33,22 +33,19 @@ public class JacksonUtilFactory {
     /**
      * The constant DEFAULT_KEY.
      */
+    public static Boolean dataTimeErrorThrow=true;
     public static final String DEFAULT_KEY = "default";
     private static Map<String, JacksonUtil> jsonUtilMap = new ConcurrentHashMap<>();
     private static Map<String, JacksonUtil> xmlUtilMap = new ConcurrentHashMap<>();
 
     static {
         jsonUtilMap.put(DEFAULT_KEY, new DefaultJacksonUtilBuilder()
-                .init()
-                .initWellKnownConfigures()
-                .initWellKnownModules()
+                .init(dataTimeErrorThrow)
                 .build(ObjectMapper.class,mapper -> {
                 }));
 
         xmlUtilMap.put(DEFAULT_KEY, new DefaultJacksonUtilBuilder()
-                .init()
-                .initWellKnownConfigures()
-                .initWellKnownModules()
+                .init(dataTimeErrorThrow)
                 .build(XmlMapper.class, mapper -> {
                 }));
     }

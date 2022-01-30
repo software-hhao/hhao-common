@@ -16,7 +16,6 @@
 
 package com.hhao.common.springboot.web.config;
 
-import com.hhao.common.springboot.convert.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
@@ -40,4 +39,5 @@ public class CommonConfig extends AbstractBaseMvcConfig {
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/").setViewName("index");
     }
+
 }

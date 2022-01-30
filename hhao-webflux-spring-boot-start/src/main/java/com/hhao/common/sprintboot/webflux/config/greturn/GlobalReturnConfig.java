@@ -42,6 +42,22 @@ import org.springframework.web.reactive.result.method.annotation.ResponseEntityR
  * DispatcherHandler#handleResult
  * DispatcherHandler#resultHandlers
  *
+ * 重写了两种ResponseBodyResultHandler、ResponseEntityResultHandler返回处理
+ * 另外ServerResponseResultHandler没有重写，需要手动返回包装结果：
+ *
+ *     public Mono<ServerResponse> handleJbook1(ServerRequest request) {
+ *         Mono<JBook1> jBook1Mono = request.bodyToMono(JBook1.class).doOnNext(this::validate);
+ * //        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(jBook1Mono,JBook1.class);
+ *
+ * //        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromPublisher(jBook1Mono.map(jBook1 -> {
+ * //            return ResultWrapperBuilder.ok(jBook1);
+ * //        }), new ParameterizedTypeReference<ResultWrapper<JBook1>>() {}));
+ *
+ *         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(jBook1Mono.map(jBook1 -> {
+ *             return ResultWrapperBuilder.ok(jBook1);
+ *         }), new ParameterizedTypeReference<ResultWrapper<JBook1>>() {});
+ *     }
+ *
  * @author Wang
  * @since 2022/1/13 17:21
  */

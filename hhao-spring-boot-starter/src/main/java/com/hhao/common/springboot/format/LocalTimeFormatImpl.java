@@ -16,11 +16,12 @@
 
 package com.hhao.common.springboot.format;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.format.Formatter;
 import org.springframework.util.StringUtils;
 
 import java.text.ParseException;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -34,6 +35,8 @@ import java.util.Locale;
  * @since 1.0.0
  */
 public class LocalTimeFormatImpl implements Formatter<LocalTime> {
+    protected final Logger logger = LoggerFactory.getLogger(LocalTimeFormatImpl.class);
+    private Boolean dataTimeErrorThrow=false;
     private String pattern;
     private String[] fallbackPatterns;
     private DateTimeFormatter dateTimeFormatter;
@@ -45,10 +48,11 @@ public class LocalTimeFormatImpl implements Formatter<LocalTime> {
      * @param pattern          the pattern
      * @param fallbackPatterns the fallback patterns
      */
-    public LocalTimeFormatImpl(String pattern,String[] fallbackPatterns) {
+    public LocalTimeFormatImpl(String pattern,Boolean dataTimeErrorThrow,String[] fallbackPatterns) {
         this.pattern = pattern;
         this.fallbackPatterns=fallbackPatterns;
         this.dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
+        this.dataTimeErrorThrow=dataTimeErrorThrow;
         for(String p:fallbackPatterns) {
             this.fallbackDateTimeFormatters=new ArrayList<>();
             fallbackDateTimeFormatters.add(DateTimeFormatter.ofPattern(p));
@@ -57,6 +61,7 @@ public class LocalTimeFormatImpl implements Formatter<LocalTime> {
 
     @Override
     public LocalTime parse(String text, Locale locale) throws ParseException {
+        Throwable throwable=null;
         if (StringUtils.hasLength(text)) {
             try {
                 return LocalTime.parse(text, dateTimeFormatter);
@@ -66,6 +71,12 @@ public class LocalTimeFormatImpl implements Formatter<LocalTime> {
                 try {
                     return LocalTime.parse(text, df);
                 } catch (Exception e) {
+                }
+            }
+            if (throwable!=null){
+                logger.debug(throwable.getMessage());
+                if(dataTimeErrorThrow){
+                    throw new RuntimeException(throwable);
                 }
             }
         }

@@ -18,6 +18,8 @@ package com.hhao.common.springboot.format;
 
 
 import com.hhao.common.springboot.AppContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.format.Formatter;
 import org.springframework.util.StringUtils;
 
@@ -37,6 +39,8 @@ import java.util.Locale;
  * @since 1.0.0
  */
 public class InstantAndLocalDateTimeStrFormatImpl implements Formatter<Instant> {
+    protected final Logger logger = LoggerFactory.getLogger(InstantAndLocalDateTimeStrFormatImpl.class);
+    private Boolean dataTimeErrorThrow=false;
     private String pattern;
     private String[] fallbackPatterns;
     private DateTimeFormatter dateTimeFormatter;
@@ -48,10 +52,11 @@ public class InstantAndLocalDateTimeStrFormatImpl implements Formatter<Instant> 
      * @param pattern          the pattern
      * @param fallbackPatterns the fallback patterns
      */
-    public InstantAndLocalDateTimeStrFormatImpl(String pattern, String[] fallbackPatterns) {
+    public InstantAndLocalDateTimeStrFormatImpl(String pattern,Boolean dataTimeErrorThrow, String[] fallbackPatterns) {
         this.pattern = pattern;
         this.fallbackPatterns=fallbackPatterns;
         this.dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
+        this.dataTimeErrorThrow=dataTimeErrorThrow;
         for(String p:fallbackPatterns) {
             this.fallbackDateTimeFormatters=new ArrayList<>();
             fallbackDateTimeFormatters.add(DateTimeFormatter.ofPattern(p));
@@ -60,6 +65,7 @@ public class InstantAndLocalDateTimeStrFormatImpl implements Formatter<Instant> 
 
     @Override
     public Instant parse(String text, Locale locale) throws ParseException {
+        Throwable throwable=null;
         if (StringUtils.hasLength(text)) {
             try {
                 return ZonedDateTime.of(LocalDateTime.parse(text, dateTimeFormatter), AppContext.getInstance().getZoneId()).toInstant();
@@ -69,6 +75,12 @@ public class InstantAndLocalDateTimeStrFormatImpl implements Formatter<Instant> 
                 try {
                     return ZonedDateTime.of(LocalDateTime.parse(text, df), AppContext.getInstance().getZoneId()).toInstant();
                 } catch (Exception e) {
+                }
+            }
+            if (throwable!=null){
+                logger.debug(throwable.getMessage());
+                if(dataTimeErrorThrow){
+                    throw new RuntimeException(throwable);
                 }
             }
         }

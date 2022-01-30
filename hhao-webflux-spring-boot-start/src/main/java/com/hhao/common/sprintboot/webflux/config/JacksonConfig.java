@@ -25,6 +25,7 @@ import com.hhao.common.jackson.JacksonUtil;
 import com.hhao.common.jackson.JacksonUtilFactory;
 import com.hhao.extend.money.jackson.MonetaryAmountSerializer;
 import com.hhao.extend.money.jackson.MoneyModule;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -50,6 +51,9 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 @ConditionalOnProperty(prefix = "com.hhao.config.jackson", name = "enable", havingValue = "true", matchIfMissing = true)
 public class JacksonConfig extends AbstractBaseWebFluxConfig{
     private MoneyJacksonProperties moneyJacksonProperties = null;
+
+    @Value("${com.hhao.config.jackson.dataTimeErrorThrow:true}")
+    private Boolean dataTimeErrorThrow;
 
     /**
      * Instantiates a new Jackson config.
@@ -88,7 +92,7 @@ public class JacksonConfig extends AbstractBaseWebFluxConfig{
      */
     protected JacksonUtil buildJsonUtil(ObjectMapper objectMapper) {
         JacksonUtil jsonUtil = new DefaultJacksonUtilBuilder<ObjectMapper>()
-                .init()
+                .init(dataTimeErrorThrow)
                 .build(objectMapper,mapper->{
 
                 });
@@ -125,7 +129,7 @@ public class JacksonConfig extends AbstractBaseWebFluxConfig{
      */
     protected JacksonUtil buildXmlUtil(XmlMapper xmlMapper) {
         JacksonUtil xmlUtil = new DefaultJacksonUtilBuilder<XmlMapper>()
-                .init()
+                .init(dataTimeErrorThrow)
                 .build(xmlMapper,mapper->{
 
                 });

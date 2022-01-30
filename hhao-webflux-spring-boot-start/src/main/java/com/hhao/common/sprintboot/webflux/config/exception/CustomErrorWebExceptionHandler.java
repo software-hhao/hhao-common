@@ -115,8 +115,14 @@ public class CustomErrorWebExceptionHandler extends DefaultErrorWebExceptionHand
      * @return
      */
     public boolean supportResponseWrapper(ServerRequest request) {
-        Object bestMatchingHandler=request.attribute("org.springframework.web.reactive.HandlerMapping.bestMatchingHandler").get();
-        if ((bestMatchingHandler==null) || !(bestMatchingHandler instanceof HandlerMethod)){
+        Object bestMatchingHandler=request.attribute("org.springframework.web.reactive.HandlerMapping.bestMatchingHandler").orElseGet(()->{
+            return null;
+        });
+        //如果不是Handler，则直接采用包装
+        if (bestMatchingHandler==null){
+            return true;
+        }
+        if (!(bestMatchingHandler instanceof HandlerMethod)){
             return false;
         }
         HandlerMethod handlerMethod=(HandlerMethod)bestMatchingHandler;

@@ -57,9 +57,9 @@ public class DefaultJacksonUtilBuilder<T extends ObjectMapper> implements Jackso
         return configures;
     }
 
-    public DefaultJacksonUtilBuilder init() {
+    public DefaultJacksonUtilBuilder init(Boolean dataTimeErrorThrow) {
         this.initWellKnownConfigures();
-        this.initWellKnownModules();
+        this.initWellKnownModules(dataTimeErrorThrow);
         return this;
     }
 
@@ -85,13 +85,13 @@ public class DefaultJacksonUtilBuilder<T extends ObjectMapper> implements Jackso
      *
      * @return void
      **/
-    public DefaultJacksonUtilBuilder initWellKnownModules() {
+    public DefaultJacksonUtilBuilder initWellKnownModules(Boolean dataTimeErrorThrow) {
         modules.add(new JavaTimeModule());
         modules.add(new Jdk8Module());
         modules.add(new Jdk7Module());
         modules.add(new ParameterNamesModule());
         modules.add(new EnumModule());
-        modules.add(new JavaDateTimeModule(jsonFormatFilterFunction));
+        modules.add(new JavaDateTimeModule(dataTimeErrorThrow,jsonFormatFilterFunction));
         modules.add(new MoneyModule());
         return this;
     }

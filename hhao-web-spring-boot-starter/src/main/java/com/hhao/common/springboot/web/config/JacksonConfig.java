@@ -24,6 +24,7 @@ import com.hhao.common.jackson.JacksonUtil;
 import com.hhao.common.jackson.JacksonUtilFactory;
 import com.hhao.extend.money.jackson.MonetaryAmountSerializer;
 import com.hhao.extend.money.jackson.MoneyModule;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -59,6 +60,8 @@ import java.util.List;
 public class JacksonConfig extends AbstractBaseMvcConfig {
     private MoneyJacksonProperties moneyJacksonProperties = null;
 
+    @Value("${com.hhao.config.jackson.dataTimeErrorThrow:true}")
+    private Boolean dataTimeErrorThrow;
     /**
      * Instantiates a new Jackson config.
      *
@@ -118,7 +121,7 @@ public class JacksonConfig extends AbstractBaseMvcConfig {
      */
     protected JacksonUtil buildJsonUtil(ObjectMapper objectMapper) {
         JacksonUtil jsonUtil = new DefaultJacksonUtilBuilder<ObjectMapper>()
-                .init()
+                .init(dataTimeErrorThrow)
                 .build(objectMapper,mapper->{
 
                 });
@@ -155,7 +158,7 @@ public class JacksonConfig extends AbstractBaseMvcConfig {
      */
     protected JacksonUtil buildXmlUtil(XmlMapper xmlMapper) {
         JacksonUtil xmlUtil = new DefaultJacksonUtilBuilder<XmlMapper>()
-                .init()
+                .init(dataTimeErrorThrow)
                 .build(xmlMapper,mapper->{
 
                 });

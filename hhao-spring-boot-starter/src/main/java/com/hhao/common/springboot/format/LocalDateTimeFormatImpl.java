@@ -16,11 +16,12 @@
 
 package com.hhao.common.springboot.format;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.format.Formatter;
 import org.springframework.util.StringUtils;
 
 import java.text.ParseException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -34,10 +35,13 @@ import java.util.Locale;
  * @since 1.0.0
  */
 public class LocalDateTimeFormatImpl implements Formatter<LocalDateTime> {
+    protected final Logger logger = LoggerFactory.getLogger(LocalDateTimeFormatImpl.class);
+    private Boolean dataTimeErrorThrow=false;
     private String pattern;
     private String[] fallbackPatterns;
     private DateTimeFormatter dateTimeFormatter;
     private List<DateTimeFormatter> fallbackDateTimeFormatters;
+
 
     /**
      * Instantiates a new Local date time format.
@@ -45,10 +49,11 @@ public class LocalDateTimeFormatImpl implements Formatter<LocalDateTime> {
      * @param pattern          the pattern
      * @param fallbackPatterns the fallback patterns
      */
-    public LocalDateTimeFormatImpl(String pattern,String[] fallbackPatterns) {
+    public LocalDateTimeFormatImpl(String pattern,Boolean dataTimeErrorThrow,String[] fallbackPatterns) {
         this.pattern = pattern;
         this.fallbackPatterns=fallbackPatterns;
         this.dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
+        this.dataTimeErrorThrow=dataTimeErrorThrow;
         for(String p:fallbackPatterns) {
             this.fallbackDateTimeFormatters=new ArrayList<>();
             fallbackDateTimeFormatters.add(DateTimeFormatter.ofPattern(p));
@@ -57,6 +62,7 @@ public class LocalDateTimeFormatImpl implements Formatter<LocalDateTime> {
 
     @Override
     public LocalDateTime parse(String text, Locale locale) throws ParseException {
+        Throwable throwable=null;
         if (StringUtils.hasLength(text)) {
             try {
                 return LocalDateTime.parse(text, dateTimeFormatter);
@@ -66,6 +72,12 @@ public class LocalDateTimeFormatImpl implements Formatter<LocalDateTime> {
                 try {
                     return LocalDateTime.parse(text, df);
                 } catch (Exception e) {
+                }
+            }
+            if (throwable!=null){
+                logger.debug(throwable.getMessage());
+                if(dataTimeErrorThrow){
+                    throw new RuntimeException(throwable);
                 }
             }
         }
