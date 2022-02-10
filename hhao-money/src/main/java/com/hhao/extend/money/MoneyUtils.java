@@ -73,6 +73,7 @@ public class MoneyUtils {
         return format.format(money);
     };
 
+
     /**
      * String to money monetary amount.
      *
@@ -136,6 +137,11 @@ public class MoneyUtils {
         return false;
     }
 
+    public static boolean isCompleteMoneyText(String moneyText, Locale locale){
+        return isCompleteMoneyText(moneyText,locale,CurrencyStyle.SYMBOL) ||
+                isCompleteMoneyText(moneyText,locale,CurrencyStyle.CODE);
+    }
+
     /**
      * 将不完整的Money字符串加前缀标记补完整
      *
@@ -168,5 +174,11 @@ public class MoneyUtils {
             moneyText=moneyText + " " + suffix;
         }
         return moneyText;
+    }
+
+    public static void main(String [] args){
+        Money money=Money.of(123.890,"CNY");
+        System.out.println(moneyToString(money,Locale.CHINA,CurrencyStyle.CODE,"¤####,####,####,###0.00######"));
+        System.out.println(moneyToString(money,Locale.US,CurrencyStyle.CODE,"¤####,####,####,###0.00######"));
     }
 }

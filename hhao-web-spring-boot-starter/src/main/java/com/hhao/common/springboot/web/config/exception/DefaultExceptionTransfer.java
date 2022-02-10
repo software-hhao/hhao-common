@@ -41,6 +41,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import javax.money.MonetaryException;
+import javax.money.format.MonetaryParseException;
 import java.io.IOException;
 import java.time.format.DateTimeParseException;
 
@@ -70,7 +72,10 @@ public class DefaultExceptionTransfer implements ExceptionTransfer {
                 || exception instanceof NoHandlerFoundException
                 || exception instanceof AsyncRequestTimeoutException
                 || exception instanceof IOException
-                || exception instanceof HttpMessageConversionException){
+                || exception instanceof HttpMessageConversionException
+                || exception instanceof MonetaryParseException
+                || exception instanceof MonetaryException
+        ){
             return true;
         }
         return false;
@@ -105,10 +110,15 @@ public class DefaultExceptionTransfer implements ExceptionTransfer {
         }else if (exception instanceof HttpMessageNotReadableException){
             //对Spring Convert日期转化错误的处理
             HttpMessageNotReadableException ex=(HttpMessageNotReadableException)exception;
-            if ( ex.getRootCause()!=null && ex.getRootCause() instanceof DateTimeParseException){
-                exception=new DateTimeConvertException();
-            }else{
-                exception=new RequestException(ErrorInfos.ERROR_40X,exception);
+            if (ex.getRootCause()!=null) {
+                Throwable e=ex.getRootCause();
+                if (e instanceof DateTimeParseException) {
+                    exception = new DateTimeConvertException();
+                }else if (e instanceof MonetaryParseException || e instanceof MonetaryException){
+                    exception=new RequestException(ErrorInfos.ERROR_400_MONEY,exception);
+                }else{
+                    exception=new RequestException(ErrorInfos.ERROR_40X,exception);
+                }
             }
         }else if (exception instanceof HttpMessageNotWritableException) {
             exception=new ServerException(ErrorInfos.ERROR_500,exception);
@@ -128,6 +138,8 @@ public class DefaultExceptionTransfer implements ExceptionTransfer {
             exception=new SystemException(ErrorInfos.ERROR_500_IO,exception);
         }else if (exception instanceof HttpMessageConversionException){
             exception=new RequestException(ErrorInfos.ERROR_40X,exception);
+        }else if (exception instanceof MonetaryParseException || exception instanceof MonetaryException){
+            exception=new RequestException(ErrorInfos.ERROR_400_MONEY,exception);
         }
         return exception;
     }

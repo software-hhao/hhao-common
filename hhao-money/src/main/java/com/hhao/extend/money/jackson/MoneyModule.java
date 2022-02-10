@@ -31,41 +31,36 @@ import javax.money.MonetaryAmount;
  * @since 1.0.0
  */
 public class MoneyModule extends SimpleModule {
-    private Boolean deserializerUseMoneyFormat=false;
-    private Boolean serializerUseMoneyFormat=true;
-    private MonetaryAmountSerializer.FieldNames fieldNames=new MonetaryAmountSerializer.FieldNames();
+    private MoneyProperties moneyProperties =new MoneyProperties(true,false,true);
 
     /**
      * Instantiates a new Money module.
      */
     public MoneyModule(){
-        this(false,true,new MonetaryAmountSerializer.FieldNames());
+        this(new MoneyProperties(true,false,true));
     }
 
 
     /**
      * Instantiates a new Money module.
      *
-     * @param deserializerUseMoneyFormat the deserializer use money format
      * @param serializerUseMoneyFormat   the serializer use money format
-     * @param fieldNames                 the field names
+     * @param moneyProperties                 the field names
      */
-    public MoneyModule(Boolean deserializerUseMoneyFormat,Boolean serializerUseMoneyFormat,MonetaryAmountSerializer.FieldNames fieldNames) {
-        this.deserializerUseMoneyFormat=deserializerUseMoneyFormat;
-        this.serializerUseMoneyFormat=serializerUseMoneyFormat;
-        this.fieldNames=fieldNames;
+    public MoneyModule( MoneyProperties moneyProperties) {
+        this.moneyProperties = moneyProperties;
 
 
-        addDeserializer(MonetaryAmount.class,new MonetaryAmountDeserializer(this.deserializerUseMoneyFormat));
-        addDeserializer(FastMoney.class,new MonetaryAmountDeserializer(this.deserializerUseMoneyFormat));
-        addDeserializer(Money.class,new MonetaryAmountDeserializer(this.deserializerUseMoneyFormat));
-        addDeserializer(RoundedMoney.class,new MonetaryAmountDeserializer(this.deserializerUseMoneyFormat));
+        addDeserializer(MonetaryAmount.class,new MonetaryAmountDeserializer(this.moneyProperties));
+        addDeserializer(FastMoney.class,new MonetaryAmountDeserializer(this.moneyProperties));
+        addDeserializer(Money.class,new MonetaryAmountDeserializer(this.moneyProperties));
+        addDeserializer(RoundedMoney.class,new MonetaryAmountDeserializer(this.moneyProperties));
         addDeserializer(CurrencyUnit.class, new CurrencyUnitDeserializer());
 
-        addSerializer(MonetaryAmount.class,new MonetaryAmountSerializer(MonetaryAmount.class,this.fieldNames,this.serializerUseMoneyFormat));
-        addSerializer(FastMoney.class,new MonetaryAmountSerializer(FastMoney.class,this.fieldNames,this.serializerUseMoneyFormat));
-        addSerializer(Money.class,new MonetaryAmountSerializer(Money.class,this.fieldNames,this.serializerUseMoneyFormat));
-        addSerializer(RoundedMoney.class,new MonetaryAmountSerializer(RoundedMoney.class,this.fieldNames,this.serializerUseMoneyFormat));
+        addSerializer(MonetaryAmount.class,new MonetaryAmountSerializer(MonetaryAmount.class,this.moneyProperties));
+        addSerializer(FastMoney.class,new MonetaryAmountSerializer(FastMoney.class,this.moneyProperties));
+        addSerializer(Money.class,new MonetaryAmountSerializer(Money.class,this.moneyProperties));
+        addSerializer(RoundedMoney.class,new MonetaryAmountSerializer(RoundedMoney.class,this.moneyProperties));
         addSerializer(CurrencyUnit.class, new CurrencyUnitSerializer());
     }
 

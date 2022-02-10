@@ -87,20 +87,20 @@ public class MonetaryAmountAndStringConverter implements ConditionalGenericConve
                     MonetaryRounding rounding=Mdm.MONETARY_ROUNDING.value(MonetaryRounding.class);
 
                     //判断是否是完整的Money字符串，完整的串形如：CNY 23.45,¥ 12.8789478
-                    if (!MoneyUtils.isCompleteMoneyText(str,locale,currencyStyle)){
+                    if (!MoneyUtils.isCompleteMoneyText(str,locale,CurrencyStyle.CODE)){
                         if (pattern.startsWith(MonetaryAmountFromStringFormatMetadata.PLACE_SYMBOL)) {
-                            str = MoneyUtils.prefixMoneyText(str, locale, currencyStyle);
+                            str = MoneyUtils.prefixMoneyText(str, locale, CurrencyStyle.CODE);
                         }else if (pattern.endsWith(MonetaryAmountFromStringFormatMetadata.PLACE_SYMBOL)) {
-                            str = MoneyUtils.suffixMoneyText(str, locale, currencyStyle);
+                            str = MoneyUtils.suffixMoneyText(str, locale, CurrencyStyle.CODE);
                         }
                     }
-                    MonetaryAmount money=MoneyUtils.stringToMoney(str,locale,currencyStyle,pattern);
+                    MonetaryAmount money=MoneyUtils.stringToMoney(str,locale,CurrencyStyle.CODE,pattern);
 
                     //返回取精后的值
                     return money.with(rounding);
                 }catch (Exception e){
-                    e.printStackTrace();
                     logger.debug(e.getMessage());
+                    throw e;
                 }
             }
         } else {
@@ -116,8 +116,8 @@ public class MonetaryAmountAndStringConverter implements ConditionalGenericConve
                 //先取精度，再转换
                 return MoneyUtils.moneyToString(money.with(rounding),locale,currencyStyle,pattern);
             } catch (Exception e) {
-                e.printStackTrace();
-                logger.debug(e.getMessage());
+                logger.error(e.getMessage());
+                throw e;
             }
         }
 

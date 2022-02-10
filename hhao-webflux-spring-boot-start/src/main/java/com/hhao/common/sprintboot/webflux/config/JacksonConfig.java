@@ -23,8 +23,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.hhao.common.jackson.DefaultJacksonUtilBuilder;
 import com.hhao.common.jackson.JacksonUtil;
 import com.hhao.common.jackson.JacksonUtilFactory;
-import com.hhao.extend.money.jackson.MonetaryAmountSerializer;
-import com.hhao.extend.money.jackson.MoneyModule;
+import com.hhao.extend.money.jackson.MoneyProperties;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -76,8 +75,6 @@ public class JacksonConfig extends AbstractBaseWebFluxConfig{
         ObjectMapper objectMapper = builder.createXmlMapper(false).build();
         //允许模块重复注册，以自定义的模块替换原模块
         //objectMapper.configure(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS, false);
-        //注册一些模块
-        objectMapper.registerModule(new MoneyModule(moneyJacksonProperties.deserializerUseMoneyFormat, moneyJacksonProperties.serializerUseMoneyFormat, new MonetaryAmountSerializer.FieldNames(moneyJacksonProperties.amountFieldName, moneyJacksonProperties.currencyUnitFieldName, moneyJacksonProperties.formattedFieldName)));
 
         //在此步骤中，会用自定义的模块覆盖原来的模块
         buildJsonUtil(objectMapper);
@@ -92,7 +89,7 @@ public class JacksonConfig extends AbstractBaseWebFluxConfig{
      */
     protected JacksonUtil buildJsonUtil(ObjectMapper objectMapper) {
         JacksonUtil jsonUtil = new DefaultJacksonUtilBuilder<ObjectMapper>()
-                .init(dataTimeErrorThrow)
+                .init(dataTimeErrorThrow,new MoneyProperties(moneyJacksonProperties.getErrorThrowException(),moneyJacksonProperties.deserializerUseMoneyFormat,moneyJacksonProperties.getSerializerUseMoneyFormat()))
                 .build(objectMapper,mapper->{
 
                 });
@@ -113,10 +110,8 @@ public class JacksonConfig extends AbstractBaseWebFluxConfig{
         //允许模块重复注册，以自定义的模块替换原模块
         //因为方法过时了，所以改用builder.featuresToEnable(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS);
         //xmlMapper.configure(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS, false);
-        //在此步骤中，会用自定义的模块覆盖原来的模块
-        //注册一些模块
-        xmlMapper.registerModule(new MoneyModule(moneyJacksonProperties.deserializerUseMoneyFormat, moneyJacksonProperties.serializerUseMoneyFormat, new MonetaryAmountSerializer.FieldNames(moneyJacksonProperties.amountFieldName, moneyJacksonProperties.currencyUnitFieldName, moneyJacksonProperties.formattedFieldName)));
 
+        //在此步骤中，会用自定义的模块覆盖原来的模块
         buildXmlUtil(xmlMapper);
         return xmlMapper;
     }
@@ -129,7 +124,7 @@ public class JacksonConfig extends AbstractBaseWebFluxConfig{
      */
     protected JacksonUtil buildXmlUtil(XmlMapper xmlMapper) {
         JacksonUtil xmlUtil = new DefaultJacksonUtilBuilder<XmlMapper>()
-                .init(dataTimeErrorThrow)
+                .init(dataTimeErrorThrow,new MoneyProperties(moneyJacksonProperties.getErrorThrowException(),moneyJacksonProperties.deserializerUseMoneyFormat,moneyJacksonProperties.getSerializerUseMoneyFormat()))
                 .build(xmlMapper,mapper->{
 
                 });
@@ -154,12 +149,8 @@ public class JacksonConfig extends AbstractBaseWebFluxConfig{
         private Boolean deserializerUseMoneyFormat = false;
         //序列化时，是优先采用@MoneyFormat注解做格式化
         private Boolean serializerUseMoneyFormat = true;
-        //序列化时金额显示的字段名称
-        private String amountFieldName = "amount";
-        //序列化时币代码显示的字段名称
-        private String currencyUnitFieldName = "currency";
-        //序列化时格式化Money显示的字段名称
-        private String formattedFieldName = "formatted";
+        //转换失败是否抛出异常
+        private Boolean errorThrowException=true;
 
         /**
          * Gets deserializer use money format.
@@ -197,58 +188,12 @@ public class JacksonConfig extends AbstractBaseWebFluxConfig{
             this.serializerUseMoneyFormat = serializerUseMoneyFormat;
         }
 
-        /**
-         * Gets amount field name.
-         *
-         * @return the amount field name
-         */
-        public String getAmountFieldName() {
-            return amountFieldName;
+        public Boolean getErrorThrowException() {
+            return errorThrowException;
         }
 
-        /**
-         * Sets amount field name.
-         *
-         * @param amountFieldName the amount field name
-         */
-        public void setAmountFieldName(String amountFieldName) {
-            this.amountFieldName = amountFieldName;
-        }
-
-        /**
-         * Gets currency unit field name.
-         *
-         * @return the currency unit field name
-         */
-        public String getCurrencyUnitFieldName() {
-            return currencyUnitFieldName;
-        }
-
-        /**
-         * Sets currency unit field name.
-         *
-         * @param currencyUnitFieldName the currency unit field name
-         */
-        public void setCurrencyUnitFieldName(String currencyUnitFieldName) {
-            this.currencyUnitFieldName = currencyUnitFieldName;
-        }
-
-        /**
-         * Gets formatted field name.
-         *
-         * @return the formatted field name
-         */
-        public String getFormattedFieldName() {
-            return formattedFieldName;
-        }
-
-        /**
-         * Sets formatted field name.
-         *
-         * @param formattedFieldName the formatted field name
-         */
-        public void setFormattedFieldName(String formattedFieldName) {
-            this.formattedFieldName = formattedFieldName;
+        public void setErrorThrowException(Boolean errorThrowException) {
+            this.errorThrowException = errorThrowException;
         }
     }
 }

@@ -53,7 +53,7 @@ public class GlobalReturnResponseBodyResultHandler extends ResponseBodyResultHan
         if (Utils.supports(bodyTypeParameter)){
             //只支持显式提交MediaType为json和xml的两种结果集封装
             MediaType selectedContentType = exchange.getRequest().getHeaders().getContentType();
-            if (selectedContentType!=null && selectedContentType.includes(MediaType.APPLICATION_JSON) || selectedContentType.includes(MediaType.APPLICATION_XML)){
+            if (selectedContentType==null || selectedContentType.includes(MediaType.APPLICATION_JSON) || selectedContentType.includes(MediaType.APPLICATION_XML)){
                 body=Utils.wrapperResult(body);
             }
         }

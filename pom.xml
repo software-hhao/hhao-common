@@ -36,6 +36,7 @@
         <module>hhao-spring-boot-starter</module>
         <module>hhao-web-spring-boot-starter</module>
         <module>hhao-webflux-spring-boot-start</module>
+        <module>hhao-redis-spring-boot-starter</module>
     </modules>
 
     <dependencyManagement>
@@ -92,6 +93,12 @@
             <dependency>
                 <groupId>io.github.software-hhao</groupId>
                 <artifactId>hhao-webflux-spring-boot-start</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.software-hhao</groupId>
+                <artifactId>hhao-redis-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

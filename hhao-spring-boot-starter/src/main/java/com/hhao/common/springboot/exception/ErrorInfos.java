@@ -128,6 +128,8 @@ public class ErrorInfos {
      */
     public static final ErrorInfo ERROR_400_DECODE = ErrorInfoBuilder.build("400.3", "error.code.400.3");
 
+    public static final ErrorInfo ERROR_400_MONEY = ErrorInfoBuilder.build("400.4", "error.code.400.4");
+
     /**
      * The constant ERROR_500_IO.
      */

@@ -82,6 +82,7 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
 @EnableConfigurationProperties({StompProperties.class,StompProperties.SimpleBrokerProperties.class,StompProperties.StompBrokerRelayProperties.class})
 @ConditionalOnProperty(prefix = "com.hhao.config.stomp",name = "enable",havingValue = "true",matchIfMissing = false)
 public class StompServerConfig implements WebSocketMessageBrokerConfigurer {
+//public class StompServerConfig implements WebSocketMessageBrokerConfigurer {
     //属性
     private StompProperties stompProperties;
     //任务调度器，用于心跳

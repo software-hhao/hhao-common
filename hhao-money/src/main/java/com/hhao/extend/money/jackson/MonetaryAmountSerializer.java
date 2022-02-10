@@ -41,6 +41,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * MonetaryAmount转字符串
+ * 输出如下：{"amount":12.3,"currency":"CNY","formatted":"CNY12.3"}
+ * 其中amount、currency直接来自Money，用于反序列化时使用
+ * formatted根据元数据的设置或@MoneyFormat设置，会有不同格式的输出
  *
  * @param <T> the type parameter
  * @author Wang
@@ -48,24 +51,20 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MonetaryAmountSerializer<T extends MonetaryAmount> extends StdSerializer<T> implements ContextualSerializer {
     protected final Logger logger = LoggerFactory.getLogger(MonetaryAmountSerializer.class);
-    /**
-     * 是否采用@MoneyFormat注解定义的格式，或者是使用元数据MONETARY_AMOUNT_TO_STRING、MONETARY_ROUNDING定义的格式进行转换;
-     */
-    private boolean useMoneyFormat=false;
-    private FieldNames fieldNames=null;
+
+    private MoneyProperties moneyProperties =null;
     private MonetaryAmountSerializerWithMetadata serializerWithMetadata=null;
     private Map<String,MonetaryAmountSerializerWithMoneyFormat> serializerWithMoneyFormatMap =new ConcurrentHashMap<>();
 
-    protected MonetaryAmountSerializer(Class<T> t, FieldNames fieldNames,boolean useMoneyFormat) {
+    protected MonetaryAmountSerializer(Class<T> t, MoneyProperties moneyProperties) {
         super(t);
-        this.fieldNames=fieldNames;
-        this.useMoneyFormat=useMoneyFormat;
-        serializerWithMetadata=new MonetaryAmountSerializerWithMetadata(t,fieldNames);
+        this.moneyProperties = moneyProperties;
+        serializerWithMetadata=new MonetaryAmountSerializerWithMetadata(t);
     }
 
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException {
-        if (!useMoneyFormat || property==null){
+        if (!moneyProperties.getSerializerUseMoneyFormat() || property==null){
             return serializerWithMetadata;
         }
         MoneyFormat moneyFormat=property.getAnnotation(MoneyFormat.class);
@@ -75,7 +74,7 @@ public class MonetaryAmountSerializer<T extends MonetaryAmount> extends StdSeria
         String key=moneyFormat.currencyStyle().name()+moneyFormat.locale()+moneyFormat.pattern()+moneyFormat.scale()+moneyFormat.roundingMode().name();
         MonetaryAmountSerializerWithMoneyFormat  deserializer=serializerWithMoneyFormatMap.get(key);
         if (deserializer==null){
-            deserializer=new MonetaryAmountSerializerWithMoneyFormat(moneyFormat,fieldNames);
+            deserializer=new MonetaryAmountSerializerWithMoneyFormat(moneyFormat);
             serializerWithMoneyFormatMap.put(key,deserializer);
         }
         return deserializer;
@@ -86,6 +85,35 @@ public class MonetaryAmountSerializer<T extends MonetaryAmount> extends StdSeria
 
     }
 
+    protected String format(MonetaryAmount money,Locale locale,CurrencyStyle currencyStyle,MonetaryRounding rounding,String pattern){
+        try {
+            //locale设置有可能会根据上下文信息取，所以不能缓存
+            //先取精度，再转换
+            return MoneyUtils.moneyToString(money.with(rounding),locale,currencyStyle,pattern);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            if (MonetaryAmountSerializer.this.moneyProperties.getErrorThrowException()){
+                throw e;
+            }
+        }
+        return money.toString();
+    }
+
+    protected <S extends MonetaryAmount> void serialize(S value,JsonGenerator gen,Locale locale,CurrencyStyle currencyStyle,MonetaryRounding rounding,String pattern) throws IOException{
+        //先取精
+        MonetaryAmount money=value.with(rounding);
+        BigDecimal amount=money.getNumber().numberValueExact(BigDecimal.class);
+        CurrencyUnit currencyUnit = money.getCurrency();
+        String formatted = format(money,locale,currencyStyle,rounding,pattern);
+
+        gen.writeStartObject();
+        gen.writeObjectField(moneyProperties.getAmountFieldName(), amount);
+        gen.writeStringField(moneyProperties.getCurrencyUnitFieldName(), currencyUnit.getCurrencyCode());
+        gen.writeStringField(moneyProperties.getFormattedFieldName(), formatted);
+        gen.writeEndObject();
+    }
+
+
     /**
      * 使用@MoneyFormat定义的格式转换
      * @param <T>
@@ -95,9 +123,8 @@ public class MonetaryAmountSerializer<T extends MonetaryAmount> extends StdSeria
         private CurrencyStyle currencyStyle;
         private String pattern;
         private MonetaryRounding rounding;
-        private FieldNames fieldNames=null;
 
-        public MonetaryAmountSerializerWithMoneyFormat(MoneyFormat moneyFormat,FieldNames fieldNames){
+        public MonetaryAmountSerializerWithMoneyFormat(MoneyFormat moneyFormat){
             this.moneyFormat = moneyFormat;
             this.currencyStyle = moneyFormat.currencyStyle();
             this.pattern = moneyFormat.pattern();
@@ -105,36 +132,11 @@ public class MonetaryAmountSerializer<T extends MonetaryAmount> extends StdSeria
             this.rounding = Monetary.getRounding(
                     RoundingQueryBuilder.of().setScale(moneyFormat.scale()).set(moneyFormat.roundingMode()).build()
             );
-            this.fieldNames=fieldNames;
-        }
-
-        private String format(MonetaryAmount money){
-            try {
-                //locale设置有可能会根据上下文信息取，所以不能缓存
-                Locale locale= Context.findLocale(moneyFormat.locale());
-                //先取精度，再转换
-                return MoneyUtils.moneyToString(money.with(rounding),locale,currencyStyle,pattern);
-            } catch (Exception e) {
-                e.printStackTrace();
-                logger.debug(e.getMessage());
-            }
-            return money.toString();
         }
 
         @Override
         public void serialize(T value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-            //先取精
-            MonetaryAmount money=value.with(rounding);
-            CurrencyUnit currencyUnit = money.getCurrency();
-            String formatted = format(money);
-            BigDecimal amount=money.getNumber().numberValueExact(BigDecimal.class);
-
-            gen.writeStartObject();
-            gen.writeObjectField(fieldNames.getAmountFieldName(), amount);
-            gen.writeStringField(fieldNames.getCurrencyUnitFieldName(), currencyUnit.getCurrencyCode());
-            gen.writeStringField(fieldNames.getFormattedFieldName(), formatted);
-            gen.writeEndObject();
-
+            MonetaryAmountSerializer.this.serialize(value,gen,Context.findLocale(moneyFormat.locale()),currencyStyle,rounding,pattern);
         }
     }
 
@@ -147,90 +149,20 @@ public class MonetaryAmountSerializer<T extends MonetaryAmount> extends StdSeria
         private CurrencyStyle currencyStyle=null;
         private String pattern=null;
         private MonetaryRounding rounding=null;
-        private FieldNames fieldNames=null;
 
-        public MonetaryAmountSerializerWithMetadata(Class<T> t,FieldNames fieldNames){
+        public MonetaryAmountSerializerWithMetadata(Class<T> t){
             super(t);
             //取元数据
             formatAttrs= Mdm.MONETARY_AMOUNT_TO_STRING.value(Map.class);
             currencyStyle=(CurrencyStyle)formatAttrs.get(MonetaryAmountFromStringFormatMetadata.CURRENCY_STYLE);
             pattern=(String)formatAttrs.get(MonetaryAmountFromStringFormatMetadata.CURRENCY_PATTERN);
             rounding=Mdm.MONETARY_ROUNDING.value(MonetaryRounding.class);
-            this.fieldNames=fieldNames;
         }
 
-        private String format(MonetaryAmount money){
-            try {
-                //locale设置有可能会根据上下文信息取，所以不能缓存
-                Locale locale=(Locale) formatAttrs.get(MonetaryAmountFromStringFormatMetadata.LOCALE);
-                //先取精度，再转换
-                return MoneyUtils.moneyToString(money.with(rounding),locale,currencyStyle,pattern);
-            } catch (Exception e) {
-                e.printStackTrace();
-                logger.debug(e.getMessage());
-            }
-            return money.toString();
-        }
 
         @Override
-        public void serialize(T object, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-            //先取精
-            MonetaryAmount money=object.with(rounding);
-            CurrencyUnit currencyUnit = money.getCurrency();
-            String formatted = format(money);
-            BigDecimal amount=money.getNumber().numberValueExact(BigDecimal.class);
-
-            gen.writeStartObject();
-            gen.writeObjectField(fieldNames.getAmountFieldName(), amount);
-            gen.writeStringField(fieldNames.getCurrencyUnitFieldName(), currencyUnit.getCurrencyCode());
-            gen.writeStringField(fieldNames.getFormattedFieldName(), formatted);
-            gen.writeEndObject();
-        }
-    }
-
-
-    public static class FieldNames {
-        //数额
-        private String amountFieldName;
-        //币代码
-        private String currencyUnitFieldName;
-        //格式化显示字符串
-        private String formattedFieldName;
-
-        public FieldNames(){
-            this.amountFieldName="amount";
-            this.currencyUnitFieldName="currency";
-            this.formattedFieldName="formatted";
-        }
-
-        public FieldNames(String amountFieldName,String currencyUnitFieldName,String formattedFieldName){
-            this.amountFieldName=amountFieldName;
-            this.currencyUnitFieldName=currencyUnitFieldName;
-            this.formattedFieldName=formattedFieldName;
-        }
-
-        public String getAmountFieldName() {
-            return amountFieldName;
-        }
-
-        public void setAmountFieldName(String amountFieldName) {
-            this.amountFieldName = amountFieldName;
-        }
-
-        public String getCurrencyUnitFieldName() {
-            return currencyUnitFieldName;
-        }
-
-        public void setCurrencyUnitFieldName(String currencyUnitFieldName) {
-            this.currencyUnitFieldName = currencyUnitFieldName;
-        }
-
-        public String getFormattedFieldName() {
-            return formattedFieldName;
-        }
-
-        public void setFormattedFieldName(String formattedFieldName) {
-            this.formattedFieldName = formattedFieldName;
+        public void serialize(T value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            MonetaryAmountSerializer.this.serialize(value,gen,(Locale) formatAttrs.get(MonetaryAmountFromStringFormatMetadata.LOCALE),currencyStyle,rounding,pattern);
         }
     }
 }
