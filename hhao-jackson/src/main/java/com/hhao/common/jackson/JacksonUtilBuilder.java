@@ -37,6 +37,8 @@ public interface JacksonUtilBuilder<T extends ObjectMapper> {
      */
     JacksonUtil build(Class<T> targetClass,Consumer<T> consumer);
 
+    JacksonUtil build(ObjectMapper mapper,Consumer<ObjectMapper> consumer);
+
     /**
      * 构建JsonUtil
      *

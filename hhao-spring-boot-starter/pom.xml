@@ -5,7 +5,7 @@
     <parent>
         <groupId>io.github.software-hhao</groupId>
         <artifactId>hhao-common</artifactId>
-        <version>${reversion}</version>
+        <version>0.0.8</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -18,10 +18,12 @@
             <groupId>io.github.software-hhao</groupId>
             <artifactId>hhao-common-core</artifactId>
         </dependency>
+
         <dependency>
             <groupId>io.github.software-hhao</groupId>
             <artifactId>hhao-jackson</artifactId>
         </dependency>
+
         <dependency>
             <groupId>io.github.software-hhao</groupId>
             <artifactId>hhao-utils</artifactId>
@@ -31,40 +33,46 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
             <scope>runtime</scope>
         </dependency>
+
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
+
         <!--验证处理-->
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
         </dependency>
-    </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+        <!--https://doc.xiaominfo.com/knife4j/documentation/-->
+        <!--https://github.com/springfox/springfox-demos-->
+        <!--https://github.com/springfox/springfox-->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-spring-boot-starter</artifactId>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <!--开发配置-->
     <profiles>
@@ -84,6 +92,14 @@
                     <artifactId>spring-boot-starter-actuator</artifactId>
                 </dependency>
             </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

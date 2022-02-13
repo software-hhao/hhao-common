@@ -17,6 +17,7 @@
 package com.hhao.common.entity;
 
 /**
+ * MyBatis Map的基类
  * @author Wang
  * @since  1.0.0
  */

@@ -151,19 +151,39 @@ public class PageInfo<T> implements Page<T> {
     }
 
 
+    /**
+     * Gets limit param name.
+     *
+     * @return the limit param name
+     */
     public String getLimitParamName() {
         return limitParamName;
     }
 
+    /**
+     * Sets limit param name.
+     *
+     * @param limitParamName the limit param name
+     */
     public void setLimitParamName(String limitParamName) {
         this.limitParamName = limitParamName;
     }
 
 
+    /**
+     * Gets offset param name.
+     *
+     * @return the offset param name
+     */
     public String getOffsetParamName() {
         return offsetParamName;
     }
 
+    /**
+     * Sets offset param name.
+     *
+     * @param offsetParamName the offset param name
+     */
     public void setOffsetParamName(String offsetParamName) {
         this.offsetParamName = offsetParamName;
     }
@@ -237,7 +257,6 @@ public class PageInfo<T> implements Page<T> {
     public void setTotalRow(long totalRow) {
         this.totalRow = totalRow;
     }
-
 
 
     /**
@@ -327,6 +346,11 @@ public class PageInfo<T> implements Page<T> {
             this.tableAlias=tableAlias;
         }
 
+        /**
+         * Gets table name.
+         *
+         * @return the table name
+         */
         public String getTableName() {
             return tableName;
         }
@@ -382,7 +406,13 @@ public class PageInfo<T> implements Page<T> {
      * The type Builder.
      */
     public static class Builder{
+        /**
+         * The Order tables.
+         */
         protected List<OrderTable> orderTables=new ArrayList<>();
+        /**
+         * The Page info.
+         */
         protected PageInfo pageInfo;
 
         /**
@@ -396,9 +426,6 @@ public class PageInfo<T> implements Page<T> {
 
         /**
          * Instantiates a new Builder.
-         *
-         * @param tClass  the t class
-         * @param pageNum the page num
          */
         public <M extends PageInfo> Builder(Class<M> tClass,long pageNum){
             try {
@@ -522,11 +549,23 @@ public class PageInfo<T> implements Page<T> {
         }
 
 
+        /**
+         * Sets limit param name.
+         *
+         * @param limitParamName the limit param name
+         * @return the limit param name
+         */
         public Builder setLimitParamName(String limitParamName) {
             pageInfo.setLimitParamName(limitParamName);
             return this;
         }
 
+        /**
+         * Sets offset param name.
+         *
+         * @param offsetParamName the offset param name
+         * @return the offset param name
+         */
         public Builder setOffsetParamName(String offsetParamName) {
             pageInfo.setOffsetParamName(offsetParamName);
             return this;
@@ -553,6 +592,11 @@ public class PageInfo<T> implements Page<T> {
             return this;
         }
 
+        /**
+         * With single query dynamic page executor builder.
+         *
+         * @return the builder
+         */
         public Builder withSingleQueryDynamicPageExecutor(){
             pageInfo.setPageExecutor(new SingleQueryDynamicPageExecutor());
             return this;

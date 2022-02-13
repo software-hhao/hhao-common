@@ -21,13 +21,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 
 /**
  * org.springframework.context.support.DefaultLifecycleProcessor
@@ -36,6 +32,7 @@ import org.springframework.stereotype.Component;
  * @since 1.0.0
  */
 @Configuration(proxyBeanMethods = false)
+@ConditionalOnMissingBean(AppSmartLifecycleConfig.class)
 @ConditionalOnProperty(prefix = "com.hhao.config.app-smart-lifecycle",name = "enable",havingValue = "true",matchIfMissing = true)
 public class AppSmartLifecycleConfig extends AbstractBaseConfig {
 
@@ -160,8 +157,8 @@ public class AppSmartLifecycleConfig extends AbstractBaseConfig {
          * 检查该组件当前是否正在运行。
          * 在容器的情况下，只有当应用的所有组件当前都在运行时才返回true。
          * 返回:组件当前是否正在运行
-         * 1. 只有该方法返回false时&#xff0c;start方法才会被执行。&lt;br/&gt;
-         * 2. 只有该方法返回true时&#xff0c;stop(Runnable callback)或stop()方法才会被执行。
+         * 1. 只有该方法返回false时;start方法才会被执行。
+         * 2. 只有该方法返回true时;stop(Runnable callback)或stop()方法才会被执行。
          */
         @Override
         public boolean isRunning() {

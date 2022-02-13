@@ -40,6 +40,11 @@ public class DefaultJacksonUtil implements JacksonUtil {
      **/
     private ObjectMapper mapper;
 
+    /**
+     * Instantiates a new Default jackson util.
+     *
+     * @param mapper the mapper
+     */
     public DefaultJacksonUtil(ObjectMapper mapper) {
         this.mapper = mapper;
     }
@@ -50,6 +55,11 @@ public class DefaultJacksonUtil implements JacksonUtil {
     }
 
 
+    /**
+     * Sets object mapper.
+     *
+     * @param objectMapper the object mapper
+     */
     public void setObjectMapper(ObjectMapper objectMapper) {
         this.mapper = objectMapper;
     }
@@ -96,6 +106,20 @@ public class DefaultJacksonUtil implements JacksonUtil {
                 return mapper.readerWithView(classView).forType(clazz).readValue(text);
             } else {
                 return mapper.readValue(text, clazz);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public <T,H> T string2Pojo(String text,Class<T> clazz,Class<H> valueRefClass, Class<?> classView) {
+        JavaType javaType = mapper.getTypeFactory().constructParametricType(clazz,valueRefClass);
+        try {
+            if (classView != null) {
+                return mapper.readerWithView(classView).forType(javaType).readValue(text);
+            } else {
+                return mapper.readValue(text, javaType);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -45,7 +45,7 @@ import javax.validation.Validator;
  * @since 1.0.0
  */
 @Configuration(proxyBeanMethods = false)
-//@ConditionalOnMissingBean(ValidatorConfig.class)
+@ConditionalOnMissingBean(ValidatorConfig.class)
 @ConditionalOnBean(MessageSource.class)
 @AutoConfigureBefore(ValidationAutoConfiguration.class)
 @ConditionalOnProperty(prefix = "com.hhao.config.validator",name = "enable",havingValue = "true",matchIfMissing = true)

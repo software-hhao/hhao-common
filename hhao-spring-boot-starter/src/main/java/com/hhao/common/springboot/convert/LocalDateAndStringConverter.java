@@ -17,6 +17,8 @@
 package com.hhao.common.springboot.convert;
 
 import com.hhao.common.metadata.Mdm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.ConditionalGenericConverter;
 import org.springframework.util.StringUtils;
@@ -33,6 +35,13 @@ import java.util.Set;
  * @since 1.0.0
  */
 public class LocalDateAndStringConverter implements ConditionalGenericConverter {
+    protected final Logger logger = LoggerFactory.getLogger(LocalDateAndStringConverter.class);
+    private Boolean dataTimeErrorThrow=false;
+
+    public LocalDateAndStringConverter(Boolean dataTimeErrorThrow){
+        this.dataTimeErrorThrow=dataTimeErrorThrow;
+    }
+
     @Override
     public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
         if (sourceType.getType().equals(String.class) && targetType.getType().equals(LocalDate.class)) {
@@ -65,7 +74,10 @@ public class LocalDateAndStringConverter implements ConditionalGenericConverter 
                 try {
                     return LocalDate.parse(str, Mdm.DATE_FORMATTER.value(DateTimeFormatter.class));
                 }catch (Exception e){
-                    //throw new RuntimeException("转换错误");
+                    if (dataTimeErrorThrow){
+                        throw new RuntimeException(e);
+                    }
+                    logger.debug(e.getMessage());
                 }
             }
         } else {

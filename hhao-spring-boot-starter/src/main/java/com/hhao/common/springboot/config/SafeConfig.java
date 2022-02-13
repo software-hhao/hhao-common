@@ -20,6 +20,8 @@ import com.hhao.common.springboot.safe.DefaultSafeHtmlExecutor;
 import com.hhao.common.springboot.safe.SafeHtmlExecutor;
 import com.hhao.common.springboot.safe.decode.Base64DecodeHandler;
 import com.hhao.common.springboot.safe.decode.DecodeHandler;
+import com.hhao.common.springboot.safe.filter.DefaultSafeFilter;
+import com.hhao.common.springboot.safe.filter.SafeFilter;
 import com.hhao.common.springboot.safe.xss.DefaultXssPolicyHandler;
 import com.hhao.common.springboot.safe.xss.XssPolicyHandler;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,12 +39,13 @@ import java.util.List;
  * @since 1.0.0
  */
 @Configuration
+@ConditionalOnMissingBean(SafeConfig.class)
 @ConditionalOnProperty(prefix = "com.hhao.config.safe",name = "enable",havingValue = "true",matchIfMissing = true)
 public class SafeConfig extends AbstractBaseConfig {
     /**
      * Xss过滤的规则文件
      */
-    @Value("${com.hhao.xss.policy:'classpath:config/antisamy.xml'}")
+    @Value("${com.hhao.xss.policy:classpath:config/antisamy.xml}")
     public String policyUri;
 
     /**
@@ -54,7 +57,7 @@ public class SafeConfig extends AbstractBaseConfig {
      */
     @Bean
     @ConditionalOnMissingBean
-    SafeHtmlExecutor safeHtmlExecutor(List<XssPolicyHandler> xssPolicyHandlers, List<DecodeHandler> decodeHandlers){
+    public SafeHtmlExecutor safeHtmlExecutor(List<XssPolicyHandler> xssPolicyHandlers, List<DecodeHandler> decodeHandlers){
         return new DefaultSafeHtmlExecutor(xssPolicyHandlers,decodeHandlers);
     }
 
@@ -65,7 +68,8 @@ public class SafeConfig extends AbstractBaseConfig {
      * @return xss policy handler
      */
     @Bean
-    XssPolicyHandler xssPolicyHandler(){
+    @ConditionalOnMissingBean
+    public XssPolicyHandler xssPolicyHandler(){
        return new DefaultXssPolicyHandler(policyUri);
     }
 
@@ -76,7 +80,14 @@ public class SafeConfig extends AbstractBaseConfig {
      * @return decode handler
      */
     @Bean
-    DecodeHandler base64DecodeHandler(){
+    @ConditionalOnMissingBean
+    public DecodeHandler base64DecodeHandler(){
         return new Base64DecodeHandler();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public SafeFilter safeFilter(SafeHtmlExecutor safeHtmlExecutor){
+        return new DefaultSafeFilter(safeHtmlExecutor);
     }
 }

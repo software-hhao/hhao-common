@@ -20,7 +20,6 @@ package com.hhao.common.springboot.exception;
 import com.hhao.common.springboot.AppContext;
 
 import javax.validation.constraints.NotNull;
-import java.io.Serial;
 
 /**
  * 自定义异常的根类
@@ -31,7 +30,6 @@ import java.io.Serial;
  * @since 1.0.0
  */
 public abstract class AbstractBaseRuntimeException extends RuntimeException implements BaseException {
-    @Serial
     private static final long serialVersionUID = -8466085224148083524L;
     /**
      * ErrorInfo
@@ -45,6 +43,7 @@ public abstract class AbstractBaseRuntimeException extends RuntimeException impl
      * @param cause     the cause
      */
     public AbstractBaseRuntimeException(@NotNull ErrorInfo errorInfo, Throwable cause) {
+        super(cause);
         this.errorInfo = errorInfo;
     }
 

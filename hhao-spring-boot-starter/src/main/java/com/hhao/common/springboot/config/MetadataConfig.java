@@ -34,6 +34,7 @@ import java.util.Map;
  * @since 1.0.0
  */
 @Configuration(proxyBeanMethods = false)
+@ConditionalOnMissingBean(MetadataConfig.class)
 @ConditionalOnProperty(prefix = "com.hhao.config.metadata",name = "enable",havingValue = "true",matchIfMissing = true)
 @EnableConfigurationProperties({MetadataConfig.MetadataProperties.class})
 public class MetadataConfig extends AbstractBaseConfig {

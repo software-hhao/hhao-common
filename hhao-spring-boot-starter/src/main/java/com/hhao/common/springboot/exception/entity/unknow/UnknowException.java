@@ -61,4 +61,13 @@ public class UnknowException extends AbstractUnknowRuntimeException {
     public UnknowException() {
         super(ErrorInfos.ERROR_999);
     }
+
+//    @Override
+//    public String getMessage() {
+//        String message=super.getMessage();
+//        if (this.getCause()!=null){
+//            message=message + ":" + this.getCause().getMessage();
+//        }
+//        return message;
+//    }
 }

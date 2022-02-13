@@ -18,8 +18,10 @@ package com.hhao.common.springboot.response;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.hhao.common.entity.BaseEntity;
+import com.hhao.common.jackson.JacksonUtilFactory;
 import com.hhao.common.jackson.view.Views;
-import com.hhao.common.utils.bean2map.Bean2MapUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -32,12 +34,13 @@ import java.util.Map;
  */
 public class ResultWrapper<T> extends BaseEntity {
     private static final long serialVersionUID=245745747426768L;
+    private static final Logger logger = LoggerFactory.getLogger(ResultWrapperUtil.class);
 
     /**
      * status
      */
     @JsonView(Views.Default.class)
-    private String status;
+    private int status;
 
     /**
      * message
@@ -65,7 +68,7 @@ public class ResultWrapper<T> extends BaseEntity {
      * @param status  the status
      * @param message the message
      */
-    public ResultWrapper(T data, String status, String message) {
+    public ResultWrapper(T data, int status, String message) {
         this.status = status;
         this.data = data;
         this.message=message;
@@ -96,7 +99,7 @@ public class ResultWrapper<T> extends BaseEntity {
      *
      * @return the status
      */
-    public String getStatus() {
+    public int getStatus() {
         return status;
     }
 
@@ -106,7 +109,7 @@ public class ResultWrapper<T> extends BaseEntity {
      * @param status the status
      * @return the status
      */
-    public ResultWrapper<T> setStatus(String status) {
+    public ResultWrapper<T> setStatus(int status) {
         this.status = status;
         return this;
     }
@@ -143,12 +146,22 @@ public class ResultWrapper<T> extends BaseEntity {
         if (this.getData()==null || targetClass==null){
             return null;
         }
-        if (this.getData() instanceof Map){
-            return Bean2MapUtils.map2Bean(targetClass,(Map<String,Object>)this.getData());
+        if (!targetClass.isAssignableFrom(Map.class) && this.getData() instanceof Map){
+            return JacksonUtilFactory.getJsonUtil().map2Pojo((Map<String,Object>)this.getData(),targetClass);
+            //return Bean2MapUtils.map2Bean(targetClass,(Map<String,Object>)this.getData());
         }
         if (targetClass.isAssignableFrom(this.getData().getClass())){
             return (L)this.getData();
         }
         return null;
     }
+
+    @Override
+    public String toString(){
+        if (this!=null){
+            return JacksonUtilFactory.getJsonUtil().obj2String(this);
+        }
+        return "";
+    }
+
 }

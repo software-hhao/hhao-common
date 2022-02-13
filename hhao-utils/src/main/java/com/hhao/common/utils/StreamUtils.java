@@ -3,7 +3,6 @@ package com.hhao.common.utils;
 
 
 import com.hhao.common.lang.Nullable;
-import com.hhao.common.utils.Assert;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -15,7 +14,7 @@ import java.nio.charset.Charset;
  * @author Wang
  * @since 1.0.0
  */
-public abstract class StreamUtils {
+public  class StreamUtils {
 
     /**
      * The default buffer size used when copying bytes.

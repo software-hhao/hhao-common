@@ -17,12 +17,12 @@
 package com.hhao.common.springboot.web.config;
 
 import com.hhao.common.metadata.Mdm;
-import com.hhao.common.springboot.config.AbstractBaseConfig;
 import com.hhao.common.springboot.convert.*;
 import com.hhao.common.springboot.format.DateTimeAnnotationFormatterFactory;
 import com.hhao.extend.money.spring.CurrencyUnitAndStringConvert;
 import com.hhao.extend.money.spring.MonetaryAmountAndStringConverter;
 import com.hhao.extend.money.spring.MonetaryAmountAnnotationFormatterFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -48,17 +48,20 @@ import java.time.format.DateTimeFormatter;
 @ConditionalOnProperty(prefix = "com.hhao.config.converters-and-formatters",name = "enable",havingValue = "true",matchIfMissing = true)
 public class ConvertersAndFormattersConfig extends AbstractBaseMvcConfig {
 
+    @Value("${com.hhao.config.converters-and-formatters.dataTimeErrorThrow:true}")
+    private Boolean dataTimeErrorThrow;
     /***
      * 转换与格式化处理
      **/
     @Override
     public void addFormatters(FormatterRegistry registry) {
         //日期时间类与字符串互换
-        registry.addConverter(new InstantAndStringConverter());
-        registry.addConverter(new LocalDateAndStringConverter());
-        registry.addConverter(new LocalTimeAndStringConverter());
-        registry.addConverter(new LocalDateTimeAndStringConverter());
-        registry.addConverter(new ZonedDateTimeAndStringConverter());
+        //registry.addConverter(new InstantAndLocalDateTimeStringConverter());
+        registry.addConverter(new InstantAndNumberStringConverter(dataTimeErrorThrow));
+        registry.addConverter(new LocalDateAndStringConverter(dataTimeErrorThrow));
+        registry.addConverter(new LocalTimeAndStringConverter(dataTimeErrorThrow));
+        registry.addConverter(new LocalDateTimeAndStringConverter(dataTimeErrorThrow));
+        registry.addConverter(new ZonedDateTimeAndStringConverter(dataTimeErrorThrow));
         //Enum与String的互转
         registry.addConverterFactory(new StringToEnumConverterFactory());
         registry.addConverterFactory(new EnumToStringConverterFactory());
@@ -72,7 +75,7 @@ public class ConvertersAndFormattersConfig extends AbstractBaseMvcConfig {
         registry.addConverter(new CurrencyUnitAndStringConvert());
 
         //Instant格式化转换类,根据注解DateTimeFormat进行转换
-        registry.addFormatterForFieldAnnotation(new DateTimeAnnotationFormatterFactory());
+        registry.addFormatterForFieldAnnotation(new DateTimeAnnotationFormatterFactory(dataTimeErrorThrow));
         registry.addFormatterForFieldAnnotation(new MonetaryAmountAnnotationFormatterFactory());
     }
 
@@ -103,4 +106,6 @@ public class ConvertersAndFormattersConfig extends AbstractBaseMvcConfig {
 
         return conversionService;
     }
+
+
 }

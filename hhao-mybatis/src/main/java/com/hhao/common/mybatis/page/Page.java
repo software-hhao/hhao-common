@@ -67,16 +67,31 @@ public interface Page<T> extends Serializable {
      */
     long getPostCachedPage();
 
+    /**
+     * Is include total rows boolean.
+     *
+     * @return the boolean
+     */
     boolean isIncludeTotalRows();
 
+    /**
+     * Get order columns string [ ].
+     *
+     * @return the string [ ]
+     */
     String [] getOrderColumns();
 
+    /**
+     * Gets order direction.
+     *
+     * @return the order direction
+     */
     OrderDirection getOrderDirection();
 
     /**
      * 分页结果集
      *
-     * @return result
+     * @return result result
      */
     Map<Integer, List<T>> getResult();
 
@@ -102,7 +117,7 @@ public interface Page<T> extends Serializable {
     /**
      * 计算分页偏移量
      *
-     * @return offset
+     * @return offset offset
      */
     default long getOffset() {
         long current = getPageNum()-getPreCachedPage();
@@ -115,7 +130,7 @@ public interface Page<T> extends Serializable {
     /**
      * 计算分页大小
      *
-     * @return limit
+     * @return limit limit
      */
     default long getLimit() {
         long pages=getPreCachedPage()+getPostCachedPage()+1;
@@ -125,7 +140,21 @@ public interface Page<T> extends Serializable {
         return pages * getPageSize();
     }
 
+    /**
+     * The enum Order direction.
+     */
     enum OrderDirection{
-        ASC,DESC,NO
+        /**
+         * Asc order direction.
+         */
+        ASC,
+        /**
+         * Desc order direction.
+         */
+        DESC,
+        /**
+         * No order direction.
+         */
+        NO
     }
 }

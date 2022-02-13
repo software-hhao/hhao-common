@@ -18,7 +18,6 @@ package com.hhao.common.utils;
 
 
 import com.hhao.common.lang.Nullable;
-import com.hhao.common.utils.Assert;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -29,7 +28,7 @@ import java.nio.file.Files;
  * @author Wang
  * @since 1.0.0
  */
-public abstract class FileCopyUtils {
+public  class FileCopyUtils {
 
     /**
      * The constant BUFFER_SIZE.

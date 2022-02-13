@@ -16,11 +16,12 @@
 
 package com.hhao.common.springboot.format;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.format.Formatter;
 import org.springframework.util.StringUtils;
 
 import java.text.ParseException;
-import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -34,6 +35,11 @@ import java.util.Locale;
  * @since 1.0.0
  */
 public class ZonedDateTimeFormatImpl implements Formatter<ZonedDateTime> {
+    /**
+     * The Logger.
+     */
+    protected final Logger logger = LoggerFactory.getLogger(ZonedDateTimeFormatImpl.class);
+    private Boolean dataTimeErrorThrow=false;
     private String pattern;
     private String[] fallbackPatterns;
     private DateTimeFormatter dateTimeFormatter;
@@ -42,13 +48,15 @@ public class ZonedDateTimeFormatImpl implements Formatter<ZonedDateTime> {
     /**
      * Instantiates a new Zoned date time format.
      *
-     * @param pattern          the pattern
-     * @param fallbackPatterns the fallback patterns
+     * @param pattern            the pattern
+     * @param dataTimeErrorThrow the data time error throw
+     * @param fallbackPatterns   the fallback patterns
      */
-    public ZonedDateTimeFormatImpl(String pattern,String[] fallbackPatterns) {
+    public ZonedDateTimeFormatImpl(String pattern,Boolean dataTimeErrorThrow,String[] fallbackPatterns) {
         this.pattern = pattern;
         this.fallbackPatterns=fallbackPatterns;
         this.dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
+        this.dataTimeErrorThrow=dataTimeErrorThrow;
         for(String p:fallbackPatterns) {
             this.fallbackDateTimeFormatters=new ArrayList<>();
             fallbackDateTimeFormatters.add(DateTimeFormatter.ofPattern(p));
@@ -58,6 +66,7 @@ public class ZonedDateTimeFormatImpl implements Formatter<ZonedDateTime> {
 
     @Override
     public ZonedDateTime parse(String text, Locale locale) throws ParseException {
+        Throwable throwable=null;
         if (StringUtils.hasLength(text)) {
             try {
                 return ZonedDateTime.parse(text, dateTimeFormatter);
@@ -67,6 +76,12 @@ public class ZonedDateTimeFormatImpl implements Formatter<ZonedDateTime> {
                 try {
                     return ZonedDateTime.parse(text, df);
                 } catch (Exception e) {
+                }
+            }
+            if (throwable!=null){
+                logger.debug(throwable.getMessage());
+                if(dataTimeErrorThrow){
+                    throw new RuntimeException(throwable);
                 }
             }
         }

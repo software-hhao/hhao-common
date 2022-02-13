@@ -24,6 +24,7 @@ import javax.money.MonetaryAmount;
 import javax.money.format.AmountFormatQueryBuilder;
 import javax.money.format.MonetaryAmountFormat;
 import javax.money.format.MonetaryFormats;
+import java.math.BigDecimal;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
@@ -34,6 +35,25 @@ import java.util.Locale;
  * @since 1.0.0
  */
 public class MoneyUtils {
+    public static Money bigDecimalToMoney(BigDecimal value, String currencyCode){
+        if (value==null || currencyCode==null){
+            return null;
+        }
+//        MonetaryContext monetaryContext= MonetaryContextBuilder.of(Money.class)
+//                .setMaxScale(2)
+//                .setFixedScale(true)
+//                .setPrecision(16)
+//                .build();
+        return Money.of(value,currencyCode);
+    };
+
+    public static BigDecimal moneyToBigDecimal(Money money){
+        if (money==null){
+            return null;
+        }
+        return money.getNumberStripped();
+    };
+
     /**
      * money到字符串的转换
      *
@@ -52,6 +72,7 @@ public class MoneyUtils {
         );
         return format.format(money);
     };
+
 
     /**
      * String to money monetary amount.
@@ -116,6 +137,11 @@ public class MoneyUtils {
         return false;
     }
 
+    public static boolean isCompleteMoneyText(String moneyText, Locale locale){
+        return isCompleteMoneyText(moneyText,locale,CurrencyStyle.SYMBOL) ||
+                isCompleteMoneyText(moneyText,locale,CurrencyStyle.CODE);
+    }
+
     /**
      * 将不完整的Money字符串加前缀标记补完整
      *
@@ -148,5 +174,11 @@ public class MoneyUtils {
             moneyText=moneyText + " " + suffix;
         }
         return moneyText;
+    }
+
+    public static void main(String [] args){
+        Money money=Money.of(123.890,"CNY");
+        System.out.println(moneyToString(money,Locale.CHINA,CurrencyStyle.CODE,"¤####,####,####,###0.00######"));
+        System.out.println(moneyToString(money,Locale.US,CurrencyStyle.CODE,"¤####,####,####,###0.00######"));
     }
 }

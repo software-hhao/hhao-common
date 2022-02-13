@@ -1,23 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
         <groupId>io.github.software-hhao</groupId>
         <artifactId>hhao-common-parent</artifactId>
-        <version>1.0.0</version>
+        <version>0.0.8</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <inceptionYear>2021</inceptionYear>
     <groupId>io.github.software-hhao</groupId>
     <artifactId>hhao-common</artifactId>
-    <version>${reversion}</version>
+    <version>0.0.8</version>
     <packaging>pom</packaging>
 
     <name>hhao-common</name>
     <description>Top pom.xml file</description>
+    <url>https://github.com/software-hhao/hhao-common</url>
+
+    <licenses>
+        <license>
+            <name>GNU GENERAL PUBLIC LICENSE Version 3</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <scm>
         <url>https://github.com/software-hhao/hhao-common</url>
@@ -26,9 +35,12 @@
         <tag>HEAD</tag>
     </scm>
 
-    <properties>
-        <reversion>1.0.0</reversion>
-    </properties>
+    <developers>
+        <developer>
+            <name>WangSheng</name>
+            <email>hhao.software@hotmail.com</email>
+        </developer>
+    </developers>
 
     <modules>
         <module>hhao-common-core</module>
@@ -39,6 +51,8 @@
         <module>hhao-mybatis-spring-boot-starter</module>
         <module>hhao-spring-boot-starter</module>
         <module>hhao-web-spring-boot-starter</module>
+        <module>hhao-webflux-spring-boot-start</module>
+        <module>hhao-redis-spring-boot-starter</module>
     </modules>
 
     <dependencyManagement>
@@ -47,67 +61,62 @@
             <dependency>
                 <groupId>io.github.software-hhao</groupId>
                 <artifactId>hhao-common-core</artifactId>
-                <version>${reversion}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.software-hhao</groupId>
                 <artifactId>hhao-money</artifactId>
-                <version>${reversion}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.software-hhao</groupId>
                 <artifactId>hhao-jackson</artifactId>
-                <version>${reversion}</version>
+                <version>${project.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>io.github.software-hhao</groupId>
                 <artifactId>hhao-utils</artifactId>
-                <version>${reversion}</version>
+                <version>${project.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>io.github.software-hhao</groupId>
                 <artifactId>hhao-mybatis</artifactId>
-                <version>${reversion}</version>
+                <version>${project.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>io.github.software-hhao</groupId>
                 <artifactId>hhao-mybatis-spring-boot-starter</artifactId>
-                <version>${reversion}</version>
+                <version>${project.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>io.github.software-hhao</groupId>
                 <artifactId>hhao-spring-boot-starter</artifactId>
-                <version>${reversion}</version>
+                <version>${project.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>io.github.software-hhao</groupId>
                 <artifactId>hhao-web-spring-boot-starter</artifactId>
-                <version>${reversion}</version>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.software-hhao</groupId>
+                <artifactId>hhao-webflux-spring-boot-start</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.software-hhao</groupId>
+                <artifactId>hhao-redis-spring-boot-starter</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>${maven-source-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

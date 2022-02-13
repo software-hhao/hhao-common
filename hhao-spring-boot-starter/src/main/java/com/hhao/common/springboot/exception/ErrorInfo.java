@@ -21,7 +21,6 @@ import org.springframework.context.NoSuchMessageException;
 import org.springframework.util.StringUtils;
 import org.yaml.snakeyaml.util.ArrayUtils;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +38,6 @@ import java.util.Locale;
  */
 public class ErrorInfo implements Serializable {
     private static final String DEFAULT_MESSAGE="unknown error message";
-    @Serial
     private static final long serialVersionUID = -2351452766529223663L;
     /**
      * 自定义的错误代码

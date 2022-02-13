@@ -19,7 +19,6 @@ package com.hhao.common.springboot.exception;
 import com.hhao.common.springboot.AppContext;
 
 import javax.validation.constraints.NotNull;
-import java.io.Serial;
 
 /**
  * 自定义异常类的基类,从Exception继承
@@ -30,7 +29,6 @@ import java.io.Serial;
  * @since 1.0.0
  */
 public abstract class AbstractBaseException extends Exception implements BaseException {
-    @Serial
     private static final long serialVersionUID = -6091764126559304691L;
     /**
      * errorInfo
@@ -44,6 +42,7 @@ public abstract class AbstractBaseException extends Exception implements BaseExc
      * @param cause     the cause
      */
     public AbstractBaseException(@NotNull ErrorInfo errorInfo, Throwable cause) {
+        super(cause);
         this.errorInfo = errorInfo;
     }
 

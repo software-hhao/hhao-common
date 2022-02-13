@@ -26,9 +26,10 @@ import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalTime;
 import java.time.chrono.ChronoLocalDate;
@@ -46,6 +47,12 @@ import java.util.function.Function;
  * @since 1.0.0
  */
 public class DateTimeResolver<T> {
+    protected final Logger logger = LoggerFactory.getLogger(DateTimeResolver.class);
+    private Boolean dataTimeErrorThrow=false;
+
+    public DateTimeResolver(Boolean dataTimeErrorThrow){
+        this.dataTimeErrorThrow=dataTimeErrorThrow;
+    }
 
     /**
      * Get date time serializer date time serializer.
@@ -189,7 +196,7 @@ public class DateTimeResolver<T> {
             }
             DateTimeFormatter dtf = setDateTimeFormatter(format, dateTimeFormatter);
             if (dtf != dateTimeFormatter) {
-                return new DateTimeDeserializer(property.getType().getTypeHandler(), dtf, this.jsonFormatFilterFunction);
+                return new DateTimeDeserializer((Class<T>) property.getType().getRawClass(), dtf, this.jsonFormatFilterFunction);
             }
             return this;
         }
@@ -200,12 +207,11 @@ public class DateTimeResolver<T> {
                 try {
                     Method method = super.handledType().getMethod("parse", CharSequence.class, DateTimeFormatter.class);
                     return (T) method.invoke(null, p.getText(), this.dateTimeFormatter);
-                } catch (NoSuchMethodException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    if (dataTimeErrorThrow){
+                        throw new RuntimeException(e);
+                    }
+                    logger.debug(e.getMessage());
                 }
             }
             return null;

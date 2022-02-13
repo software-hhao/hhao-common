@@ -47,9 +47,9 @@ public interface Token {
     /**
      * Sets index.
      *
-     * @param Index the index
+     * @param index the index
      */
-    void setIndex(int Index);
+    void setIndex(int index);
 
     /**
      * 所属的片段token

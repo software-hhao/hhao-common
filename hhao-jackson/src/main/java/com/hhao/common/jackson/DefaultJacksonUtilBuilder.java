@@ -28,7 +28,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.hhao.common.jackson.datatype.EnumModule;
 import com.hhao.common.jackson.datatype.JavaDateTimeModule;
+import com.hhao.common.jackson.datatype.SupportModule;
 import com.hhao.extend.money.jackson.MoneyModule;
+import com.hhao.extend.money.jackson.MoneyProperties;
 
 import java.util.List;
 import java.util.Map;
@@ -57,9 +59,9 @@ public class DefaultJacksonUtilBuilder<T extends ObjectMapper> implements Jackso
         return configures;
     }
 
-    public DefaultJacksonUtilBuilder init() {
+    public DefaultJacksonUtilBuilder init(Boolean dataTimeErrorThrow, MoneyProperties moneyProperties) {
         this.initWellKnownConfigures();
-        this.initWellKnownModules();
+        this.initWellKnownModules(dataTimeErrorThrow,moneyProperties);
         return this;
     }
 
@@ -85,14 +87,15 @@ public class DefaultJacksonUtilBuilder<T extends ObjectMapper> implements Jackso
      *
      * @return void
      **/
-    public DefaultJacksonUtilBuilder initWellKnownModules() {
+    public DefaultJacksonUtilBuilder initWellKnownModules(Boolean dataTimeErrorThrow,MoneyProperties moneyProperties) {
         modules.add(new JavaTimeModule());
         modules.add(new Jdk8Module());
         modules.add(new Jdk7Module());
         modules.add(new ParameterNamesModule());
         modules.add(new EnumModule());
-        modules.add(new JavaDateTimeModule(jsonFormatFilterFunction));
-        modules.add(new MoneyModule());
+        modules.add(new JavaDateTimeModule(dataTimeErrorThrow,jsonFormatFilterFunction));
+        modules.add(new MoneyModule(moneyProperties));
+        modules.add(new SupportModule());
         return this;
     }
 
@@ -112,26 +115,30 @@ public class DefaultJacksonUtilBuilder<T extends ObjectMapper> implements Jackso
     }
 
     protected ObjectMapper registerModule(ObjectMapper objectMapper) {
-        modules.stream().forEach(module -> {
-            objectMapper.registerModule(module);
-        });
+        for(Module module:modules){
+            objectMapper=objectMapper.registerModule(module);
+        }
         return objectMapper;
     }
 
     protected ObjectMapper configure(ObjectMapper objectMapper) {
-        configures.forEach((feature, value) -> {
+        for(Map.Entry<Enum, Boolean> entry:configures.entrySet()){
+            Enum feature=entry.getKey();
+            Boolean value=entry.getValue();
+
             if (feature instanceof SerializationFeature) {
-                objectMapper.configure((SerializationFeature) feature, value);
+                objectMapper=objectMapper.configure((SerializationFeature) feature, value);
             } else if (feature instanceof MapperFeature) {
-                objectMapper.configure((MapperFeature) feature, value);
+                //objectMapper.configure((MapperFeature) feature, value);
             } else if (feature instanceof DeserializationFeature) {
-                objectMapper.configure((DeserializationFeature) feature, value);
+                objectMapper=objectMapper.configure((DeserializationFeature) feature, value);
             } else if (feature instanceof JsonGenerator.Feature) {
-                objectMapper.configure((JsonGenerator.Feature) feature, value);
+                objectMapper=objectMapper.configure((JsonGenerator.Feature) feature, value);
             } else if (feature instanceof JsonParser.Feature) {
-                objectMapper.configure((JsonParser.Feature) feature, value);
+                objectMapper=objectMapper.configure((JsonParser.Feature) feature, value);
             }
-        });
+        }
+
         return objectMapper;
     }
 
@@ -143,6 +150,16 @@ public class DefaultJacksonUtilBuilder<T extends ObjectMapper> implements Jackso
         }else{
             mapper=(T)new XmlMapper();
         }
+        registerModule(mapper);
+        configure(mapper);
+        if (consumer != null) {
+            consumer.accept(mapper);
+        }
+        return new DefaultJacksonUtil(mapper);
+    }
+
+    @Override
+    public JacksonUtil build(ObjectMapper mapper,Consumer<ObjectMapper> consumer) {
         registerModule(mapper);
         configure(mapper);
         if (consumer != null) {

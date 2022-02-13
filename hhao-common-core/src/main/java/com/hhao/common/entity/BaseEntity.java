@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 /**
  * The type Base entity.
+ * 实体类的基类
  *
  * @author Wan
  * @since 1.0.0

@@ -18,6 +18,7 @@ package com.hhao.common.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.hhao.extend.money.jackson.MoneyProperties;
 
 import java.util.Map;
 import java.util.Objects;
@@ -33,22 +34,19 @@ public class JacksonUtilFactory {
     /**
      * The constant DEFAULT_KEY.
      */
+    public static Boolean dataTimeErrorThrow=true;
     public static final String DEFAULT_KEY = "default";
     private static Map<String, JacksonUtil> jsonUtilMap = new ConcurrentHashMap<>();
     private static Map<String, JacksonUtil> xmlUtilMap = new ConcurrentHashMap<>();
 
     static {
         jsonUtilMap.put(DEFAULT_KEY, new DefaultJacksonUtilBuilder()
-                .init()
-                .initWellKnownConfigures()
-                .initWellKnownModules()
+                .init(dataTimeErrorThrow,new MoneyProperties(true,false,true))
                 .build(ObjectMapper.class,mapper -> {
                 }));
 
         xmlUtilMap.put(DEFAULT_KEY, new DefaultJacksonUtilBuilder()
-                .init()
-                .initWellKnownConfigures()
-                .initWellKnownModules()
+                .init(dataTimeErrorThrow,new MoneyProperties(true,false,true))
                 .build(XmlMapper.class, mapper -> {
                 }));
     }

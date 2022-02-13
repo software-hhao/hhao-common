@@ -21,21 +21,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.autoconfigure.context.MessageSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.AbstractResourceBasedMessageSource;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 
+import java.io.File;
 import java.time.Duration;
 
 /**
@@ -47,13 +47,23 @@ import java.time.Duration;
 @Configuration(proxyBeanMethods = false)
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @EnableConfigurationProperties
+@ConditionalOnMissingBean(MessageSourceConfig.class)
 @ConditionalOnProperty(prefix = "com.hhao.config.message-source",name = "enable",havingValue = "true",matchIfMissing = true)
 public class MessageSourceConfig extends AbstractBaseConfig {
     /**
      * The Logger.
      */
     protected final Logger logger = LoggerFactory.getLogger(MessageSourceConfig.class);
-    private static final String DEFAULT_BASENAME="classpath:i18n/messages";
+    private static final String BASE_FOLDER="i18n";
+    private static final String BASE_NAME="messages";
+    /**
+     * classpath:/i18n/messages
+     */
+    private static final String DEFAULT_BASENAME=ResourceUtils.CLASSPATH_URL_PREFIX + BASE_FOLDER + File.separator + BASE_NAME;
+    /**
+     * file:应用路径/i18n/messages
+     */
+    private static final String EXTEND_DEFAULT_BASENAME=ResourceUtils.FILE_URL_PREFIX + System.getProperty("user.dir") + File.separator + BASE_FOLDER + File.separator + BASE_NAME;
     private static final String PREFIX_CLASSPATH="classpath(/*?):";
 
     private static final Resource[] NO_RESOURCES = {};
@@ -83,6 +93,7 @@ public class MessageSourceConfig extends AbstractBaseConfig {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
         if (StringUtils.hasText(properties.getBasename())) {
             messageSource.setBasenames(getBasename(properties));
+            messageSource.addBasenames(getExtendBasename());
         }
         if (properties.getEncoding() != null) {
             messageSource.setDefaultEncoding(properties.getEncoding().name());
@@ -135,5 +146,19 @@ public class MessageSourceConfig extends AbstractBaseConfig {
      */
     protected MessageSource configureMessageSource(AbstractResourceBasedMessageSource messageSource) {
         return messageSource;
+    }
+
+    /**
+     * 添加扩展的basename
+     * 一个是在类路径下，一个是外部路径下，用于外部扩展，如nacos
+     *
+     * @return
+     */
+    private String [] getExtendBasename(){
+        String [] basename=new String[]{
+                DEFAULT_BASENAME,
+                EXTEND_DEFAULT_BASENAME
+        };
+        return basename;
     }
 }

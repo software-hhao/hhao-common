@@ -34,6 +34,7 @@ import java.util.Map;
  * @author Wang
  * @since 1.0.0
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class Bean2MapUtils {
     /**
      * The constant initConverts.
@@ -68,66 +69,62 @@ public class Bean2MapUtils {
      * @param map         the map
      * @return the t
      */
-    public static <T> T map2Bean(Class<T> targetClass, Map<String,Object> map) {
-        return map2Bean(targetClass,map,initConverts);
-    }
+//    public static <T> T map2Bean(Class<T> targetClass, Map<String,Object> map) {
+//        return map2Bean(targetClass,map,initConverts);
+//    }
 
     /**
      * map转bean
      *
-     * @param <T>         the type parameter
-     * @param targetClass the target class
-     * @param map         the map
-     * @param converts    the converts
      * @return 实体类 t
      */
     @SuppressWarnings("unchecked")
-    public static <T> T map2Bean(Class<T> targetClass, Map<String,Object> map,List<Convert> converts) {
-        try {
-            if (converts==null){
-                converts=initConverts;
-            }
-            Object object=targetClass.getDeclaredConstructor().newInstance();
-            BeanInfo beanInfo= Introspector.getBeanInfo(targetClass);
-            PropertyDescriptor[] PropertyDescriptors=beanInfo.getPropertyDescriptors();
-            if (PropertyDescriptors!=null&&PropertyDescriptors.length>0) {
-                String propertyName;
-                Object propertyValue;
-                for (PropertyDescriptor pd:PropertyDescriptors) {
-                    propertyName=pd.getName();
-                    //检查map中是否包含这个key
-                    if (map.containsKey(propertyName)) {
-                        propertyValue=map.get(propertyName);
-                        if (propertyValue!=null&&!"null".equals(propertyValue)&&!"NULL".equals(propertyValue)) {
-                            //相当于setXxx()set方法
-                            try {
-                                if (!pd.getPropertyType().equals(propertyValue.getClass())){
-                                    Convert convert=findConvert(converts,propertyValue.getClass(),pd.getPropertyType());
-                                    if (convert==null){
-                                        throw new IllegalArgumentException();
-                                    }
-                                    propertyValue=convert.convert(propertyValue,pd.getPropertyType());
-                                }
-                                pd.getWriteMethod().invoke(object, new Object[] {propertyValue});
-                            } catch (IllegalAccessException e) {
-                                e.printStackTrace();
-                            } catch (IllegalArgumentException e) {
-                                e.printStackTrace();
-                            } catch (InvocationTargetException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }
-                return (T) object;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
+//    public static <T> T map2Bean(Class<T> targetClass, Map<String,Object> map,List<Convert> converts) {
+//        try {
+//            if (converts==null){
+//                converts=initConverts;
+//            }
+//            Object object=targetClass.getDeclaredConstructor().newInstance();
+//            BeanInfo beanInfo= Introspector.getBeanInfo(targetClass);
+//            PropertyDescriptor[] propertyDescriptors=beanInfo.getPropertyDescriptors();
+//            if (propertyDescriptors!=null && propertyDescriptors.length>0) {
+//                String propertyName;
+//                Object propertyValue;
+//                for (PropertyDescriptor pd:propertyDescriptors) {
+//                    propertyName=pd.getName();
+//                    //检查map中是否包含这个key
+//                    if (map.containsKey(propertyName)) {
+//                        propertyValue=map.get(propertyName);
+//                        if (propertyValue!=null&&!"null".equals(propertyValue)&&!"NULL".equals(propertyValue)) {
+//                            //相当于setXxx()set方法
+//                            try {
+//                                if (!pd.getPropertyType().equals(propertyValue.getClass())){
+//                                    Convert convert=findConvert(converts,propertyValue.getClass(),pd.getPropertyType());
+//                                    if (convert==null){
+//                                        throw new IllegalArgumentException();
+//                                    }
+//                                    propertyValue=convert.convert(propertyValue,pd.getPropertyType());
+//                                }
+//                                pd.getWriteMethod().invoke(object, new Object[] {propertyValue});
+//                            } catch (IllegalAccessException e) {
+//                                e.printStackTrace();
+//                            } catch (IllegalArgumentException e) {
+//                                e.printStackTrace();
+//                            } catch (InvocationTargetException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+//                    }
+//                }
+//                return (T) object;
+//            }
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        return null;
+//    }
 
     /**
      * 把bean 转成map
@@ -143,12 +140,12 @@ public class Bean2MapUtils {
         Class<?extends Object> type=bean.getClass();
         Map<String,Object> returnMap=new HashMap<String, Object>();
         BeanInfo beanInfo=Introspector.getBeanInfo(type);
-        PropertyDescriptor[] PropertyDescriptors=beanInfo.getPropertyDescriptors();
-        for (int i = 0; i < PropertyDescriptors.length; i++) {
-            PropertyDescriptor PropertyDescriptor=PropertyDescriptors[i];
-            String propertyName=PropertyDescriptor.getName();
+        PropertyDescriptor[] propertyDescriptors=beanInfo.getPropertyDescriptors();
+        for (int i = 0; i < propertyDescriptors.length; i++) {
+            PropertyDescriptor propertyDescriptor=propertyDescriptors[i];
+            String propertyName=propertyDescriptor.getName();
             if (!"class".equals(propertyName)) {
-                Method getMethod=PropertyDescriptor.getReadMethod();
+                Method getMethod=propertyDescriptor.getReadMethod();
                 Object result=getMethod.invoke(bean, new Object[0]);
                 if (result!=null) {
                     returnMap.put(propertyName, result);

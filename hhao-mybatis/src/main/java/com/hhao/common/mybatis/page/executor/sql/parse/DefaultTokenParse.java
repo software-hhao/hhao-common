@@ -923,6 +923,7 @@ public class DefaultTokenParse implements TokenParse {
         return (SelectToken) selectStack.get(0);
     }
 
+    @Override
     public List<TokenInfo> getTokenInfos(){
         this.finish();
         return this.tokenInfos;

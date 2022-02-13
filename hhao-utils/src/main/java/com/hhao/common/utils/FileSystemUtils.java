@@ -18,7 +18,6 @@ package com.hhao.common.utils;
 
 
 import com.hhao.common.lang.Nullable;
-import com.hhao.common.utils.Assert;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +33,7 @@ import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
  * @author Wang
  * @since 1.0.0
  */
-public abstract class FileSystemUtils {
+public  class FileSystemUtils {
 
     /**
      * Delete recursively boolean.
