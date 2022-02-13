@@ -93,6 +93,7 @@ public class Version implements Comparable<Version>, java.io.Serializable {
     /**
      * Is unknown version boolean.
      *
+     * @return the boolean
      */
     public boolean isUnknownVersion() {
         return (this == UNKNOWN_VERSION);

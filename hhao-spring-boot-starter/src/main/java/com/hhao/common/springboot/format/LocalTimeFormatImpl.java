@@ -44,9 +44,6 @@ public class LocalTimeFormatImpl implements Formatter<LocalTime> {
 
     /**
      * Instantiates a new Local time format.
-     *
-     * @param pattern          the pattern
-     * @param fallbackPatterns the fallback patterns
      */
     public LocalTimeFormatImpl(String pattern,Boolean dataTimeErrorThrow,String[] fallbackPatterns) {
         this.pattern = pattern;

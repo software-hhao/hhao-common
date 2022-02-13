@@ -5,7 +5,7 @@
     <parent>
         <groupId>io.github.software-hhao</groupId>
         <artifactId>hhao-common</artifactId>
-        <version>1.0.0</version>
+        <version>0.0.8</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -74,15 +74,6 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-
     <!--开发配置-->
     <profiles>
         <profile>
@@ -101,6 +92,14 @@
                     <artifactId>spring-boot-starter-actuator</artifactId>
                 </dependency>
             </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

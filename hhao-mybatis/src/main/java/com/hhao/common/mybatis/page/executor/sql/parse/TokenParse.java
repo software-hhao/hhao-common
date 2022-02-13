@@ -36,9 +36,8 @@ public interface TokenParse {
 
     /**
      * 返回解析后的结果
-     * @{code List<TokenInfo>}每行一条sql语句的解析结果
      *
-     * @return
+     * @return token infos,每行一条sql语句的解析结果
      */
     List<TokenInfo> getTokenInfos();
 }

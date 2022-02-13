@@ -150,7 +150,6 @@ public class MonetaryAmountDeserializer<T extends MonetaryAmount> extends JsonDe
 
     /**
      * 使用@MoneyFormat定义的格式转换
-     * @param <T>
      */
     public class MonetaryAmountDeserializerWithMoneyFormat<T extends MonetaryAmount> extends JsonDeserializer<T>{
         private MoneyFormat moneyFormat=null;
@@ -176,7 +175,6 @@ public class MonetaryAmountDeserializer<T extends MonetaryAmount> extends JsonDe
 
     /**
      * 使用元数据MONETARY_AMOUNT_FROM_STRING、MONETARY_ROUNDING定义的格式进行转换;
-     * @param <T>
      */
     public class MonetaryAmountDeserializerWithMetadata <T extends MonetaryAmount> extends JsonDeserializer<T>{
         Map<String,Object> formatAttrs=null;

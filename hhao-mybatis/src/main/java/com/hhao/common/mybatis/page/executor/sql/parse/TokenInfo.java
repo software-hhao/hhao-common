@@ -63,7 +63,8 @@ public interface TokenInfo {
 
     /**
      * 是否包含limit
-     * @return
+     *
+     * @return boolean
      */
     boolean isContainLimit();
 }

@@ -23,7 +23,7 @@ import java.math.RoundingMode;
 
 /**
  * Money格式化设置
- * Spring下默认适用Money->String,String->Money采用Convert
+ * Spring下默认适用Money-String,String-Money采用Convert
  * Jackson下由配置参数决定是否使用
  *
  * @author Wang

@@ -27,16 +27,6 @@ import java.util.Map;
 
 /**
  * The type Spring el script evaluator factory.
- * <pre>{@code
- * @ScriptAssert支持spel脚本 示例：
- * @ScriptAssert(script = "value > 0", lang = "spring")
- * @ScriptAssert(script = "#_this.num1 > #_this.num2", lang = "spring")
- * @ScriptAssert(script = "#_this.num1 gt #_this.num2", lang = "spring")
- * @ScriptAssert(script = "#_this.getNum1()", lang = "spring")
- * @ScriptAssert(script = "#_this.getNum1() > 12", lang = "spring")
- * @ScriptAssert(script = "#_this.toString().equals('aa')", lang = "spring")
- * @ScriptAssert(script = "T(com.hhao.common.springboot.web.mvc.test.entity.Book4).check(#_this.num1,#_this.num2)", lang = "spring")
- * } </pre>
  *
  * @author Wang
  * @since 1.00

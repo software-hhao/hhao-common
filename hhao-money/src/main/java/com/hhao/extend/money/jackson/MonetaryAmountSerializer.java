@@ -50,12 +50,21 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 1.0.0
  */
 public class MonetaryAmountSerializer<T extends MonetaryAmount> extends StdSerializer<T> implements ContextualSerializer {
+    /**
+     * The Logger.
+     */
     protected final Logger logger = LoggerFactory.getLogger(MonetaryAmountSerializer.class);
 
     private MoneyProperties moneyProperties =null;
     private MonetaryAmountSerializerWithMetadata serializerWithMetadata=null;
     private Map<String,MonetaryAmountSerializerWithMoneyFormat> serializerWithMoneyFormatMap =new ConcurrentHashMap<>();
 
+    /**
+     * Instantiates a new Monetary amount serializer.
+     *
+     * @param t               the t
+     * @param moneyProperties the money properties
+     */
     protected MonetaryAmountSerializer(Class<T> t, MoneyProperties moneyProperties) {
         super(t);
         this.moneyProperties = moneyProperties;
@@ -85,6 +94,16 @@ public class MonetaryAmountSerializer<T extends MonetaryAmount> extends StdSeria
 
     }
 
+    /**
+     * Format string.
+     *
+     * @param money         the money
+     * @param locale        the locale
+     * @param currencyStyle the currency style
+     * @param rounding      the rounding
+     * @param pattern       the pattern
+     * @return the string
+     */
     protected String format(MonetaryAmount money,Locale locale,CurrencyStyle currencyStyle,MonetaryRounding rounding,String pattern){
         try {
             //locale设置有可能会根据上下文信息取，所以不能缓存
@@ -99,6 +118,18 @@ public class MonetaryAmountSerializer<T extends MonetaryAmount> extends StdSeria
         return money.toString();
     }
 
+    /**
+     * Serialize.
+     *
+     * @param <S>           the type parameter
+     * @param value         the value
+     * @param gen           the gen
+     * @param locale        the locale
+     * @param currencyStyle the currency style
+     * @param rounding      the rounding
+     * @param pattern       the pattern
+     * @throws IOException the io exception
+     */
     protected <S extends MonetaryAmount> void serialize(S value,JsonGenerator gen,Locale locale,CurrencyStyle currencyStyle,MonetaryRounding rounding,String pattern) throws IOException{
         //先取精
         MonetaryAmount money=value.with(rounding);
@@ -116,7 +147,8 @@ public class MonetaryAmountSerializer<T extends MonetaryAmount> extends StdSeria
 
     /**
      * 使用@MoneyFormat定义的格式转换
-     * @param <T>
+     *
+     * @param <T> the type parameter
      */
     public class MonetaryAmountSerializerWithMoneyFormat<T extends MonetaryAmount> extends JsonSerializer<T>{
         private MoneyFormat moneyFormat=null;
@@ -124,6 +156,11 @@ public class MonetaryAmountSerializer<T extends MonetaryAmount> extends StdSeria
         private String pattern;
         private MonetaryRounding rounding;
 
+        /**
+         * Instantiates a new Monetary amount serializer with money format.
+         *
+         * @param moneyFormat the money format
+         */
         public MonetaryAmountSerializerWithMoneyFormat(MoneyFormat moneyFormat){
             this.moneyFormat = moneyFormat;
             this.currencyStyle = moneyFormat.currencyStyle();
@@ -142,14 +179,23 @@ public class MonetaryAmountSerializer<T extends MonetaryAmount> extends StdSeria
 
     /**
      * 用元数据设置的MONETARY_AMOUNT_TO_STRING、MONETARY_ROUNDING转换
-     * @param <T>
+     *
+     * @param <T> the type parameter
      */
     public class MonetaryAmountSerializerWithMetadata<T extends MonetaryAmount> extends StdSerializer<T> {
+        /**
+         * The Format attrs.
+         */
         Map<String,Object> formatAttrs=null;
         private CurrencyStyle currencyStyle=null;
         private String pattern=null;
         private MonetaryRounding rounding=null;
 
+        /**
+         * Instantiates a new Monetary amount serializer with metadata.
+         *
+         * @param t the t
+         */
         public MonetaryAmountSerializerWithMetadata(Class<T> t){
             super(t);
             //取元数据

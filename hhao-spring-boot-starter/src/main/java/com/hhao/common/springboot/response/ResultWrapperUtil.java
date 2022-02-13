@@ -53,7 +53,6 @@ public class ResultWrapperUtil {
     /**
      * Json to result wrapper result wrapper.
      *
-     * @param <T>        the type parameter
      * @param targetType the target type
      * @param json       the json
      * @return the result wrapper

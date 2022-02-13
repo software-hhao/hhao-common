@@ -39,6 +39,9 @@ import java.util.Locale;
  * @since 1.0.0
  */
 public class InstantAndLocalDateTimeStrFormatImpl implements Formatter<Instant> {
+    /**
+     * The Logger.
+     */
     protected final Logger logger = LoggerFactory.getLogger(InstantAndLocalDateTimeStrFormatImpl.class);
     private Boolean dataTimeErrorThrow=false;
     private String pattern;
@@ -49,8 +52,9 @@ public class InstantAndLocalDateTimeStrFormatImpl implements Formatter<Instant> 
     /**
      * Instantiates a new Instant format.
      *
-     * @param pattern          the pattern
-     * @param fallbackPatterns the fallback patterns
+     * @param pattern            the pattern
+     * @param dataTimeErrorThrow the data time error throw
+     * @param fallbackPatterns   the fallback patterns
      */
     public InstantAndLocalDateTimeStrFormatImpl(String pattern,Boolean dataTimeErrorThrow, String[] fallbackPatterns) {
         this.pattern = pattern;

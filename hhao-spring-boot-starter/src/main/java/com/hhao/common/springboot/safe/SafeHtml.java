@@ -31,12 +31,12 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * 用在api接口的方法、方法参数、参数类、参数类的字段上
  * 开启过滤的条件：
  * 1、开启api接口的aop;
- * 2、显式的标注@SafeHtml注解
+ * 2、显式的标注SafeHtml注解
  * 注解的优先级：
- * a、api接口参数的@SafeHtml注解效力>接口方法的@SafeHtml>接口类的@SafeHtml，这三个@SafeHtml决定了是否对参数进行过滤
- * b、参数类型字段的@SafeHtml注解效力>参数类的@SafeHtml注解效力
+ * a、api接口参数的SafeHtml注解效力-接口方法的SafeHtml-接口类的SafeHtml，这三个SafeHtml决定了是否对参数进行过滤
+ * b、参数类型字段的SafeHtml注解效力-参数类的SafeHtml注解效力
  * 注解的传递：
- * api接口类->api接口方法->api接口参数->参数类->参数字段
+ * api接口类-api接口方法-api接口参数-参数类-参数字段
  * 注解在参数类上的作用：
  * 该类下，String类型的字段均会被xss过滤；非String类型的，要级联过滤需要显式定义@SafeHtml
  * 支持List,Set,Map的处理

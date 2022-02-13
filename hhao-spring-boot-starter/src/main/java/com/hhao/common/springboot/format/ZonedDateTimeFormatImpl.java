@@ -35,6 +35,9 @@ import java.util.Locale;
  * @since 1.0.0
  */
 public class ZonedDateTimeFormatImpl implements Formatter<ZonedDateTime> {
+    /**
+     * The Logger.
+     */
     protected final Logger logger = LoggerFactory.getLogger(ZonedDateTimeFormatImpl.class);
     private Boolean dataTimeErrorThrow=false;
     private String pattern;
@@ -45,8 +48,9 @@ public class ZonedDateTimeFormatImpl implements Formatter<ZonedDateTime> {
     /**
      * Instantiates a new Zoned date time format.
      *
-     * @param pattern          the pattern
-     * @param fallbackPatterns the fallback patterns
+     * @param pattern            the pattern
+     * @param dataTimeErrorThrow the data time error throw
+     * @param fallbackPatterns   the fallback patterns
      */
     public ZonedDateTimeFormatImpl(String pattern,Boolean dataTimeErrorThrow,String[] fallbackPatterns) {
         this.pattern = pattern;

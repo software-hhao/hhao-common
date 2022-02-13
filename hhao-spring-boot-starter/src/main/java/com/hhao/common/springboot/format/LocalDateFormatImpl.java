@@ -35,6 +35,9 @@ import java.util.Locale;
  * @since 1.0.0
  */
 public class LocalDateFormatImpl implements Formatter<LocalDate> {
+    /**
+     * The Logger.
+     */
     protected final Logger logger = LoggerFactory.getLogger(LocalDateFormatImpl.class);
     private Boolean dataTimeErrorThrow=false;
     private String pattern;
@@ -45,8 +48,9 @@ public class LocalDateFormatImpl implements Formatter<LocalDate> {
     /**
      * Instantiates a new Local date format.
      *
-     * @param pattern          the pattern
-     * @param fallbackPatterns the fallback patterns
+     * @param pattern            the pattern
+     * @param dataTimeErrorThrow the data time error throw
+     * @param fallbackPatterns   the fallback patterns
      */
     public LocalDateFormatImpl(String pattern,Boolean dataTimeErrorThrow,String[] fallbackPatterns) {
         this.pattern = pattern;

@@ -40,6 +40,11 @@ public class DefaultJacksonUtil implements JacksonUtil {
      **/
     private ObjectMapper mapper;
 
+    /**
+     * Instantiates a new Default jackson util.
+     *
+     * @param mapper the mapper
+     */
     public DefaultJacksonUtil(ObjectMapper mapper) {
         this.mapper = mapper;
     }
@@ -50,6 +55,11 @@ public class DefaultJacksonUtil implements JacksonUtil {
     }
 
 
+    /**
+     * Sets object mapper.
+     *
+     * @param objectMapper the object mapper
+     */
     public void setObjectMapper(ObjectMapper objectMapper) {
         this.mapper = objectMapper;
     }

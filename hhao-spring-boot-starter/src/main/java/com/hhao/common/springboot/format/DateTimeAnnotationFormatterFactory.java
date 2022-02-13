@@ -43,8 +43,11 @@ public class DateTimeAnnotationFormatterFactory implements AnnotationFormatterFa
     private Map<String, Formatter<LocalDateTime>> localDateTimeFormatterMap = new ConcurrentHashMap<>();
     private Map<String, Formatter<ZonedDateTime>> zonedDateTimeFormatterMap = new ConcurrentHashMap<>();
     private Boolean dataTimeErrorThrow;
+
     /**
      * Instantiates a new Date time annotation formatter factory.
+     *
+     * @param dataTimeErrorThrow the data time error throw
      */
     public DateTimeAnnotationFormatterFactory(Boolean dataTimeErrorThrow) {
         this.fieldTypes.add(Instant.class);

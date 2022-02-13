@@ -43,9 +43,6 @@ public class MoneyModule extends SimpleModule {
 
     /**
      * Instantiates a new Money module.
-     *
-     * @param serializerUseMoneyFormat   the serializer use money format
-     * @param moneyProperties                 the field names
      */
     public MoneyModule( MoneyProperties moneyProperties) {
         this.moneyProperties = moneyProperties;

@@ -6,18 +6,27 @@
     <parent>
         <groupId>io.github.software-hhao</groupId>
         <artifactId>hhao-common-parent</artifactId>
-        <version>1.0.0</version>
+        <version>0.0.8</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <inceptionYear>2021</inceptionYear>
     <groupId>io.github.software-hhao</groupId>
     <artifactId>hhao-common</artifactId>
-    <version>1.0.0</version>
+    <version>0.0.8</version>
     <packaging>pom</packaging>
 
     <name>hhao-common</name>
     <description>Top pom.xml file</description>
+    <url>https://github.com/software-hhao/hhao-common</url>
+
+    <licenses>
+        <license>
+            <name>GNU GENERAL PUBLIC LICENSE Version 3</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <scm>
         <url>https://github.com/software-hhao/hhao-common</url>
@@ -25,6 +34,13 @@
         <developerConnection>scm:git:ssh://git@github.com/software-hhao/hhao-common.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
+
+    <developers>
+        <developer>
+            <name>WangSheng</name>
+            <email>hhao.software@hotmail.com</email>
+        </developer>
+    </developers>
 
     <modules>
         <module>hhao-common-core</module>
@@ -103,21 +119,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>${maven-source-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>
