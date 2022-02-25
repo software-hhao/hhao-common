@@ -16,6 +16,8 @@
 
 package com.hhao.common.mybatis.page;
 
+import com.hhao.common.dto.Page;
+import com.hhao.common.dto.PageResponse;
 import com.hhao.common.mybatis.page.executor.MultiQueriesDynamicPageExecutor;
 import com.hhao.common.mybatis.page.executor.MultiQueriesStaticPageExecutor;
 import com.hhao.common.mybatis.page.executor.PageExecutor;
@@ -36,7 +38,7 @@ import java.util.Map;
  * @author Wang
  * @since 1.0.0
  */
-public class PageInfo<T> implements Page<T> {
+public class PageInfo<T> implements Page {
     private PageExecutor pageExecutor;
     private Map<Integer, List<T>> result;
 
@@ -130,7 +132,6 @@ public class PageInfo<T> implements Page<T> {
         return this.pageSize;
     }
 
-    @Override
     public long getTotalRow() {
         return this.totalRow;
     }
@@ -145,7 +146,6 @@ public class PageInfo<T> implements Page<T> {
         return this.postCachedPage;
     }
 
-    @Override
     public Map<Integer, List<T>> getResult() {
         return this.result;
     }
@@ -258,6 +258,19 @@ public class PageInfo<T> implements Page<T> {
         this.totalRow = totalRow;
     }
 
+    public long getTotalPage() {
+        if (getPageSize() == 0) {
+            return 0L;
+        }
+        if (getTotalRow()<0){
+            return -1L;
+        }
+        long pages = getTotalRow() / getPageSize();
+        if (getTotalRow() % getPageSize() != 0) {
+            pages++;
+        }
+        return pages;
+    }
 
     /**
      * 设置查询结果,将结果集转换成 {@code Map<Integer, List<T>>} 形式
@@ -297,19 +310,18 @@ public class PageInfo<T> implements Page<T> {
      *
      * @return the page result
      */
-    public PageResult<T> of(){
-        PageResult<T> pageResult=new PageResult<>();
-        pageResult.setResult(this.getResult());
-        pageResult.setPageNum(this.getPageNum());
-        pageResult.setPageSize(this.getPageSize());
-        pageResult.setTotalRow(this.getTotalRow());
-        pageResult.setTotalPage(this.getTotalPage());
-        pageResult.setPostCachedPage(this.getPostCachedPage());
-        pageResult.setPreCachedPage(this.getPreCachedPage());
-        pageResult.setIncludeTotalRows(this.isIncludeTotalRows());
-        pageResult.setOrderColumns(this.getOrderColumns());
-        pageResult.setOrderDirection(this.getOrderDirection());
-        return pageResult;
+    public PageResponse<T> of(){
+        PageResponse<T> pageResponse =new PageResponse<>();
+        pageResponse.setResult(this.getResult());
+        pageResponse.setPageNum(this.getPageNum());
+        pageResponse.setPageSize(this.getPageSize());
+        pageResponse.setTotalRow(this.getTotalRow());
+        pageResponse.setPostCachedPage(this.getPostCachedPage());
+        pageResponse.setPreCachedPage(this.getPreCachedPage());
+        pageResponse.setIncludeTotalRows(this.isIncludeTotalRows());
+        pageResponse.setOrderColumns(this.getOrderColumns());
+        pageResponse.setOrderDirection(this.getOrderDirection());
+        return pageResponse;
     }
 
     /**

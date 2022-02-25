@@ -19,15 +19,15 @@ package com.hhao.common.springboot.config;
 import com.hhao.common.springboot.validate.SpringELScriptEvaluatorFactory;
 import org.hibernate.validator.internal.engine.ConfigurationImpl;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Role;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
@@ -46,11 +46,9 @@ import javax.validation.Validator;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnMissingBean(ValidatorConfig.class)
-@ConditionalOnBean(MessageSource.class)
 @AutoConfigureBefore(ValidationAutoConfiguration.class)
 @ConditionalOnProperty(prefix = "com.hhao.config.validator",name = "enable",havingValue = "true",matchIfMissing = true)
-public class ValidatorConfig extends AbstractBaseConfig {
-
+public class ValidatorConfig extends AbstractBaseConfig  implements BeanPostProcessor {
     /**
      * Method validation post processor method validation post processor.
      *
@@ -59,7 +57,7 @@ public class ValidatorConfig extends AbstractBaseConfig {
      */
     @Bean
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-    public MethodValidationPostProcessor methodValidationPostProcessor(Validator validator) {
+    public MethodValidationPostProcessor methodValidationPostProcessor(@Lazy Validator validator) {
         MethodValidationPostProcessor postProcessor = new MethodValidationPostProcessor();
         postProcessor.setValidator(validator);
         return postProcessor;
@@ -72,7 +70,6 @@ public class ValidatorConfig extends AbstractBaseConfig {
      * @return the local validator factory bean
      */
     @Bean
-    @Primary
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     public LocalValidatorFactoryBean validator(MessageSource messageSource) {
         /***
@@ -88,7 +85,6 @@ public class ValidatorConfig extends AbstractBaseConfig {
                 if (configuration instanceof ConfigurationImpl) {
                     //重写方法，设置脚本执行工厂，指定为spel,针对hibernate validate
                     //针对hibernate validate的配置可以在这里设置
-
                     ConfigurationImpl hibernateConfiguration=((ConfigurationImpl) configuration);
                     hibernateConfiguration.scriptEvaluatorFactory(new SpringELScriptEvaluatorFactory());
                 }

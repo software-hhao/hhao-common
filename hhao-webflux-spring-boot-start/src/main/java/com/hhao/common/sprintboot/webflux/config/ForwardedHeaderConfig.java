@@ -39,7 +39,7 @@ import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnMissingBean(ForwardedHeaderConfig.class)
-@ConditionalOnProperty(prefix = "com.hhao.config.forwarded-header",name = "enable",havingValue = "true",matchIfMissing = true)
+@ConditionalOnProperty(prefix = "com.hhao.config.forwarded-header",name = "enable",havingValue = "true",matchIfMissing = false)
 public class ForwardedHeaderConfig extends AbstractBaseWebFluxConfig{
 
     @Bean

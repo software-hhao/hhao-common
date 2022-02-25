@@ -19,6 +19,8 @@ package com.hhao.common.springboot.web.config;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 
 /**
@@ -38,6 +40,14 @@ public class CommonConfig extends AbstractBaseMvcConfig {
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/").setViewName("index");
+    }
+
+    @RestController
+    public class Hello{
+        @GetMapping("/hello")
+        public String hello(){
+            return "Nice to use hhao software, more information can visit https://github.com/software-hhao/hhao-common.";
+        }
     }
 
 }

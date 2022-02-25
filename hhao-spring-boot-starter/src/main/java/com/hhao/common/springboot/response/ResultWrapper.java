@@ -17,7 +17,7 @@
 package com.hhao.common.springboot.response;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.hhao.common.entity.BaseEntity;
+import com.hhao.common.dto.Response;
 import com.hhao.common.jackson.JacksonUtilFactory;
 import com.hhao.common.jackson.view.Views;
 import org.slf4j.Logger;
@@ -32,7 +32,7 @@ import java.util.Map;
  * @author Wan
  * @since 1.0.0
  */
-public class ResultWrapper<T> extends BaseEntity {
+public class ResultWrapper<T> extends Response {
     private static final long serialVersionUID=245745747426768L;
     private static final Logger logger = LoggerFactory.getLogger(ResultWrapperUtil.class);
 

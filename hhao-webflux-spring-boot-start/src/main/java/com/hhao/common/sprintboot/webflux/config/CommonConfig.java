@@ -20,7 +20,10 @@ package com.hhao.common.sprintboot.webflux.config;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.config.PathMatchConfigurer;
+import reactor.core.publisher.Mono;
 
 /**
  * WebClient:
@@ -60,4 +63,12 @@ public class CommonConfig extends AbstractBaseWebFluxConfig {
     //public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
     //    configurer.defaultCodecs().enableLoggingRequestDetails(true);
     //}
+
+    @RestController
+    public class Hello{
+        @GetMapping("/hello")
+        public Mono<String> hello(){
+            return Mono.just("Nice to use hhao software, more information can visit https://github.com/software-hhao/hhao-common.");
+        }
+    }
 }

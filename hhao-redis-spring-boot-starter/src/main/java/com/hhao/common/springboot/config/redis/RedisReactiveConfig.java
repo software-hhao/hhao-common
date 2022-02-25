@@ -19,6 +19,7 @@ import com.hhao.common.springboot.config.redis.utils.RedisReactiveUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
@@ -37,6 +38,7 @@ import reactor.core.publisher.Flux;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass({ ReactiveRedisConnectionFactory.class, ReactiveRedisTemplate.class, Flux.class })
+@ConditionalOnProperty(prefix = "com.hhao.config.redis",name = "enable",havingValue = "true",matchIfMissing = true)
 public class RedisReactiveConfig {
 
     @Bean("reactiveRedisTemplate")

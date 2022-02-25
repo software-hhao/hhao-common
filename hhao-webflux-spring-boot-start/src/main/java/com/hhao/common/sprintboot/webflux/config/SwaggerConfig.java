@@ -37,7 +37,7 @@ import org.springframework.context.annotation.Import;
 @ConditionalOnClass({springfox.documentation.spring.web.plugins.Docket.class})
 @Import({springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration.class})
 @EnableConfigurationProperties({SwaggerGroupProperties.class, SwaggerProperties.class})
-@ConditionalOnProperty(prefix = "com.hhao.config.swagger",name = "enable",havingValue = "true",matchIfMissing = true)
+@ConditionalOnProperty(prefix = "com.hhao.config.swagger",name = "enable",havingValue = "true",matchIfMissing = false)
 public class SwaggerConfig extends AbstractBaseWebFluxConfig {
     /**
      * Instantiates a new Swagger config.

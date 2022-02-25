@@ -6,14 +6,14 @@
     <parent>
         <groupId>io.github.software-hhao</groupId>
         <artifactId>hhao-common-parent</artifactId>
-        <version>0.0.8</version>
+        <version>0.0.9</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <inceptionYear>2021</inceptionYear>
     <groupId>io.github.software-hhao</groupId>
     <artifactId>hhao-common</artifactId>
-    <version>0.0.8</version>
+    <version>0.0.9</version>
     <packaging>pom</packaging>
 
     <name>hhao-common</name>
@@ -42,6 +42,10 @@
         </developer>
     </developers>
 
+    <properties>
+        <hhao-common.version>0.0.9</hhao-common.version>
+    </properties>
+
     <modules>
         <module>hhao-common-core</module>
         <module>hhao-money</module>
@@ -61,61 +65,61 @@
             <dependency>
                 <groupId>io.github.software-hhao</groupId>
                 <artifactId>hhao-common-core</artifactId>
-                <version>${project.version}</version>
+                <version>${hhao-common.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.software-hhao</groupId>
                 <artifactId>hhao-money</artifactId>
-                <version>${project.version}</version>
+                <version>${hhao-common.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.software-hhao</groupId>
                 <artifactId>hhao-jackson</artifactId>
-                <version>${project.version}</version>
+                <version>${hhao-common.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.software-hhao</groupId>
                 <artifactId>hhao-utils</artifactId>
-                <version>${project.version}</version>
+                <version>${hhao-common.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.software-hhao</groupId>
                 <artifactId>hhao-mybatis</artifactId>
-                <version>${project.version}</version>
+                <version>${hhao-common.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.software-hhao</groupId>
                 <artifactId>hhao-mybatis-spring-boot-starter</artifactId>
-                <version>${project.version}</version>
+                <version>${hhao-common.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.software-hhao</groupId>
                 <artifactId>hhao-spring-boot-starter</artifactId>
-                <version>${project.version}</version>
+                <version>${hhao-common.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.software-hhao</groupId>
                 <artifactId>hhao-web-spring-boot-starter</artifactId>
-                <version>${project.version}</version>
+                <version>${hhao-common.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.software-hhao</groupId>
                 <artifactId>hhao-webflux-spring-boot-start</artifactId>
-                <version>${project.version}</version>
+                <version>${hhao-common.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.github.software-hhao</groupId>
                 <artifactId>hhao-redis-spring-boot-starter</artifactId>
-                <version>${project.version}</version>
+                <version>${hhao-common.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

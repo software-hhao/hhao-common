@@ -30,7 +30,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnMissingBean(InterceptorConfig.class)
-@ConditionalOnProperty(prefix = "com.hhao.config.interceptor",name = "enable",havingValue = "true",matchIfMissing = true)
+@ConditionalOnProperty(prefix = "com.hhao.config.interceptor",name = "enable",havingValue = "true",matchIfMissing = false)
 public class InterceptorConfig extends AbstractBaseMvcConfig {
 
 

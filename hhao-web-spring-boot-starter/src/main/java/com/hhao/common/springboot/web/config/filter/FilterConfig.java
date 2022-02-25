@@ -41,7 +41,7 @@ import java.util.EnumSet;
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnMissingBean(FilterConfig.class)
 @EnableConfigurationProperties
-@ConditionalOnProperty(prefix = "com.hhao.config.filter",name = "enable",havingValue = "true",matchIfMissing = true)
+@ConditionalOnProperty(prefix = "com.hhao.config.filter",name = "enable",havingValue = "true",matchIfMissing = false)
 public class FilterConfig extends AbstractBaseMvcConfig {
 
     /**

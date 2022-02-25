@@ -18,9 +18,11 @@ package com.hhao.common.springboot.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.AutoConfigureOrder;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.context.MessageSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.context.MessageSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -29,7 +31,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.AbstractResourceBasedMessageSource;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
-import org.springframework.core.Ordered;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.util.ResourceUtils;
@@ -45,11 +46,11 @@ import java.time.Duration;
  * @since 1.0.0
  */
 @Configuration(proxyBeanMethods = false)
-@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @EnableConfigurationProperties
 @ConditionalOnMissingBean(MessageSourceConfig.class)
+@AutoConfigureBefore(MessageSourceAutoConfiguration.class)
 @ConditionalOnProperty(prefix = "com.hhao.config.message-source",name = "enable",havingValue = "true",matchIfMissing = true)
-public class MessageSourceConfig extends AbstractBaseConfig {
+public class MessageSourceConfig extends AbstractBaseConfig implements BeanPostProcessor {
     /**
      * The Logger.
      */

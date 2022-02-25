@@ -15,15 +15,12 @@
  */
 
 package com.hhao.common.springboot.web.config.mybatis;
-
 import com.hhao.common.springboot.exception.entity.server.ConnectException;
 import com.hhao.common.springboot.exception.entity.server.ServerException;
 import com.hhao.common.springboot.exception.ExceptionTransfer;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.BadSqlGrammarException;
-
-
 /**
  * 错误转换类
  *
