@@ -23,7 +23,6 @@ import com.hhao.extend.money.spring.CurrencyUnitAndStringConvert;
 import com.hhao.extend.money.spring.MonetaryAmountAndStringConverter;
 import com.hhao.extend.money.spring.MonetaryAmountAnnotationFormatterFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -47,7 +46,7 @@ import java.time.format.DateTimeFormatter;
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnMissingBean(ConvertersAndFormattersConfig.class)
 @ConditionalOnProperty(prefix = "com.hhao.config.converters-and-formatters",name = "enable",havingValue = "true",matchIfMissing = true)
-public class ConvertersAndFormattersConfig extends AbstractBaseMvcConfig implements BeanPostProcessor {
+public class ConvertersAndFormattersConfig extends AbstractBaseMvcConfig  {
 
     @Value("${com.hhao.config.converters-and-formatters.dataTimeErrorThrow:true}")
     private Boolean dataTimeErrorThrow;

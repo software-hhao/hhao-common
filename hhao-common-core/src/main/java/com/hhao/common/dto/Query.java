@@ -18,7 +18,7 @@
 package com.hhao.common.dto;
 
 /**
- * Query request from Client.
+ * 查询对象
  *
  * @author Wang
  * @since 2022/2/22 21:42

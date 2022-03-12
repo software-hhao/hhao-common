@@ -18,7 +18,6 @@ package com.hhao.common.springboot.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -50,7 +49,7 @@ import java.time.Duration;
 @ConditionalOnMissingBean(MessageSourceConfig.class)
 @AutoConfigureBefore(MessageSourceAutoConfiguration.class)
 @ConditionalOnProperty(prefix = "com.hhao.config.message-source",name = "enable",havingValue = "true",matchIfMissing = true)
-public class MessageSourceConfig extends AbstractBaseConfig implements BeanPostProcessor {
+public class MessageSourceConfig extends AbstractBaseConfig {
     /**
      * The Logger.
      */

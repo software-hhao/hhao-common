@@ -21,11 +21,9 @@
     <parent>
         <artifactId>hhao-common</artifactId>
         <groupId>io.github.software-hhao</groupId>
-        <version>0.0.9</version>
-        <relativePath>../pom.xml</relativePath>
+        <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>hhao-webflux-spring-boot-start</artifactId>
 
     <dependencies>
@@ -39,16 +37,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.el</groupId>
-            <artifactId>javax.el-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>javax.el</artifactId>
         </dependency>
 
         <!--https://github.com/synchronoss/nio-multipart-->
@@ -86,5 +74,4 @@
             <optional>true</optional>
         </dependency>
     </dependencies>
-
 </project>

@@ -17,8 +17,8 @@
 
 package com.hhao.common.sprintboot.webflux.config.exception;
 
-import com.hhao.common.springboot.exception.ExceptionTransfer;
-import com.hhao.common.springboot.exception.entity.request.ValidateException;
+import com.hhao.common.exception.ExceptionTransfer;
+import com.hhao.common.springboot.exception.error.request.ValidateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.support.WebExchangeBindException;

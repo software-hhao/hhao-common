@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 分页结果响应
+ * 分页结果返回对象
  *
  * @author Wang
  * @since 2022/2/22 22:14

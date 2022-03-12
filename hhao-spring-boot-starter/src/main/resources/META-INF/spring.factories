@@ -6,4 +6,6 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   com.hhao.common.springboot.config.MessageSourceConfig,\
   com.hhao.common.springboot.config.MetadataConfig,\
   com.hhao.common.springboot.config.SafeConfig,\
-  com.hhao.common.springboot.config.ValidatorConfig
+  com.hhao.common.springboot.config.ValidatorConfig,\
+  com.hhao.common.springboot.config.MyAsyncConfig,\
+  com.hhao.common.springboot.config.EventBusConfig

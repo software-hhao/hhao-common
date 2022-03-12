@@ -17,11 +17,11 @@
 package com.hhao.common.springboot.web.config.exception;
 
 
-import com.hhao.common.springboot.exception.AbstractBaseRuntimeException;
-import com.hhao.common.springboot.exception.BaseException;
-import com.hhao.common.springboot.exception.ExceptionTransfer;
-import com.hhao.common.springboot.exception.entity.other.ResultWrapperException;
-import com.hhao.common.springboot.exception.entity.request.ValidateException;
+import com.hhao.common.exception.AbstractBaseRuntimeException;
+import com.hhao.common.exception.BaseException;
+import com.hhao.common.exception.ExceptionTransfer;
+import com.hhao.common.springboot.exception.error.other.ResultWrapperException;
+import com.hhao.common.springboot.exception.error.request.ValidateException;
 import com.hhao.common.springboot.exception.util.ErrorAttributeConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

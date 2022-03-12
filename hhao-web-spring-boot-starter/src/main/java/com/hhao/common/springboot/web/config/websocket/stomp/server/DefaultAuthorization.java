@@ -17,7 +17,7 @@
 package com.hhao.common.springboot.web.config.websocket.stomp.server;
 
 import com.hhao.common.entity.AbstractUser;
-import com.hhao.common.springboot.exception.entity.request.AuthorizeException;
+import com.hhao.common.exception.error.request.AuthorizeException;
 import com.hhao.common.springboot.web.config.websocket.Authorization;
 import com.hhao.common.utils.StringUtils;
 

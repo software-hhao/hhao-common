@@ -16,7 +16,7 @@
 
 package com.hhao.common.springboot.safe.decode;
 
-import com.hhao.common.springboot.exception.entity.request.DecodeException;
+import com.hhao.common.exception.error.request.DecodeException;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 

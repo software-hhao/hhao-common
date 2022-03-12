@@ -18,7 +18,7 @@
 package com.hhao.common.dto;
 
 /**
- * Response to caller
+ * 返回对象
  *
  * @author Wang
  * @since 2022/2/22 21:43

@@ -16,13 +16,13 @@
 
 package com.hhao.common.springboot.web.config.exception;
 
-import com.hhao.common.springboot.exception.ErrorInfos;
-import com.hhao.common.springboot.exception.ExceptionTransfer;
-import com.hhao.common.springboot.exception.entity.request.DateTimeConvertException;
-import com.hhao.common.springboot.exception.entity.request.RequestException;
-import com.hhao.common.springboot.exception.entity.request.ValidateException;
-import com.hhao.common.springboot.exception.entity.server.ServerException;
-import com.hhao.common.springboot.exception.entity.sys.SystemException;
+import com.hhao.common.exception.ErrorInfos;
+import com.hhao.common.exception.ExceptionTransfer;
+import com.hhao.common.exception.error.request.DateTimeConvertException;
+import com.hhao.common.exception.error.request.RequestException;
+import com.hhao.common.exception.error.server.ServerException;
+import com.hhao.common.exception.error.sys.SystemException;
+import com.hhao.common.springboot.exception.error.request.ValidateException;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.converter.HttpMessageConversionException;

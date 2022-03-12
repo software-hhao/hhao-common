@@ -78,6 +78,11 @@ public class AppContextConfig extends AbstractBaseConfig {
                 }
                 return Mdm.ZONE.value(ZoneId.class);
             }
+
+            @Override
+            public String getMessage(String code, Object[] args, Locale locale) {
+                return applicationContext().getMessage(code,args,locale);
+            }
         });
     }
 

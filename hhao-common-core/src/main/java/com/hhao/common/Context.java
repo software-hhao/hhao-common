@@ -125,10 +125,20 @@ public interface Context {
         return resultLocale;
     }
 
+    /**
+     * 返回消息文件的内容
+     *
+     * @param code
+     * @param args
+     * @param locale
+     * @return
+     */
+    String getMessage(String code, @Nullable Object[] args, Locale locale);
+
     /***
      * Context工厂类
      */
-    static class ContextFactory {
+    class ContextFactory {
         private static Context instance;
 
         public synchronized static Context create(Context context) {

@@ -22,7 +22,7 @@ package com.hhao.common.springboot.safe.filter;
  * @since 2022/1/14 16:04
  */
 
-import com.hhao.common.springboot.exception.entity.request.DecodeException;
+import com.hhao.common.exception.error.request.DecodeException;
 import com.hhao.common.springboot.safe.SafeHtml;
 import com.hhao.common.springboot.safe.SafeHtmlExecutor;
 import org.aopalliance.intercept.MethodInvocation;

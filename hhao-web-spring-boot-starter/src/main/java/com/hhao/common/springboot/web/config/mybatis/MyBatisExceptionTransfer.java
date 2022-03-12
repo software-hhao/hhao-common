@@ -15,9 +15,10 @@
  */
 
 package com.hhao.common.springboot.web.config.mybatis;
-import com.hhao.common.springboot.exception.entity.server.ConnectException;
-import com.hhao.common.springboot.exception.entity.server.ServerException;
-import com.hhao.common.springboot.exception.ExceptionTransfer;
+
+import com.hhao.common.exception.ExceptionTransfer;
+import com.hhao.common.exception.error.server.ConnectException;
+import com.hhao.common.exception.error.server.ServerException;
 import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.BadSqlGrammarException;

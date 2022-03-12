@@ -16,10 +16,10 @@
 
 package com.hhao.common.springboot.web.config.exception;
 
-import com.hhao.common.springboot.exception.entity.AbstractSysRuntimeException;
-import com.hhao.common.springboot.exception.entity.AbstractUnknowRuntimeException;
-import com.hhao.common.springboot.exception.entity.request.AbstractRequestRuntimeException;
-import com.hhao.common.springboot.exception.entity.server.AbstractServerRuntimeException;
+import com.hhao.common.exception.error.AbstractSysRuntimeException;
+import com.hhao.common.exception.error.AbstractUnknowRuntimeException;
+import com.hhao.common.exception.error.request.AbstractRequestRuntimeException;
+import com.hhao.common.exception.error.server.AbstractServerRuntimeException;
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver;

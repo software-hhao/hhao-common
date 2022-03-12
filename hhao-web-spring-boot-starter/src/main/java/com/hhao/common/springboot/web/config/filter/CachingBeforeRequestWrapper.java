@@ -16,7 +16,7 @@
 
 package com.hhao.common.springboot.web.config.filter;
 
-import com.hhao.common.springboot.exception.entity.request.PayloadLengthException;
+import com.hhao.common.exception.error.request.PayloadLengthException;
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.Nullable;
 import org.springframework.web.util.WebUtils;

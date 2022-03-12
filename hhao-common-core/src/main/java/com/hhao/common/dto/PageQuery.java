@@ -18,7 +18,7 @@
 package com.hhao.common.dto;
 
 /**
- * 分页查询条件
+ * 分页查询条件查询对象
  *
  * @author Wang
  * @since 2022/2/22 21:54
