@@ -31,6 +31,9 @@ public class ExtensionPointAutowiredTest {
 
     private Say say1;
 
+    @ExtensionPointAutowired
+    private Say say2;
+
 
     @ExtensionPointAutowired
     public void setSay1(Say say1) {

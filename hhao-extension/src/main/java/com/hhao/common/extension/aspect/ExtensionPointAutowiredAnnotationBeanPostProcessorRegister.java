@@ -44,6 +44,8 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessorRegister  impleme
         }
         RootBeanDefinition beanDefinition = new RootBeanDefinition(beanType);
         beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        //是否单例，再测试
+        //beanDefinition.setScope(ConfigurableBeanFactory.SCOPE_PROTOTYPE);
         beanDefinitionRegistry.registerBeanDefinition(beanName, beanDefinition);
     }
 }

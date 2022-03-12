@@ -26,6 +26,9 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class MySay implements Say{
+    String msg="";
+
+
 
     @Extension(condition = "asdfasd")
     @Override

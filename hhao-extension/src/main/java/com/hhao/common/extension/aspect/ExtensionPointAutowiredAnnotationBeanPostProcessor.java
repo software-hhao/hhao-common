@@ -562,6 +562,8 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
     private String registerExtensionPointAutowiredBean(String propertyName, Class<?> injectedType) {
         beanFactory.getBeansOfType(injectedType);
 
+        //注册生成的bean name，这个bean name可能要复杂一点，以避免重复
+        //目前只是按照字段的名称或方法名称:参数序列来命名
         String extensionPointAutowiredBeanName = propertyName;
 
         // generate reference key
@@ -577,6 +579,7 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
         }
 
         //check bean definition
+        //验证bean是否重复
         if (beanDefinitionRegistry.containsBeanDefinition(extensionPointAutowiredBeanName)) {
             BeanDefinition prevBeanDefinition = beanDefinitionRegistry.getBeanDefinition(extensionPointAutowiredBeanName);
 
@@ -603,6 +606,7 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
         }
 
         // If registered matched reference before, just register alias
+        // 这种生成是单例，相同的扩展接口共用一个扩展接口代理
         if (registeredAutowiredBeans.size() > 0) {
             beanDefinitionRegistry.registerAlias(registeredAutowiredBeans.get(0), extensionPointAutowiredBeanName);
             referenceBeansMap.computeIfAbsent(referenceKey, key -> Lists.newArrayList()).add(extensionPointAutowiredBeanName);
