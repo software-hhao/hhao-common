@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.github.software-hhao</groupId>
         <artifactId>hhao-common-parent</artifactId>
-        <version>1.0.3</version>
+        <version>1.0.4</version>
         <relativePath></relativePath>
     </parent>
 
@@ -14,7 +14,7 @@
     <inceptionYear>2021</inceptionYear>
     <groupId>io.github.software-hhao</groupId>
     <artifactId>hhao-common</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>hhao-common</name>
@@ -44,7 +44,7 @@
     </developers>
 
     <properties>
-        <hhao-common.version>1.0.1-SNAPSHOT</hhao-common.version>
+        <hhao-common.version>1.0.4-SNAPSHOT</hhao-common.version>
     </properties>
 
     <modules>
