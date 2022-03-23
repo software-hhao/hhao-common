@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.github.software-hhao</groupId>
         <artifactId>hhao-common-parent</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.3</version>
         <relativePath></relativePath>
     </parent>
 
@@ -14,7 +14,7 @@
     <inceptionYear>2021</inceptionYear>
     <groupId>io.github.software-hhao</groupId>
     <artifactId>hhao-common</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>hhao-common</name>
@@ -44,7 +44,7 @@
     </developers>
 
     <properties>
-        <hhao-common.version>1.0.0</hhao-common.version>
+        <hhao-common.version>1.0.1-SNAPSHOT</hhao-common.version>
     </properties>
 
     <modules>
@@ -58,7 +58,7 @@
         <module>hhao-web-spring-boot-starter</module>
         <module>hhao-webflux-spring-boot-start</module>
         <module>hhao-redis-spring-boot-starter</module>
-        <module>hhao-extension</module>
+        <module>hhao-extension-spring-boot-starter</module>
     </modules>
 
     <dependencyManagement>
@@ -126,7 +126,7 @@
 
             <dependency>
                 <groupId>io.github.software-hhao</groupId>
-                <artifactId>hhao-extension</artifactId>
+                <artifactId>hhao-extension-spring-boot-starter</artifactId>
                 <version>${hhao-common.version}</version>
             </dependency>
         </dependencies>

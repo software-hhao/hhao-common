@@ -169,7 +169,7 @@ public class ErrorInfo implements Serializable {
         } catch (Exception e) {
             logger.debug(e.getMessage());
         } finally{
-            if (localMessage!=null && localMessage.length()>0){
+            if (localMessage==null || localMessage.length()<=0){
                 localMessage=defaultMessage;
             }
         }
