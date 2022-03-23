@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
         <groupId>io.github.software-hhao</groupId>
         <artifactId>hhao-common-parent</artifactId>
         <version>1.0.4</version>
-        <relativePath></relativePath>
+        <relativePath />
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <inceptionYear>2021</inceptionYear>
     <groupId>io.github.software-hhao</groupId>
     <artifactId>hhao-common</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.4</version>
     <packaging>pom</packaging>
 
     <name>hhao-common</name>
@@ -33,7 +31,7 @@
         <url>https://github.com/software-hhao/hhao-common</url>
         <connection>scm:git:ssh://git@github.com/software-hhao/hhao-common.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/software-hhao/hhao-common.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>hhao-common-1.0.4</tag>
     </scm>
 
     <developers>
@@ -44,7 +42,7 @@
     </developers>
 
     <properties>
-        <hhao-common.version>1.0.4-SNAPSHOT</hhao-common.version>
+        <hhao-common.version>1.0.4</hhao-common.version>
     </properties>
 
     <modules>
