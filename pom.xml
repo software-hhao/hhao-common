@@ -12,7 +12,7 @@
     <inceptionYear>2021</inceptionYear>
     <groupId>io.github.software-hhao</groupId>
     <artifactId>hhao-common</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>hhao-common</name>
@@ -31,7 +31,7 @@
         <url>https://github.com/software-hhao/hhao-common</url>
         <connection>scm:git:ssh://git@github.com/software-hhao/hhao-common.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/software-hhao/hhao-common.git</developerConnection>
-        <tag>hhao-common-1.0.4</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <developers>
@@ -42,7 +42,7 @@
     </developers>
 
     <properties>
-        <hhao-common.version>1.0.4</hhao-common.version>
+        <hhao-common.version>1.0.5-SNAPSHOT</hhao-common.version>
     </properties>
 
     <modules>

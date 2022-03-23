@@ -19,7 +19,7 @@
     <parent>
         <artifactId>hhao-common</artifactId>
         <groupId>io.github.software-hhao</groupId>
-        <version>1.0.4</version>
+        <version>1.0.5-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
