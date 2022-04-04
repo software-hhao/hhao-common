@@ -16,6 +16,7 @@
 
 package com.hhao.common.springboot.response;
 
+import com.hhao.common.Constant;
 import org.springframework.beans.factory.annotation.Value;
 
 /**
@@ -28,8 +29,7 @@ public class ResultWrapperProperties {
     /**
      * The Status succeed.
      */
-    //@Value("${com.hhao.config.result.status.succeed:200}")
-    public int statusSucceed = ResultWrapperConstant.STATUS_SUCCEED;
+    public int statusSucceed = Constant.DEFAULT_SUCCEED_STATUS;
 
     /**
      * The Status error.
@@ -40,8 +40,7 @@ public class ResultWrapperProperties {
     /**
      * The Msg succeed.
      */
-    @Value("${com.hhao.config.result.msg.succeed:succeed}")
-    public   String msgSucceed ="succeed";
+    public   String msgSucceed =Constant.DEFAULT_SUCCEED_MESSAGE;
 
     /**
      * The Msg error.

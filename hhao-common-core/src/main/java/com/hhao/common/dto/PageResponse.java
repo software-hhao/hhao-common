@@ -17,6 +17,9 @@
 
 package com.hhao.common.dto;
 
+import com.hhao.common.Constant;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +27,7 @@ import java.util.Map;
  * 分页结果返回对象
  *
  * @author Wang
- * @since 2022/2/22 22:14
+ * @since 1.0.0
  */
 public class PageResponse<T> extends Response implements Page{
     private static final long serialVersionUID = 1L;
@@ -38,7 +41,7 @@ public class PageResponse<T> extends Response implements Page{
     private OrderDirection orderDirection=OrderDirection.ASC;
     private String [] orderColumns;
 
-    private Map<Integer, List<T>> result;
+    private Map<Integer, List<T>> data= Collections.EMPTY_MAP;
 
     @Override
     public long getPageNum() {
@@ -125,11 +128,35 @@ public class PageResponse<T> extends Response implements Page{
         this.orderColumns = orderColumns;
     }
 
-    public Map<Integer, List<T>> getResult() {
-        return result;
+    public Map<Integer, List<T>> getData() {
+        return data;
     }
 
-    public void setResult(Map<Integer, List<T>> result) {
-        this.result = result;
+    public void setData(Map<Integer, List<T>> data) {
+        this.data = data;
+    }
+
+    public static <T> PageResponse<T> of(Map<Integer, List<T>> data,long pageNum,long pageSize,long preCachedPage,long postCachedPage,long totalRow,boolean includeTotalRows,OrderDirection orderDirection,String [] orderColumns) {
+        PageResponse<T> pageResponse = new PageResponse<>();
+        pageResponse.setData(data);
+        pageResponse.setPageNum(pageNum);
+        pageResponse.setPageSize(pageSize);
+        pageResponse.setPreCachedPage(preCachedPage);
+        pageResponse.setPostCachedPage(postCachedPage);
+        pageResponse.setTotalRow(totalRow);
+        pageResponse.setIncludeTotalRows(includeTotalRows);
+        pageResponse.setOrderColumns(orderColumns);
+        pageResponse.setOrderDirection(orderDirection);
+
+        pageResponse.setStatus(Constant.DEFAULT_SUCCEED_STATUS);
+        pageResponse.setMessage(Constant.DEFAULT_SUCCEED_MESSAGE);
+        return pageResponse;
+    }
+
+    public static PageResponse buildFailure(int status, String errMessage) {
+        PageResponse response = new PageResponse();
+        response.setStatus(status);
+        response.setMessage(errMessage);
+        return response;
     }
 }

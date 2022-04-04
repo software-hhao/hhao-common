@@ -79,6 +79,7 @@ public class DefaultJacksonUtilBuilder<T extends ObjectMapper> implements Jackso
 
         configures.put(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         configures.put(JsonParser.Feature.ALLOW_COMMENTS, false);
+
         return this;
     }
 

@@ -49,6 +49,7 @@ import javax.validation.Validator;
 @AutoConfigureBefore(ValidationAutoConfiguration.class)
 @ConditionalOnProperty(prefix = "com.hhao.config.validator",name = "enable",havingValue = "true",matchIfMissing = true)
 public class ValidatorConfig extends AbstractBaseConfig implements BeanPostProcessor {
+
     /**
      * Method validation post processor method validation post processor.
      *

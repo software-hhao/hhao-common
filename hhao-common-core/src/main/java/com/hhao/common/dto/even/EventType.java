@@ -1,12 +1,11 @@
-
 /*
- * Copyright 2018-2022 WangSheng.
+ * Copyright 2020-2021 WangSheng.
  *
  * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.gnu.org/licenses/gpl-3.0.html
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,19 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.hhao.common.springboot.response;
+package com.hhao.common.dto.even;
 
 /**
- * The interface Result wrapper constant.
+ * The enum Event type.
  *
  * @author Wang
- * @since 2022 /1/8 12:41
+ * @since 1.0.0
  */
-public interface ResultWrapperConstant {
+public enum EventType {
     /**
-     * 成功的状态
-     * The constant STATUS_SUCCEED.
+     * Create event type.
      */
-    int STATUS_SUCCEED = 200;
+    CREATE,
+    /**
+     * Update event type.
+     */
+    UPDATE,
+    /**
+     * Delete event type.
+     */
+    DELETE
 }

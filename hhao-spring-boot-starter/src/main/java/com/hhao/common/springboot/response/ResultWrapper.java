@@ -18,6 +18,7 @@ package com.hhao.common.springboot.response;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.hhao.common.dto.Response;
+import com.hhao.common.dto.SingleResponse;
 import com.hhao.common.jackson.JacksonUtilFactory;
 import com.hhao.common.jackson.view.Views;
 import org.slf4j.Logger;
@@ -32,27 +33,9 @@ import java.util.Map;
  * @author Wan
  * @since 1.0.0
  */
-public class ResultWrapper<T> extends Response {
-    private static final long serialVersionUID=245745747426768L;
-    private static final Logger logger = LoggerFactory.getLogger(ResultWrapperUtil.class);
-
-    /**
-     * status
-     */
-    @JsonView(Views.Default.class)
-    private int status;
-
-    /**
-     * message
-     */
-    @JsonView(Views.Default.class)
-    private String message;
-
-    /**
-     * data
-     */
-    @JsonView(Views.Default.class)
-    private T data;
+public class ResultWrapper<T> extends SingleResponse<T> {
+    private static final Logger logger = LoggerFactory.getLogger(ResultWrapper.class);
+    private static final long serialVersionUID = -5563703180936197552L;
 
     /**
      * Instantiates a new Result wrapper.
@@ -69,69 +52,26 @@ public class ResultWrapper<T> extends Response {
      * @param message the message
      */
     public ResultWrapper(T data, int status, String message) {
-        this.status = status;
-        this.data = data;
-        this.message=message;
+        super(data,status,message);
     }
 
-    /**
-     * Gets message.
-     *
-     * @return the message
-     */
+    @Override
+    @JsonView(Views.Default.class)
     public String getMessage() {
-        return message;
+        return super.getMessage();
     }
 
-    /**
-     * Sets message.
-     *
-     * @param message the message
-     * @return the message
-     */
-    public ResultWrapper<T> setMessage(String message) {
-        this.message = message;
-        return this;
-    }
 
-    /**
-     * Gets status.
-     *
-     * @return the status
-     */
+    @Override
+    @JsonView(Views.Default.class)
     public int getStatus() {
-        return status;
+        return super.getStatus();
     }
 
-    /**
-     * Sets status.
-     *
-     * @param status the status
-     * @return the status
-     */
-    public ResultWrapper<T> setStatus(int status) {
-        this.status = status;
-        return this;
-    }
-
-    /**
-     * Gets data.
-     *
-     * @return the data
-     */
+    @Override
+    @JsonView(Views.Default.class)
     public T getData() {
-        return data;
-    }
-
-    /**
-     * Sets data.
-     *
-     * @param data the data
-     * @return the data
-     */
-    public ResultWrapper<T> setData(T data) {
-        this.data = data;
-        return this;
+        return super.getData();
     }
 
     /**
@@ -139,7 +79,7 @@ public class ResultWrapper<T> extends Response {
      *
      * @param <L>         the type parameter
      * @param targetClass the target class
-     * @return l
+     * @return l l
      */
     @SuppressWarnings("unchecked")
     public <L> L getData(Class<L> targetClass){
@@ -148,7 +88,6 @@ public class ResultWrapper<T> extends Response {
         }
         if (!targetClass.isAssignableFrom(Map.class) && this.getData() instanceof Map){
             return JacksonUtilFactory.getJsonUtil().map2Pojo((Map<String,Object>)this.getData(),targetClass);
-            //return Bean2MapUtils.map2Bean(targetClass,(Map<String,Object>)this.getData());
         }
         if (targetClass.isAssignableFrom(this.getData().getClass())){
             return (L)this.getData();
@@ -163,5 +102,4 @@ public class ResultWrapper<T> extends Response {
         }
         return "";
     }
-
 }

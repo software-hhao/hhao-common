@@ -63,8 +63,13 @@ public class AopConfig extends AbstractBaseConfig {
         if (StringUtils.hasLength(pointcutApi)){
             buf.append("(" + pointcutApi + ") || ");
         }
+        buf.append("(");
+        buf.append("(execution(public * *(..))) && ");
+        buf.append("(");
         buf.append("@within(com.hhao.common.springboot.aop.Aop) || @annotation(com.hhao.common.springboot.aop.Aop) || ");
         buf.append("@within(com.hhao.common.springboot.safe.SafeHtml) || @annotation(com.hhao.common.springboot.safe.SafeHtml) ");
+        buf.append(")");
+        buf.append(")");
         return buf.toString();
     }
 

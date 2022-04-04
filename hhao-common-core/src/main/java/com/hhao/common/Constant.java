@@ -1,12 +1,11 @@
-
 /*
- * Copyright 2018-2022 WangSheng.
+ * Copyright 2020-2021 WangSheng.
  *
  * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.gnu.org/licenses/gpl-3.0.html
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.hhao.common.dto;
+package com.hhao.common;
 
 /**
- * 查询对象
- *
  * @author Wang
  * @since 1.0.0
  */
-public abstract class Query extends Dto {
-    private static final long serialVersionUID = 1L;
+public interface Constant {
+    /**
+     * 默认成功的状态值
+     */
+    int DEFAULT_SUCCEED_STATUS = 200;
+    String DEFAULT_SUCCEED_MESSAGE = "OK";
+
 }
