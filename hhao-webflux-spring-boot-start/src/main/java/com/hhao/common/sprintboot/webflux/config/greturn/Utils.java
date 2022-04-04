@@ -31,7 +31,7 @@ package com.hhao.common.sprintboot.webflux.config.greturn;/*
  * limitations under the License.
  */
 
-import com.hhao.common.springboot.annotations.ResponseAutoWrapper;
+import com.hhao.common.springboot.response.ResponseAutoWrapper;
 import com.hhao.common.springboot.response.ResultWrapper;
 import com.hhao.common.springboot.response.ResultWrapperBuilder;
 import com.hhao.common.springboot.response.UnResultWrapper;

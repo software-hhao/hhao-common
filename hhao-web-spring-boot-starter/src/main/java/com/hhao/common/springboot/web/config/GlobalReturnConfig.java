@@ -16,7 +16,7 @@
 
 package com.hhao.common.springboot.web.config;
 
-import com.hhao.common.springboot.annotations.ResponseAutoWrapper;
+import com.hhao.common.springboot.response.ResponseAutoWrapper;
 import com.hhao.common.springboot.response.ResultWrapper;
 import com.hhao.common.springboot.response.ResultWrapperBuilder;
 import com.hhao.common.springboot.response.ResultWrapperProperties;

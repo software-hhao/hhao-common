@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.hhao.common.springboot.annotations;
+package com.hhao.common.springboot.response;
 
 import java.lang.annotation.*;
 

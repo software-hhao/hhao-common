@@ -26,7 +26,7 @@ import java.lang.reflect.Proxy;
  * 代理
  *
  * @author Wang
- * @since 2022/3/11 19:59
+ * @since 2022/3/11 22:59
  */
 @Deprecated
 public class ExtensionPointAutowiredBean<T> implements FactoryBean<T>, BeanClassLoaderAware {

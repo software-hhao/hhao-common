@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package com.hhao.common.springboot.safe;
+package com.hhao.common.springboot.safe.executor;
 
+
+import com.hhao.common.springboot.safe.SafeHtml;
 
 /**
  * Xss执行器

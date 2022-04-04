@@ -26,7 +26,7 @@ import java.lang.annotation.*;
  * 扩展点实现注解，单例
  *
  * @author Wang
- * @since 2022/3/10 12:19
+ * @since 2022/3/10 22:19
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})

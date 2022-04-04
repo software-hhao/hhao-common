@@ -21,7 +21,7 @@ import com.hhao.common.extension.BizScenario;
 
 /**
  * @author Wang
- * @since 2022/3/14 13:57
+ * @since 2022/3/14 22:57
  */
 public class ExtensionCoordinate {
     private String extensionPointName;

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.hhao.common.springboot.safe;
+package com.hhao.common.springboot.safe.executor;
 
+import com.hhao.common.springboot.safe.SafeHtml;
 import com.hhao.common.springboot.safe.xss.XssPolicyHandler;
 import com.hhao.common.springboot.safe.decode.DecodeHandler;
 import com.hhao.common.utils.html.HtmlUtils;

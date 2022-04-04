@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
  * 代理方法调用
  *
  * @author Wang
- * @since 2022/3/11 20:01
+ * @since 2022/3/11 22:01
  */
 @Deprecated
 public class ExtensionPointInvocationHandler implements InvocationHandler {

@@ -73,7 +73,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 不过，这种自动注入的方式可以留用参考，故先保留这个包下的代码
  *
  * @author Wang
- * @since 2022/3/12 6:51
+ * @since 2022/3/12 22:51
  */
 @Deprecated
 public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements SmartInstantiationAwareBeanPostProcessor,

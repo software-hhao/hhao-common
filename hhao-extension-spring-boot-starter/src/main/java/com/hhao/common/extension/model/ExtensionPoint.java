@@ -23,9 +23,10 @@ import org.springframework.core.Ordered;
  * 扩展点接口定义，从该接口继承
  *
  * @author Wang
- * @since 2022/3/10 16:50
+ * @since 2022/3/10 22:50
  */
 public interface ExtensionPoint extends Ordered {
+    @Override
     default int getOrder(){
         return Ordered.LOWEST_PRECEDENCE;
     }

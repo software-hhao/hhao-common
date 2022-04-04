@@ -26,7 +26,7 @@ import org.springframework.util.ClassUtils;
 
 /**
  * @author Wang
- * @since 2022/3/14 14:33
+ * @since 2022/3/14 22:33
  */
 public class ExtensionRegister {
     private ExtensionRepository extensionRepository;

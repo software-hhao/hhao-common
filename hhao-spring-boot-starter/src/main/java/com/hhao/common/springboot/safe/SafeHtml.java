@@ -16,7 +16,9 @@
 
 package com.hhao.common.springboot.safe;
 
+import com.hhao.common.springboot.aop.Aop;
 import org.springframework.core.annotation.AliasFor;
+import org.springframework.stereotype.Controller;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -47,7 +49,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({FIELD,TYPE,METHOD,PARAMETER,ANNOTATION_TYPE})
 @Retention(RUNTIME)
 @Documented
-public @interface SafeHtml {
+@Aop(interceptorIds = {SafeHtmlInterceptorHandler.ID})
+public @interface SafeHtml{
     /**
      * 过滤模式
      *

@@ -21,7 +21,7 @@ package com.hhao.common.dto;
  * 查询对象
  *
  * @author Wang
- * @since 2022/2/22 21:42
+ * @since 1.0.0
  */
 public abstract class Query extends Dto{
     private static final long serialVersionUID = 1L;

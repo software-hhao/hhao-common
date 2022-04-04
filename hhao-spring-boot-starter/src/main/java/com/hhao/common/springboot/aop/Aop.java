@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018-2022 WangSheng.
  *
@@ -15,18 +14,28 @@
  * limitations under the License.
  */
 
-package com.hhao.common.extension.annotation;
+package com.hhao.common.springboot.aop;
 
 import java.lang.annotation.*;
 
+import static java.lang.annotation.ElementType.*;
+
 /**
+ * 定义在类、方法上，用于定义拦截器
+ * 拦截器可以spi方式定义，也可以定义成Spring Bean
+ * 拦截器继承自InterceptorHandler
+ *
  * @author Wang
- * @since 2022/3/11 22:53
+ * @since 1.0.0
  */
-@Deprecated
-@Target({ElementType.FIELD,ElementType.METHOD,ElementType.PARAMETER,ElementType.CONSTRUCTOR})
+@Target({TYPE,METHOD,ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface ExtensionPointAutowired {
-    boolean required() default false;
+public @interface Aop {
+    /**
+     * 定义拦截器的id
+     *
+     * @return the string [ ]
+     */
+    String[] interceptorIds();
 }

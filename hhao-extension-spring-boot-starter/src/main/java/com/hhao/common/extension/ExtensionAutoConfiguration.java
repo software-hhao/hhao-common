@@ -36,7 +36,7 @@ import java.util.Map;
 
 /**
  * @author Wang
- * @since 2022/3/10 17:03
+ * @since 2022/3/10 22:03
  */
 @Configuration
 public class ExtensionAutoConfiguration implements ApplicationContextAware,ApplicationRunner, Ordered {

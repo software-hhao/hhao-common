@@ -18,7 +18,7 @@
 package com.hhao.common.sprintboot.webflux.config.safe;
 
 import com.hhao.common.springboot.safe.SafeHtml;
-import com.hhao.common.springboot.safe.SafeHtmlExecutor;
+import com.hhao.common.springboot.safe.executor.SafeHtmlExecutor;
 import com.hhao.common.springboot.safe.filter.DefaultSafeFilter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
