@@ -20,6 +20,7 @@ import com.hhao.common.extension.BizScenario;
 
 /**
  * 扩展点坐标
+ * 扩展点接口的类名+bizScenarioUniqueIdentity来识别
  *
  * @author Wang
  * @since 1.0.0

@@ -22,7 +22,7 @@ import org.springframework.core.Ordered;
  * @author Wang
  * @since 1.0.0
  */
-public interface ExtensionPoint<C, R> extends Ordered {
+public interface ExtensionPoint<C, R> extends ExtensionPointBase {
     /**
      * 是否执行当前实现的条件
      *

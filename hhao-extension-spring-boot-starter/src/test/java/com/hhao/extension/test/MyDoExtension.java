@@ -7,11 +7,10 @@ import com.hhao.extension.annotation.Extension;
  * @since 1.0.0
  */
 @Extension(bizId = "test",useCase = "say")
-public class MySayExtension implements SayExtension {
+public class MyDoExtension implements DoExtension {
     @Override
-    public Void exec(String context) {
-        System.out.println("my say:" + context);
-        return null;
+    public String exec(String context) {
+        return "my do:" + context;
     }
 
     @Override

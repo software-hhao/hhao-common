@@ -24,6 +24,7 @@ import com.hhao.extension.strategy.InterruptionStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,9 +45,9 @@ public class ExtensionExecutor extends AbstractComponentExecutor{
      *
      * example:  biz1.useCase1.scenario1
      */
-    private  <C, R> ExtensionPoint<C,R> firstTry(Class<? extends ExtensionPoint<C,R>> targetClz, BizScenario bizScenario) {
+    private  <C, R> ExtensionPoint<C,R> firstTry(Class<? extends ExtensionPoint<C,R>> targetClz, BizScenario bizScenario,C context) {
         logger.debug("First trying with " + bizScenario.getUniqueIdentity());
-        return locate(targetClz.getName(), bizScenario.getUniqueIdentity());
+        return locate(targetClz.getName(), bizScenario.getUniqueIdentity(),context);
     }
 
     /**
@@ -54,9 +55,9 @@ public class ExtensionExecutor extends AbstractComponentExecutor{
      *
      * example:  biz1.useCase1.#defaultScenario#
      */
-    private <C,R> ExtensionPoint<C,R> secondTry(Class<? extends ExtensionPoint<C,R>> targetClz, BizScenario bizScenario){
+    private <C,R> ExtensionPoint<C,R> secondTry(Class<? extends ExtensionPoint<C,R>> targetClz, BizScenario bizScenario,C context){
         logger.debug("Second trying with " + bizScenario.getIdentityWithDefaultScenario());
-        return locate(targetClz.getName(), bizScenario.getIdentityWithDefaultScenario());
+        return locate(targetClz.getName(), bizScenario.getIdentityWithDefaultScenario(),context);
     }
 
     /**
@@ -64,14 +65,28 @@ public class ExtensionExecutor extends AbstractComponentExecutor{
      *
      * example:  biz1.#defaultUseCase#.#defaultScenario#
      */
-    private <C, R> ExtensionPoint<C,R> defaultUseCaseTry(Class<? extends ExtensionPoint<C,R>> targetClz, BizScenario bizScenario){
+    private <C, R> ExtensionPoint<C,R> defaultUseCaseTry(Class<? extends ExtensionPoint<C,R>> targetClz, BizScenario bizScenario,C context){
         logger.debug("Third trying with " + bizScenario.getIdentityWithDefaultUseCase());
-        return locate(targetClz.getName(), bizScenario.getIdentityWithDefaultUseCase());
+        return locate(targetClz.getName(), bizScenario.getIdentityWithDefaultUseCase(),context);
     }
 
-    private <C, R> ExtensionPoint<C,R> locate(String name, String uniqueIdentity) {
-        final ExtensionPoint<C,R> ext= (ExtensionPoint<C,R>) extensionRepository.getExtensionRepo().get(new ExtensionCoordinate(name, uniqueIdentity));
-        return ext;
+    /**
+     * 找到第一个适合的就返回
+     * @param name
+     * @param uniqueIdentity
+     * @param context
+     * @param <C>
+     * @param <R>
+     * @return
+     */
+    private <C, R> ExtensionPoint<C,R> locate(String name, String uniqueIdentity,C context) {
+        List<ExtensionPoint> extensionPoints= extensionRepository.getExtensionPoints(new ExtensionCoordinate(name, uniqueIdentity));
+        for(ExtensionPoint exp:extensionPoints){
+            if (exp.support(context)){
+                return exp;
+            }
+        }
+        return null;
     }
 
     private void checkNull(BizScenario bizScenario){
@@ -87,32 +102,75 @@ public class ExtensionExecutor extends AbstractComponentExecutor{
         logger.debug("BizScenario in locateExtension is : " + bizScenario.getUniqueIdentity());
 
         // first try with full namespace
-        extension = firstTry(targetClz, bizScenario);
-        if (extension != null && extension.support(context)) {
+        extension = firstTry(targetClz, bizScenario,context);
+        if (extension != null) {
             return extension;
         }
 
         // second try with default scenario
-        extension = secondTry(targetClz, bizScenario);
-        if (extension != null && extension.support(context)) {
+        extension = secondTry(targetClz, bizScenario,context);
+        if (extension != null) {
             return extension;
         }
 
         // third try with default use case + default scenario
-        extension = defaultUseCaseTry(targetClz, bizScenario);
-        if (extension != null && extension.support(context)) {
+        extension = defaultUseCaseTry(targetClz, bizScenario,context);
+        if (extension != null) {
             return extension;
         }
-
         throw new RuntimeException("Can not find extension with ExtensionPoint: "+targetClz+" BizScenario:"+bizScenario.getUniqueIdentity());
     }
 
+    private  <C, R> List<ExtensionPoint> multiFirstTry(Class<? extends ExtensionPoint<C,R>> targetClz, BizScenario bizScenario,C context) {
+        logger.debug("First trying with " + bizScenario.getUniqueIdentity());
+        return locates(targetClz.getName(), bizScenario.getUniqueIdentity(),context);
+    }
+
+    private <C,R> List<ExtensionPoint> multiSecondTry(Class<? extends ExtensionPoint<C,R>> targetClz, BizScenario bizScenario,C context){
+        logger.debug("Second trying with " + bizScenario.getIdentityWithDefaultScenario());
+        return locates(targetClz.getName(), bizScenario.getIdentityWithDefaultScenario(),context);
+    }
+
+    private <C, R> List<ExtensionPoint> multiDefaultUseCaseTry(Class<? extends ExtensionPoint<C,R>> targetClz, BizScenario bizScenario,C context){
+        logger.debug("Third trying with " + bizScenario.getIdentityWithDefaultUseCase());
+        return locates(targetClz.getName(), bizScenario.getIdentityWithDefaultUseCase(),context);
+    }
+
+    private <C> List<ExtensionPoint> locates(String name, String uniqueIdentity,C context) {
+        List<ExtensionPoint> extensionPoints= extensionRepository.getExtensionPoints(new ExtensionCoordinate(name, uniqueIdentity));
+        List<ExtensionPoint> results=new ArrayList<>();
+        for(ExtensionPoint ext:extensionPoints){
+            if (ext.support(context)){
+                results.add(ext);
+            }
+        }
+        return results;
+    }
+
     @Override
-    protected <C, R> List<ExtensionPoint<C, R>> locateComponents(Class<? extends ExtensionPoint<C, R>> targetClz, BizScenario bizScenario, C context, InterruptionStrategy<R> interruptionStrategy) {
+    protected <C,R> List<ExtensionPoint> locateComponents(Class<? extends ExtensionPoint<C, R>> targetClz, BizScenario bizScenario, C context) {
+        checkNull(bizScenario);
+        List<ExtensionPoint> extensions=null;
+        logger.debug("BizScenario in locateExtension is : " + bizScenario.getUniqueIdentity());
 
+        // first try with full namespace
 
+        extensions = multiFirstTry(targetClz, bizScenario,context);
+        if (extensions != null) {
+            return extensions;
+        }
 
+        // second try with default scenario
+        extensions = multiSecondTry(targetClz, bizScenario,context);
+        if (extensions != null) {
+            return extensions;
+        }
 
-        return null;
+        // third try with default use case + default scenario
+        extensions = multiDefaultUseCaseTry(targetClz, bizScenario,context);
+        if (extensions != null) {
+            return extensions;
+        }
+        throw new RuntimeException("Can not find extension with ExtensionPoint: "+targetClz+" BizScenario:"+bizScenario.getUniqueIdentity());
     }
 }

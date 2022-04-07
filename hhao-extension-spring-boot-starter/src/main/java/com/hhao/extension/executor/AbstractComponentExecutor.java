@@ -20,17 +20,20 @@ import com.hhao.common.extension.BizScenario;
 import com.hhao.extension.strategy.DefaultInterruptionStrategy;
 import com.hhao.extension.model.ExtensionPoint;
 import com.hhao.extension.strategy.InterruptionStrategy;
+import org.springframework.core.OrderComparator;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.core.annotation.OrderUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * @author Wang
  * @since 1.0.0
  */
 public abstract class AbstractComponentExecutor {
-
-
     /**
      * Execute extension with Response
      *
@@ -58,6 +61,8 @@ public abstract class AbstractComponentExecutor {
         return multiExecute(targetClz,bizScenario, context, new DefaultInterruptionStrategy<R>());
     }
 
+
+
     /**
      * Multi Execute extension with Response
      *
@@ -69,8 +74,7 @@ public abstract class AbstractComponentExecutor {
      * @return 执行结果, 使用list包装了每个扩展点实现的返回值
      */
     public <R, C> List<R> multiExecute(Class<? extends ExtensionPoint<C, R>> targetClz,BizScenario bizScenario, C context, InterruptionStrategy<R> interruptionStrategy) {
-        List<ExtensionPoint<C,R>> extensionPointIs = locateComponents(targetClz,bizScenario, context,interruptionStrategy);
-
+        List<ExtensionPoint> extensionPointIs = locateComponents(targetClz,bizScenario, context);
         List<R> combinationResult = new ArrayList<>(extensionPointIs.size());
         for (ExtensionPoint extensionPointI : extensionPointIs) {
             R result = (R) extensionPointI.exec(context);
@@ -82,6 +86,8 @@ public abstract class AbstractComponentExecutor {
         return combinationResult;
     }
 
+
+
     /**
      * 加载扩展实现
      */
@@ -90,5 +96,5 @@ public abstract class AbstractComponentExecutor {
     /**
      * 加载多个扩展点实现
      */
-    protected abstract <C, R> List<ExtensionPoint<C,R>> locateComponents(Class<? extends ExtensionPoint<C, R>> targetClz, BizScenario bizScenario, C context,InterruptionStrategy<R> interruptionStrategy);
+    protected abstract <C, R> List<ExtensionPoint> locateComponents(Class<? extends ExtensionPoint<C, R>> targetClz, BizScenario bizScenario, C context);
 }

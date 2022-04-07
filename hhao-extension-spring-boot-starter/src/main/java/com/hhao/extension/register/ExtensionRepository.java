@@ -18,8 +18,11 @@ package com.hhao.extension.register;
 
 import com.hhao.extension.model.ExtensionCoordinate;
 import com.hhao.extension.model.ExtensionPoint;
+import org.springframework.core.OrderComparator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,15 +30,51 @@ import java.util.Map;
  * @since 1.0.0
  */
 public class ExtensionRepository {
-    private Map<ExtensionCoordinate, ExtensionPoint> extensionRepo = new HashMap<>(32);
+    private Map<ExtensionCoordinate, List<ExtensionPoint>> extensionRepo = new HashMap<>(32);
 
-    public Map<ExtensionCoordinate, ExtensionPoint> getExtensionRepo() {
+    public Map<ExtensionCoordinate, List<ExtensionPoint>> getExtensionRepo() {
         return extensionRepo;
     }
 
-    public void setExtensionRepo(Map<ExtensionCoordinate, ExtensionPoint> extensionRepo) {
+    public void setExtensionRepo(Map<ExtensionCoordinate, List<ExtensionPoint>> extensionRepo) {
         this.extensionRepo = extensionRepo;
     }
 
+    public synchronized void putExtensionPoint(ExtensionCoordinate extensionCoordinate ,ExtensionPoint extensionPoint){
+        List<ExtensionPoint> extensionPoints=extensionRepo.get(extensionCoordinate);
+        if (extensionPoints==null){
+            extensionPoints=new ArrayList<>();
+            extensionRepo.put(extensionCoordinate,extensionPoints);
+        }
+        if (isDuplicate(extensionPoints,extensionPoint)){
+            throw new IllegalArgumentException("ExtensionPoints is repeated " + extensionPoint.getClass());
+        }
+        extensionPoints.add(extensionPoint);
+        //排序
+        OrderComparator.sort(extensionPoints);
+    }
 
+    public List<ExtensionPoint> getExtensionPoints(ExtensionCoordinate extensionCoordinate){
+        List<ExtensionPoint> extensionPoints=extensionRepo.get(extensionCoordinate);
+        if (extensionPoints==null){
+            throw new IllegalArgumentException("ExtensionPoints can not be found with " + extensionCoordinate);
+        }
+        return extensionPoints;
+    }
+
+    /**
+     * 查重，同一个key下，只能有一个类型的bean
+     *
+     * @param extensionPoints
+     * @param extensionPoint
+     * @return
+     */
+    private boolean isDuplicate(List<ExtensionPoint> extensionPoints,ExtensionPoint extensionPoint){
+        for(ExtensionPoint ext:extensionPoints){
+            if (ext.getClass().equals(extensionPoint.getClass())){
+                return true;
+            }
+        }
+        return false;
+    }
 }

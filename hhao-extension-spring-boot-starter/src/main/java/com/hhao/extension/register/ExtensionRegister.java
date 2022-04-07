@@ -20,6 +20,7 @@ import com.hhao.common.extension.BizScenario;
 import com.hhao.extension.annotation.Extension;
 import com.hhao.extension.model.ExtensionCoordinate;
 import com.hhao.extension.model.ExtensionPoint;
+import com.hhao.extension.model.ExtensionPointBase;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ClassUtils;
@@ -45,10 +46,7 @@ public class ExtensionRegister {
         Extension extensionAnn = AnnotationUtils.findAnnotation(extensionClz, Extension.class);
         BizScenario bizScenario = BizScenario.valueOf(extensionAnn.bizId(), extensionAnn.useCase(), extensionAnn.scenario());
         ExtensionCoordinate extensionCoordinate = new ExtensionCoordinate(calculateExtensionPoint(extensionClz), bizScenario.getUniqueIdentity());
-        ExtensionPoint preVal = extensionRepository.getExtensionRepo().put(extensionCoordinate, extensionObject);
-        if (preVal != null) {
-            throw new RuntimeException("Duplicate registration is not allowed for :" + extensionCoordinate);
-        }
+        extensionRepository.putExtensionPoint(extensionCoordinate,extensionObject);
     }
 
     /**
@@ -83,7 +81,7 @@ public class ExtensionRegister {
             return false;
         }
         for (Class intf : interfaces) {
-            if (intf.equals(ExtensionPoint.class)){
+            if (intf.equals(ExtensionPointBase.class)){
                 return true;
             }
             return isAssignableFromExtension(intf);

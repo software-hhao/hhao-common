@@ -6,11 +6,12 @@ import com.hhao.extension.annotation.Extension;
  * @author Wang
  * @since 1.0.0
  */
-@Extension(bizId = "test",useCase = "say",scenario = "shesay")
+@Extension(bizId = "test",useCase = "say")
 public class SheSayExtension implements SayExtension {
     @Override
-    public String exec(String context) {
-        return "She:" + context;
+    public Void exec(String context) {
+        System.out.print("She say:" + context);
+        return null;
     }
 
     @Override

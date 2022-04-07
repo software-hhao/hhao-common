@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author Wang
@@ -22,7 +23,7 @@ public class TestExtension {
         SayExtension a2=new MySayExtension();
 
 
-        String str=executor.execute(SayExtension.class, BizScenario.valueOf("test","say","mysay"),"wang");
-        System.out.println(str);
+        List<String> results=executor.multiExecute(DoExtension.class, BizScenario.valueOf("test","say"),"wang");
+        System.out.println(results);
     }
 }
