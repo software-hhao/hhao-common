@@ -1,6 +1,7 @@
 package com.hhao.common.utils;
 
 
+import com.hhao.common.exception.error.request.IllegalArgumentException;
 import com.hhao.common.lang.Nullable;
 
 import java.util.Collection;
@@ -9,40 +10,12 @@ import java.util.function.Supplier;
 
 
 /**
- * The type Assert.
+ * 用于验证的类，参照Spring的Assert
  *
  * @author Wang
  * @since 1.0.0
  */
 public class Assert {
-
-
-    /**
-     * State.
-     *
-     * @param expression the expression
-     * @param message    the message
-     */
-    public static void state(boolean expression, String message) {
-        if (!expression) {
-            throw new IllegalStateException(message);
-        }
-    }
-
-
-    /**
-     * State.
-     *
-     * @param expression      the expression
-     * @param messageSupplier the message supplier
-     */
-    public static void state(boolean expression, Supplier<String> messageSupplier) {
-        if (!expression) {
-            throw new IllegalStateException(nullSafeGet(messageSupplier));
-        }
-    }
-
-
     /**
      * Is true.
      *

@@ -16,7 +16,7 @@
 
 package com.hhao.common.dto;
 
-import com.hhao.common.Constant;
+import com.hhao.common.CoreConstant;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,13 +42,13 @@ public class MultiResponse extends Response{
     }
 
     public static MultiResponse of(Map<String,Object> dataMap) {
-        return of(dataMap,Constant.DEFAULT_SUCCEED_STATUS);
+        return of(dataMap, CoreConstant.DEFAULT_SUCCEED_STATUS);
     }
 
     public static MultiResponse of(Map<String,Object> dataMap,int status) {
         MultiResponse multiResponse = new MultiResponse();
         multiResponse.setStatus(status);
-        multiResponse.setMessage(Constant.DEFAULT_SUCCEED_MESSAGE);
+        multiResponse.setMessage(CoreConstant.DEFAULT_SUCCEED_MESSAGE);
         multiResponse.setDataMap(dataMap);
         return multiResponse;
     }

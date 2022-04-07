@@ -17,7 +17,7 @@
 
 package com.hhao.common.dto;
 
-import com.hhao.common.Constant;
+import com.hhao.common.CoreConstant;
 
 import java.util.Collections;
 import java.util.List;
@@ -148,8 +148,8 @@ public class PageResponse<T> extends Response implements Page{
         pageResponse.setOrderColumns(orderColumns);
         pageResponse.setOrderDirection(orderDirection);
 
-        pageResponse.setStatus(Constant.DEFAULT_SUCCEED_STATUS);
-        pageResponse.setMessage(Constant.DEFAULT_SUCCEED_MESSAGE);
+        pageResponse.setStatus(CoreConstant.DEFAULT_SUCCEED_STATUS);
+        pageResponse.setMessage(CoreConstant.DEFAULT_SUCCEED_MESSAGE);
         return pageResponse;
     }
 

@@ -29,6 +29,36 @@ public class SystemException extends AbstractSystemRuntimeException {
     /**
      * Instantiates a new System exception.
      *
+     * @param message the message
+     */
+    public SystemException(String message) {
+        super(message);
+    }
+
+    /**
+     * Instantiates a new System exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     */
+    public SystemException(String message, Throwable cause) {
+        super(message,cause);
+    }
+
+    /**
+     * Instantiates a new System exception.
+     *
+     * @param code    the code
+     * @param message the message
+     * @param cause   the cause
+     */
+    public SystemException(String code,String message, Throwable cause) {
+        super(code,message,cause);
+    }
+
+    /**
+     * Instantiates a new System exception.
+     *
      * @param errorInfo the error info
      * @param cause     the cause
      */

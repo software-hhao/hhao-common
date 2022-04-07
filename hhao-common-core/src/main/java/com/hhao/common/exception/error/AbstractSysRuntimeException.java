@@ -30,6 +30,36 @@ public class AbstractSysRuntimeException extends AbstractBaseRuntimeException {
     /**
      * Instantiates a new Abstract sys runtime exception.
      *
+     * @param message the message
+     */
+    public AbstractSysRuntimeException(String message) {
+        super(message);
+    }
+
+    /**
+     * Instantiates a new Abstract sys runtime exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     */
+    public AbstractSysRuntimeException(String message, Throwable cause) {
+        super(message,cause);
+    }
+
+    /**
+     * Instantiates a new Abstract sys runtime exception.
+     *
+     * @param code    the code
+     * @param message the message
+     * @param cause   the cause
+     */
+    public AbstractSysRuntimeException(String code,String message, Throwable cause) {
+        super(code,message,cause);
+    }
+
+    /**
+     * Instantiates a new Abstract sys runtime exception.
+     *
      * @param errorInfo the error info
      * @param cause     the cause
      */

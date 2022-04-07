@@ -19,12 +19,13 @@ package com.hhao.common.exception;
 
 
 import com.hhao.common.Context;
+import com.hhao.common.CoreConstant;
 import com.hhao.common.lang.NonNull;
 
 /**
- * 自定义异常的根类
- * 未知的异常，需要完整的ErrorStack日志，可以Retry
+ * 非受检异常的根类，从RuntimeException继承
  * 只允许通过errorCode构建错误信息
+ * 非受检异常分类：可以预测异常、需捕获的异常、可以透出的异常
  *
  * @author Wang
  * @since 1.0.0
@@ -35,6 +36,42 @@ public abstract class AbstractBaseRuntimeException extends RuntimeException impl
      * ErrorInfo
      */
     private ErrorInfo errorInfo;
+
+    /**
+     * message:如果是${}包围的，解析为messageId，否则解析为message
+     *
+     * @param message
+     */
+    public AbstractBaseRuntimeException(String message) {
+        this(String.valueOf(CoreConstant.DEFAULT_EXCEPTION_STATUS),message,null);
+    }
+
+    /**
+     * message:如果是${}包围的，解析为messageId，否则解析为message
+     *
+     * @param message
+     * @param cause
+     */
+    public AbstractBaseRuntimeException(String message,Throwable cause) {
+        this(String.valueOf(CoreConstant.DEFAULT_EXCEPTION_STATUS),message,cause);
+    }
+
+    /**
+     * message:如果是${}包围的，解析为messageId，否则解析为message
+     *
+     * @param code:异常编码
+     * @param message:如果是${}包围的，解析为messageId，否则解析为message
+     * @param cause
+     */
+    public AbstractBaseRuntimeException(String code,String message,Throwable cause) {
+        super(cause);
+        String messageId=getMessageIdFromMessage(message);
+        if (messageId==null){
+            this.errorInfo = ErrorInfoBuilder.build(message);
+        }else{
+            this.errorInfo = ErrorInfoBuilder.build(code,messageId);
+        }
+    }
 
     /**
      * Instantiates a new Abstract base runtime exception.

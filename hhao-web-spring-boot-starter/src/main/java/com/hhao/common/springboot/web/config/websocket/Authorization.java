@@ -16,8 +16,9 @@
 
 package com.hhao.common.springboot.web.config.websocket;
 
-import com.hhao.common.entity.AbstractUser;
+
 import com.hhao.common.exception.error.request.AuthorizeException;
+import com.hhao.common.security.AbstractUser;
 
 /**
  * The interface Authorization.

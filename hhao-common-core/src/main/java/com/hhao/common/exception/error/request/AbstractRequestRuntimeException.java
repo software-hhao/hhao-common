@@ -30,6 +30,36 @@ public class AbstractRequestRuntimeException extends AbstractBaseRuntimeExceptio
     /**
      * Instantiates a new Abstract request runtime exception.
      *
+     * @param message the message
+     */
+    public AbstractRequestRuntimeException(String message) {
+        super(message);
+    }
+
+    /**
+     * Instantiates a new Abstract request runtime exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     */
+    public AbstractRequestRuntimeException(String message, Throwable cause) {
+        super(message,cause);
+    }
+
+    /**
+     * Instantiates a new Abstract request runtime exception.
+     *
+     * @param code    the code
+     * @param message the message
+     * @param cause   the cause
+     */
+    public AbstractRequestRuntimeException(String code,String message, Throwable cause) {
+        super(code,message,cause);
+    }
+
+    /**
+     * Instantiates a new Abstract request runtime exception.
+     *
      * @param errorInfo the error info
      * @param cause     the cause
      */

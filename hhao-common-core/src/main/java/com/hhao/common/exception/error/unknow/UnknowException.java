@@ -22,11 +22,42 @@ import com.hhao.common.exception.ErrorInfos;
 
 /**
  * 未知异常
+ * 未知的异常，需要完整的ErrorStack日志，可以Retry
  *
  * @author Wang
  * @since 1.0.0
  */
 public class UnknowException extends AbstractBaseRuntimeException {
+    /**
+     * Instantiates a new Unknow exception.
+     *
+     * @param message the message
+     */
+    public UnknowException(String message) {
+        super(message);
+    }
+
+    /**
+     * Instantiates a new Unknow exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     */
+    public UnknowException(String message, Throwable cause) {
+        super(message,cause);
+    }
+
+    /**
+     * Instantiates a new Unknow exception.
+     *
+     * @param code    the code
+     * @param message the message
+     * @param cause   the cause
+     */
+    public UnknowException(String code,String message, Throwable cause) {
+        super(code,message,cause);
+    }
+
     /**
      * Instantiates a new Unknow exception.
      *

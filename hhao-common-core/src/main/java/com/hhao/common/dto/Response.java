@@ -17,7 +17,7 @@
 
 package com.hhao.common.dto;
 
-import com.hhao.common.Constant;
+import com.hhao.common.CoreConstant;
 
 /**
  * 返回对象
@@ -56,13 +56,13 @@ public class Response extends Dto {
     }
 
     public static Response buildSuccess(){
-        return buildSuccess(Constant.DEFAULT_SUCCEED_STATUS);
+        return buildSuccess(CoreConstant.DEFAULT_SUCCEED_STATUS);
     }
 
     public static Response buildSuccess(int status){
         Response response = new Response();
         response.setStatus(status);
-        response.setMessage(Constant.DEFAULT_SUCCEED_MESSAGE);
+        response.setMessage(CoreConstant.DEFAULT_SUCCEED_MESSAGE);
         return response;
     }
 

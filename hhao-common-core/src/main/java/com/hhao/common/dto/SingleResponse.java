@@ -15,7 +15,7 @@
  */
 package com.hhao.common.dto;
 
-import com.hhao.common.Constant;
+import com.hhao.common.CoreConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,13 +48,13 @@ public class SingleResponse<T> extends Response{
     }
 
     public static <T> SingleResponse<T> of(T data) {
-        return of(data,Constant.DEFAULT_SUCCEED_STATUS);
+        return of(data, CoreConstant.DEFAULT_SUCCEED_STATUS);
     }
 
     public static <T> SingleResponse<T> of(T data,int status) {
         SingleResponse<T> singleResponse = new SingleResponse<>();
         singleResponse.setStatus(status);
-        singleResponse.setMessage(Constant.DEFAULT_SUCCEED_MESSAGE);
+        singleResponse.setMessage(CoreConstant.DEFAULT_SUCCEED_MESSAGE);
         singleResponse.setData(data);
         return singleResponse;
     }
@@ -68,13 +68,13 @@ public class SingleResponse<T> extends Response{
     }
 
     public static SingleResponse buildSuccess(){
-        return buildSuccess(Constant.DEFAULT_SUCCEED_STATUS);
+        return buildSuccess(CoreConstant.DEFAULT_SUCCEED_STATUS);
     }
 
     public static SingleResponse buildSuccess(int status){
         SingleResponse response = new SingleResponse();
         response.setStatus(status);
-        response.setMessage(Constant.DEFAULT_SUCCEED_MESSAGE);
+        response.setMessage(CoreConstant.DEFAULT_SUCCEED_MESSAGE);
         return response;
     }
 }

@@ -28,6 +28,36 @@ import com.hhao.common.exception.ErrorInfos;
  */
 public class ServiceUnavailableException extends AbstractServerRuntimeException {
     /**
+     * Instantiates a new Service unavailable exception.
+     *
+     * @param message the message
+     */
+    public ServiceUnavailableException(String message) {
+        super(message);
+    }
+
+    /**
+     * Instantiates a new Service unavailable exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     */
+    public ServiceUnavailableException(String message, Throwable cause) {
+        super(message,cause);
+    }
+
+    /**
+     * Instantiates a new Service unavailable exception.
+     *
+     * @param code    the code
+     * @param message the message
+     * @param cause   the cause
+     */
+    public ServiceUnavailableException(String code,String message, Throwable cause) {
+        super(code,message,cause);
+    }
+
+    /**
      * Instantiates a new System busy runtime exception.
      *
      * @param errorInfo the error info

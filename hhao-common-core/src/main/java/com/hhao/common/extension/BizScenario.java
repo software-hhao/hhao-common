@@ -17,16 +17,19 @@
 
 package com.hhao.common.extension;
 
+import static com.hhao.common.CoreConstant.*;
+
 /**
  * 扩展点的业务座标
+ * 从特殊到一般进行匹配:tenantId.scenario.useCase.bizId
+ * bizID:领域+[子域]的定义
+ * userCase:用例定义
+ * scenario:场景
  *
  * @author Wang
- * @since 2022/3/10 14:45
+ * @since 1.0.0
  */
 public class BizScenario {
-    public final static String DEFAULT_BIZ_ID = "#defaultBizId#";
-    public final static String DEFAULT_USE_CASE = "#defaultUseCase#";
-    public final static String DEFAULT_SCENARIO = "#defaultScenario#";
     private final static String DOT_SEPARATOR = ".";
 
     /**
@@ -43,6 +46,7 @@ public class BizScenario {
      * scenario is used to identify a use case, such as "88vip","normal", can not be null
      */
     private String scenario = DEFAULT_SCENARIO;
+
 
     /**
      * For above case, the BizScenario will be "tmall.placeOrder.88vip",

@@ -31,6 +31,36 @@ public class ServerException extends AbstractServerRuntimeException {
     /**
      * Instantiates a new Server exception.
      *
+     * @param message the message
+     */
+    public ServerException(String message) {
+        super(message);
+    }
+
+    /**
+     * Instantiates a new Server exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     */
+    public ServerException(String message, Throwable cause) {
+        super(message,cause);
+    }
+
+    /**
+     * Instantiates a new Server exception.
+     *
+     * @param code    the code
+     * @param message the message
+     * @param cause   the cause
+     */
+    public ServerException(String code,String message, Throwable cause) {
+        super(code,message,cause);
+    }
+
+    /**
+     * Instantiates a new Server exception.
+     *
      * @param errorInfo the error info
      * @param cause     the cause
      */

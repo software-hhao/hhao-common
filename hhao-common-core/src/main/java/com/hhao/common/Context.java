@@ -34,6 +34,9 @@ import java.util.function.Supplier;
  * @since 1.0.0
  */
 public interface Context {
+    /**
+     * The constant logger.
+     */
     static final Logger logger = LoggerFactory.getLogger(Context.class);
 
     /**
@@ -49,6 +52,15 @@ public interface Context {
      * @return the zone id
      */
     ZoneId getZoneId();
+
+    /**
+     * Get version version.
+     *
+     * @return the version
+     */
+    default Version getVersion(){
+        return Mdm.VERSION.value(Version.class);
+    }
 
     /**
      * 根据指定的locale字符串，返回最适合的Locale
@@ -128,10 +140,10 @@ public interface Context {
     /**
      * 返回消息文件的内容
      *
-     * @param code
-     * @param args
-     * @param locale
-     * @return
+     * @param code   the code
+     * @param args   the args
+     * @param locale the locale
+     * @return message
      */
     String getMessage(String code, @Nullable Object[] args, Locale locale);
 
@@ -141,11 +153,23 @@ public interface Context {
     class ContextFactory {
         private static Context instance;
 
+        /**
+         * Create context.
+         *
+         * @param context the context
+         * @return the context
+         */
         public synchronized static Context create(Context context) {
             instance = context;
             return instance;
         }
 
+        /**
+         * Create context.
+         *
+         * @param supplier the supplier
+         * @return the context
+         */
         public synchronized static Context create(Supplier<Context> supplier) {
             instance = supplier.get();
             return instance;
@@ -154,7 +178,7 @@ public interface Context {
 
     /***
      * 获取上下文对象，需要先调用工厂类初始化
-     * @param <T>  the type parameter
+     * @param <T>   the type parameter
      * @param clazz the clazz
      * @return the instance
      */

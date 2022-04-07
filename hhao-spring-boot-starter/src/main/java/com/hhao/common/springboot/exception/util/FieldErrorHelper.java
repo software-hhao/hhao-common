@@ -45,7 +45,7 @@ public class FieldErrorHelper {
         if (fieldError.getCodes()!=null) {
             for (String code : fieldError.getCodes()) {
                 try {
-                    message = AppContext.getInstance().applicationContext().getMessage(code, fieldError.getArguments(), AppContext.getInstance().getLocale());
+                    message = AppContext.getInstance().getMessage(code, fieldError.getArguments(), AppContext.getInstance().getLocale());
                     break;
                 } catch (NoSuchMessageException e) {
                     continue;

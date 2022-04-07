@@ -16,13 +16,13 @@
  */
 
 package com.hhao.common.exception;
+
 import com.hhao.common.Context;
-import com.hhao.common.lang.*;
+import com.hhao.common.CoreConstant;
+import com.hhao.common.lang.NonNull;
 
 /**
- * 自定义异常类的基类,从Exception继承
- * 未知的异常，需要完整的ErrorStack日志，可以Retry
- * 需要抛出异常的自定义类可以从它继承
+ * 受检异常类的基类,从Exception继承
  *
  * @author Wang
  * @since 1.0.0
@@ -33,6 +33,24 @@ public abstract class AbstractBaseException extends Exception implements BaseExc
      * errorInfo
      */
     private ErrorInfo errorInfo = null;
+
+    public AbstractBaseException(String message) {
+        this(String.valueOf(CoreConstant.DEFAULT_EXCEPTION_STATUS),message,null);
+    }
+
+    public AbstractBaseException(String message, Throwable cause) {
+        this(String.valueOf(CoreConstant.DEFAULT_EXCEPTION_STATUS),message,cause);
+    }
+
+    public AbstractBaseException(String code,String message, Throwable cause) {
+        super(cause);
+        String messageId=getMessageIdFromMessage(message);
+        if (messageId==null){
+            this.errorInfo = ErrorInfoBuilder.build(message);
+        }else{
+            this.errorInfo = ErrorInfoBuilder.build(code,messageId);
+        }
+    }
 
     /**
      * Instantiates a new Abstract base exception.

@@ -29,6 +29,36 @@ public class DecodeException extends AbstractRequestRuntimeException {
     /**
      * Instantiates a new Decode exception.
      *
+     * @param message the message
+     */
+    public DecodeException(String message) {
+        super(message);
+    }
+
+    /**
+     * Instantiates a new Decode exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     */
+    public DecodeException(String message, Throwable cause) {
+        super(message,cause);
+    }
+
+    /**
+     * Instantiates a new Decode exception.
+     *
+     * @param code    the code
+     * @param message the message
+     * @param cause   the cause
+     */
+    public DecodeException(String code,String message, Throwable cause) {
+        super(code,message,cause);
+    }
+
+    /**
+     * Instantiates a new Decode exception.
+     *
      * @param errorInfo the error info
      * @param cause     the cause
      */

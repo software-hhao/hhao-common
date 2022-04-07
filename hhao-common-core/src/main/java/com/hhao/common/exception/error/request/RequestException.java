@@ -29,6 +29,36 @@ public class RequestException extends AbstractRequestRuntimeException {
     /**
      * Instantiates a new Request exception.
      *
+     * @param message the message
+     */
+    public RequestException(String message) {
+        super(message);
+    }
+
+    /**
+     * Instantiates a new Request exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     */
+    public RequestException(String message, Throwable cause) {
+        super(message,cause);
+    }
+
+    /**
+     * Instantiates a new Request exception.
+     *
+     * @param code    the code
+     * @param message the message
+     * @param cause   the cause
+     */
+    public RequestException(String code,String message, Throwable cause) {
+        super(code,message,cause);
+    }
+
+    /**
+     * Instantiates a new Request exception.
+     *
      * @param errorInfo the error info
      * @param cause     the cause
      */

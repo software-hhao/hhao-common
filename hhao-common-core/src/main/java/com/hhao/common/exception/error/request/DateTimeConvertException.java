@@ -29,6 +29,36 @@ public class DateTimeConvertException extends AbstractRequestRuntimeException {
     /**
      * Instantiates a new Date time convert exception.
      *
+     * @param message the message
+     */
+    public DateTimeConvertException(String message) {
+        super(message);
+    }
+
+    /**
+     * Instantiates a new Date time convert exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     */
+    public DateTimeConvertException(String message, Throwable cause) {
+        super(message,cause);
+    }
+
+    /**
+     * Instantiates a new Date time convert exception.
+     *
+     * @param code    the code
+     * @param message the message
+     * @param cause   the cause
+     */
+    public DateTimeConvertException(String code,String message, Throwable cause) {
+        super(code,message,cause);
+    }
+
+    /**
+     * Instantiates a new Date time convert exception.
+     *
      * @param errorInfo the error info
      * @param cause     the cause
      */
