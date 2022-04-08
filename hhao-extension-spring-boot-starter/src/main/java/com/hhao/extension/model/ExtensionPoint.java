@@ -19,25 +19,65 @@ package com.hhao.extension.model;
 import org.springframework.core.Ordered;
 
 /**
+ * 扩展点接口，所有扩展点应继承自该接口
+ *
+ * @param <R> the type parameter
+ * @param <C> the type parameter
  * @author Wang
  * @since 1.0.0
  */
-public interface ExtensionPoint<C, R> extends ExtensionPointBase {
+public interface ExtensionPoint<R, C> extends Ordered {
+
     /**
-     * 是否执行当前实现的条件
+     * 扩展点代理执行器调用
+     * 返回true时表示支持，返回false时表示不支持
      *
-     * @param context 调用上下文
-     * @return 是否满足条件
+     * @param context the context
+     * @return the boolean
      */
     default boolean support(C context){
         return true;
     }
 
     /**
-     * 扩展点实现的具体操作
+     * 扩展点代理执行器调用，带参数返回
      *
-     * @param context 调用上下文
-     * @return 执行结果
+     * @param context the context
+     * @return the r
      */
-    R exec(C context);
+    default R execute(C context){
+        throw new IllegalCallerException("exec method calls are not supported; exec is undefined");
+    }
+
+    /**
+     *  扩展点代理执行器调用，不带参数返回
+     *
+     * @param context the context
+     */
+    default void executeVoid(C context){
+        throw new IllegalCallerException("executeVoid method calls are not supported; executeVoid is undefined");
+    }
+
+    /**
+     *  扩展点代理执行器执行异常时调用
+     *  返回false表示势出异常，中止执行;
+     *  返回true时继承执行
+     *
+     * @param exception the exception
+     * @param context   the context
+     * @return the boolean
+     */
+    default boolean onError(Throwable exception,C context){
+        return false;
+    }
+
+    /**
+     * 执行顺序
+     *
+     * @return
+     */
+    @Override
+    default int getOrder(){
+        return 0;
+    }
 }

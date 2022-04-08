@@ -6,5 +6,5 @@ import com.hhao.extension.model.ExtensionPoint;
  * @author Wang
  * @since 1.0.0
  */
-public interface SayExtension extends ExtensionPoint<String,Void> {
+public interface SayExtension extends ExtensionPoint<Void,String> {
 }

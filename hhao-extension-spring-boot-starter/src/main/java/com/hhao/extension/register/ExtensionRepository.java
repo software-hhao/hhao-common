@@ -26,20 +26,39 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 扩展点存储器
+ * 按扩展点类型+ExtensionCoordinate进行存储
+ *
  * @author Wang
  * @since 1.0.0
  */
 public class ExtensionRepository {
     private Map<ExtensionCoordinate, List<ExtensionPoint>> extensionRepo = new HashMap<>(32);
 
+    /**
+     * Gets extension repo.
+     *
+     * @return the extension repo
+     */
     public Map<ExtensionCoordinate, List<ExtensionPoint>> getExtensionRepo() {
         return extensionRepo;
     }
 
+    /**
+     * Sets extension repo.
+     *
+     * @param extensionRepo the extension repo
+     */
     public void setExtensionRepo(Map<ExtensionCoordinate, List<ExtensionPoint>> extensionRepo) {
         this.extensionRepo = extensionRepo;
     }
 
+    /**
+     * Put extension point.
+     *
+     * @param extensionCoordinate the extension coordinate
+     * @param extensionPoint      the extension point
+     */
     public synchronized void putExtensionPoint(ExtensionCoordinate extensionCoordinate ,ExtensionPoint extensionPoint){
         List<ExtensionPoint> extensionPoints=extensionRepo.get(extensionCoordinate);
         if (extensionPoints==null){
@@ -54,6 +73,12 @@ public class ExtensionRepository {
         OrderComparator.sort(extensionPoints);
     }
 
+    /**
+     * Get extension points list.
+     *
+     * @param extensionCoordinate the extension coordinate
+     * @return the list
+     */
     public List<ExtensionPoint> getExtensionPoints(ExtensionCoordinate extensionCoordinate){
         List<ExtensionPoint> extensionPoints=extensionRepo.get(extensionCoordinate);
         if (extensionPoints==null){
@@ -63,7 +88,7 @@ public class ExtensionRepository {
     }
 
     /**
-     * 查重，同一个key下，只能有一个类型的bean
+     * 查重，同一个key下，同一类型的Bean只能有一个
      *
      * @param extensionPoints
      * @param extensionPoint

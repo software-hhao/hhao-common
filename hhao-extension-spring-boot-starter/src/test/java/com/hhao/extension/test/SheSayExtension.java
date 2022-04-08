@@ -8,10 +8,17 @@ import com.hhao.extension.annotation.Extension;
  */
 @Extension(bizId = "test",useCase = "say")
 public class SheSayExtension implements SayExtension {
+
+
     @Override
-    public Void exec(String context) {
+    public Void execute(String context) {
         System.out.print("She say:" + context);
         return null;
+    }
+
+    @Override
+    public void executeVoid(String context) {
+        System.out.println("she ...:" + context);
     }
 
     @Override

@@ -20,24 +20,34 @@ import com.hhao.common.extension.BizScenario;
 import com.hhao.extension.annotation.Extension;
 import com.hhao.extension.model.ExtensionCoordinate;
 import com.hhao.extension.model.ExtensionPoint;
-import com.hhao.extension.model.ExtensionPointBase;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ClassUtils;
 
 
-
 /**
+ * 扩展点注册
+ *
  * @author Wang
  * @since 1.0.0
  */
 public class ExtensionRegister {
     private ExtensionRepository extensionRepository;
 
+    /**
+     * Instantiates a new Extension register.
+     *
+     * @param extensionRepository the extension repository
+     */
     public ExtensionRegister(ExtensionRepository extensionRepository){
         this.extensionRepository=extensionRepository;
     }
 
+    /**
+     * Do registration.
+     *
+     * @param extensionObject the extension object
+     */
     public void doRegistration(ExtensionPoint extensionObject){
         Class<?>  extensionClz = extensionObject.getClass();
         if (AopUtils.isAopProxy(extensionObject)) {
@@ -49,10 +59,6 @@ public class ExtensionRegister {
         extensionRepository.putExtensionPoint(extensionCoordinate,extensionObject);
     }
 
-    /**
-     * @param targetClz
-     * @return
-     */
     private String calculateExtensionPoint(Class<?> targetClz) {
         Class<?>[] interfaces = ClassUtils.getAllInterfacesForClass(targetClz);
         if (interfaces == null || interfaces.length == 0) {
@@ -67,7 +73,7 @@ public class ExtensionRegister {
     }
 
     /**
-     * 判断是否继承Extension接口
+     * 判断targetClz是否继承Extension接口
      *
      * @param targetClz
      * @return
@@ -81,12 +87,11 @@ public class ExtensionRegister {
             return false;
         }
         for (Class intf : interfaces) {
-            if (intf.equals(ExtensionPointBase.class)){
+            if (intf.equals(ExtensionPoint.class)){
                 return true;
             }
             return isAssignableFromExtension(intf);
         }
         return false;
     }
-
 }

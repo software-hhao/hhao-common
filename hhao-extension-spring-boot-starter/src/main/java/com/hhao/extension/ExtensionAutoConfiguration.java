@@ -34,6 +34,8 @@ import org.springframework.core.Ordered;
 import java.util.Map;
 
 /**
+ * Spring Boot配置扩展点的类
+ *
  * @author Wang
  * @since 1.0.0
  */
@@ -42,18 +44,35 @@ public class ExtensionAutoConfiguration implements ApplicationContextAware, Appl
     private ApplicationContext applicationContext;
     private ExtensionRegister extensionRegister;
 
+    /**
+     * Repository extension repository.
+     *
+     * @return the extension repository
+     */
     @Bean
     @ConditionalOnMissingBean(ExtensionRepository.class)
     public ExtensionRepository repository() {
         return new ExtensionRepository();
     }
 
+    /**
+     * Executor extension executor.
+     *
+     * @param repository the repository
+     * @return the extension executor
+     */
     @Bean
     @ConditionalOnMissingBean(ExtensionExecutor.class)
     public ExtensionExecutor executor(ExtensionRepository repository) {
         return new ExtensionExecutor(repository);
     }
 
+    /**
+     * Register extension register.
+     *
+     * @param repository the repository
+     * @return the extension register
+     */
     @Bean
     @ConditionalOnMissingBean(ExtensionRegister.class)
     public ExtensionRegister register(ExtensionRepository repository) {
@@ -66,6 +85,12 @@ public class ExtensionAutoConfiguration implements ApplicationContextAware, Appl
         this.applicationContext=applicationContext;
     }
 
+    /**
+     * 注册扩展点实现Bean
+     *
+     * @param args
+     * @throws Exception
+     */
     @Override
     public void run(ApplicationArguments args) throws Exception {
         Map<String, Object> extensionBeans = applicationContext.getBeansWithAnnotation(Extension.class);

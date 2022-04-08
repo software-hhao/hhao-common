@@ -17,15 +17,20 @@
 package com.hhao.extension.strategy;
 
 /**
+ * 在组合代理执行器中,每个扩展点执行完毕后，验证是否继续执行的规则
+ *
+ * @param <R> the type parameter
  * @author Wang
  * @since 1.0.0
  */
 public interface InterruptionStrategy<R> {
+
     /**
-     * 是否中断执行
+     * 返回true，则中断后续扩展点的执行
+     * 返回false，则继续
      *
-     * @param extensionPointResult 扩展点执行返回结果
-     * @return
+     * @param extensionPointResult the extension point result
+     * @return the boolean
      */
     boolean interrupt(R extensionPointResult);
 

@@ -9,7 +9,7 @@ import com.hhao.extension.annotation.Extension;
 @Extension(bizId = "test",useCase = "say")
 public class MyDoExtension implements DoExtension {
     @Override
-    public String exec(String context) {
+    public String execute(String context) {
         return "my do:" + context;
     }
 
