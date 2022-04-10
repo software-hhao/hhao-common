@@ -17,12 +17,57 @@
 
 package com.hhao.common.dto;
 
+import com.hhao.common.CoreConstant;
+
 /**
  * 返回对象
  *
  * @author Wang
  * @since 2022/2/22 21:43
  */
-public abstract class Response extends Dto{
+public class Response extends Dto {
     private static final long serialVersionUID = 1L;
+
+    private int status;
+
+    private String message;
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public static Response buildFailure(int status, String errMessage) {
+        Response response = new Response();
+        response.setStatus(status);
+        response.setMessage(errMessage);
+        return response;
+    }
+
+    public static Response buildSuccess(){
+        return buildSuccess(CoreConstant.DEFAULT_SUCCEED_STATUS);
+    }
+
+    public static Response buildSuccess(int status){
+        Response response = new Response();
+        response.setStatus(status);
+        response.setMessage(CoreConstant.DEFAULT_SUCCEED_MESSAGE);
+        return response;
+    }
+
+    @Override
+    public String toString() {
+        return "Response [status=" + status + ", message=" + message + "]";
+    }
 }

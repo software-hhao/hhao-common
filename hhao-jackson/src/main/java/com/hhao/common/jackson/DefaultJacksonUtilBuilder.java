@@ -29,8 +29,8 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.hhao.common.jackson.datatype.EnumModule;
 import com.hhao.common.jackson.datatype.JavaDateTimeModule;
 import com.hhao.common.jackson.datatype.SupportModule;
-import com.hhao.extend.money.jackson.MoneyModule;
-import com.hhao.extend.money.jackson.MoneyProperties;
+import com.hhao.common.money.jackson.MoneyModule;
+import com.hhao.common.money.jackson.MoneyProperties;
 
 import java.util.List;
 import java.util.Map;
@@ -79,6 +79,7 @@ public class DefaultJacksonUtilBuilder<T extends ObjectMapper> implements Jackso
 
         configures.put(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         configures.put(JsonParser.Feature.ALLOW_COMMENTS, false);
+
         return this;
     }
 

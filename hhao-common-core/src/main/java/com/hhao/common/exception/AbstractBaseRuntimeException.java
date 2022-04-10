@@ -19,12 +19,17 @@ package com.hhao.common.exception;
 
 
 import com.hhao.common.Context;
+import com.hhao.common.CoreConstant;
 import com.hhao.common.lang.NonNull;
 
+import java.util.Formatter;
+
 /**
- * 自定义异常的根类
- * 未知的异常，需要完整的ErrorStack日志，可以Retry
+ * 非受检异常的根类，从RuntimeException继承
  * 只允许通过errorCode构建错误信息
+ * 非受检异常分类：可以预测异常、需捕获的异常、可以透出的异常
+ * 传入message，如果${}包含，则解析为messageId，否则为message
+ * Object [] args为参数;如果是messageId，则为消息的参数，否则为String的formatter
  *
  * @author Wang
  * @since 1.0.0
@@ -35,6 +40,70 @@ public abstract class AbstractBaseRuntimeException extends RuntimeException impl
      * ErrorInfo
      */
     private ErrorInfo errorInfo;
+
+    /**
+     * message:如果是${}包围的，解析为messageId，否则解析为message
+     *
+     * @param message the message
+     */
+    public AbstractBaseRuntimeException(String message) {
+        this(String.valueOf(CoreConstant.DEFAULT_EXCEPTION_STATUS),message,null,null);
+    }
+
+    /**
+     * message:如果是${}包围的，解析为messageId，否则解析为message
+     *
+     * @param message the message
+     * @param cause   the cause
+     */
+    public AbstractBaseRuntimeException(String message,Throwable cause) {
+        this(String.valueOf(CoreConstant.DEFAULT_EXCEPTION_STATUS),message,cause,null);
+    }
+
+    /**
+     * Instantiates a new Abstract base runtime exception.
+     *
+     * @param message the message
+     * @param args    the args
+     */
+    public AbstractBaseRuntimeException(String message,Object [] args) {
+        this(String.valueOf(CoreConstant.DEFAULT_EXCEPTION_STATUS),message,null,args);
+    }
+
+    /**
+     * Instantiates a new Abstract base runtime exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     * @param args    the args
+     */
+    public AbstractBaseRuntimeException(String message,Throwable cause,Object [] args) {
+        this(String.valueOf(CoreConstant.DEFAULT_EXCEPTION_STATUS),message,cause,args);
+    }
+
+    /**
+     * message:如果是${}包围的，解析为messageId，否则解析为message
+     *
+     * @param code    :异常编码
+     * @param message :如果是${}包围的，解析为messageId，否则解析为message
+     * @param cause   the cause
+     * @param args    the args
+     */
+    public AbstractBaseRuntimeException(String code,String message,Throwable cause,Object [] args) {
+        super(cause);
+        String messageId=getMessageIdFromMessage(message);
+        if (messageId==null){
+            this.errorInfo = ErrorInfoBuilder.build(message);
+            if (args!=null){
+                this.errorInfo=this.errorInfo.applyArgs(args);
+            }
+        }else{
+            if (args!=null){
+                messageId=new Formatter().format(messageId, args).toString();
+            }
+            this.errorInfo = ErrorInfoBuilder.build(code,messageId);
+        }
+    }
 
     /**
      * Instantiates a new Abstract base runtime exception.

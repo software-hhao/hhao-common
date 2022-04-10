@@ -40,7 +40,7 @@ import java.util.Map;
  */
 public class PageInfo<T> implements Page {
     private PageExecutor pageExecutor;
-    private Map<Integer, List<T>> result;
+    private Map<Integer, List<T>> data;
 
     private long pageNum = 1L;
     private long pageSize = PageMetaData.PAGE_SIZE;
@@ -146,8 +146,8 @@ public class PageInfo<T> implements Page {
         return this.postCachedPage;
     }
 
-    public Map<Integer, List<T>> getResult() {
-        return this.result;
+    public Map<Integer, List<T>> getData() {
+        return this.data;
     }
 
 
@@ -275,10 +275,10 @@ public class PageInfo<T> implements Page {
     /**
      * 设置查询结果,将结果集转换成 {@code Map<Integer, List<T>>} 形式
      *
-     * @param result the result
+     * @param data the result
      */
-    public void setResult(List<T> result) {
-        this.result = new HashMap<>();
+    public void setData(List<T> data) {
+        this.data = new HashMap<>();
         long beginPage = getPageNum() - getPreCachedPage();
         long endPage = getPageNum() + getPostCachedPage();
         //从第一页开始
@@ -292,15 +292,15 @@ public class PageInfo<T> implements Page {
         for (long i = beginPage; i <= endPage && !isFinish; ++i, ++pageCount) {
             List<T> pageValues = new ArrayList<>();
             for (long j = 0; j < getPageSize(); ++j) {
-                if ((pageCount * getPageSize() + j) < result.size()) {
-                    pageValues.add(result.get((int) (pageCount * getPageSize() + j)));
+                if ((pageCount * getPageSize() + j) < data.size()) {
+                    pageValues.add(data.get((int) (pageCount * getPageSize() + j)));
                 } else {
                     isFinish = true;
                     break;
                 }
             }
             if (pageValues.size() > 0) {
-                this.result.put(Integer.valueOf((int) i), pageValues);
+                this.data.put(Integer.valueOf((int) i), pageValues);
             }
         }
     }
@@ -311,17 +311,7 @@ public class PageInfo<T> implements Page {
      * @return the page result
      */
     public PageResponse<T> of(){
-        PageResponse<T> pageResponse =new PageResponse<>();
-        pageResponse.setResult(this.getResult());
-        pageResponse.setPageNum(this.getPageNum());
-        pageResponse.setPageSize(this.getPageSize());
-        pageResponse.setTotalRow(this.getTotalRow());
-        pageResponse.setPostCachedPage(this.getPostCachedPage());
-        pageResponse.setPreCachedPage(this.getPreCachedPage());
-        pageResponse.setIncludeTotalRows(this.isIncludeTotalRows());
-        pageResponse.setOrderColumns(this.getOrderColumns());
-        pageResponse.setOrderDirection(this.getOrderDirection());
-        return pageResponse;
+        return PageResponse.of(data,pageNum,pageSize,preCachedPage,postCachedPage,totalRow,includeTotalRows,orderDirection,orderColumns);
     }
 
     /**

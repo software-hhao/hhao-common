@@ -16,8 +16,8 @@
 
 package com.hhao.common.springboot.exception.error.request;
 
-import com.hhao.common.exception.AbstractBaseRuntimeException;
 import com.hhao.common.exception.ErrorInfos;
+import com.hhao.common.exception.error.request.RequestException;
 import com.hhao.common.springboot.AppContext;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.validation.BindingResult;
@@ -28,7 +28,7 @@ import org.springframework.validation.BindingResult;
  * @author Wang
  * @since 1.0.0
  */
-public class ValidateException extends AbstractBaseRuntimeException {
+public class ValidateException extends RequestException {
     /**
      * BindingResult
      */
@@ -89,7 +89,7 @@ public class ValidateException extends AbstractBaseRuntimeException {
             return null;
         }
         try {
-            return AppContext.getInstance().applicationContext().getMessage(key, arguments, AppContext.getInstance().getLocale());
+            return AppContext.getInstance().getMessage(key, arguments, AppContext.getInstance().getLocale());
         } catch (NoSuchMessageException e) {
             e.printStackTrace();
         }

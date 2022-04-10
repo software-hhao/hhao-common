@@ -42,39 +42,59 @@ public class ErrorInfo implements Serializable {
      * The Logger.
      */
     protected final Logger logger = LoggerFactory.getLogger(ErrorInfo.class);
-    private static final String DEFAULT_MESSAGE="unknown error message";
+    private static final String DEFAULT_MESSAGE="Exception message not defined!";
     private static final long serialVersionUID = 1;
     /**
      * 自定义的错误代码
      **/
-    private String code;
+    private String code="";
     /**
-     * 默认的异常提示信息
+     * 异常提示信息，可以从程序直接输入
      **/
-    private String defaultMessage=DEFAULT_MESSAGE;
+    private String message ="";
     /**
      * 资源文件的属性id，用于从资源文件获取本地化异常提示信息
      **/
     private String messageId;
 
     /**
+     * 能否重试
+     */
+    private boolean retrievable=false;
+
+    /**
      * args
      */
     private List<Object> args=new ArrayList<>();
+
 
     /**
      * Instantiates a new Error info.
      *
      * @param code           the code
-     * @param defaultMessage the default message
+     * @param message the default message
      * @param messageId      the message id
      * @param args           the args
+     * @param retrievable    the retrievable
      */
-    public ErrorInfo(String code, String defaultMessage, String messageId, List<Object> args) {
+    public ErrorInfo(String code, String message, String messageId, List<Object> args, boolean retrievable) {
         this.code = code;
-        this.defaultMessage = defaultMessage;
+        this.message = message;
         this.messageId = messageId;
         this.args=args;
+        this.retrievable=retrievable;
+    }
+
+    /**
+     * Instantiates a new Error info.
+     *
+     * @param code        the code
+     * @param messageId   the message id
+     * @param args        the args
+     * @param retrievable the retrievable
+     */
+    public ErrorInfo(String code, String messageId, List<Object> args,boolean retrievable) {
+        this(code,DEFAULT_MESSAGE,messageId,args,retrievable);
     }
 
     /**
@@ -85,7 +105,18 @@ public class ErrorInfo implements Serializable {
      * @param args      the args
      */
     public ErrorInfo(String code, String messageId, List<Object> args) {
-        this(code,DEFAULT_MESSAGE,messageId,args);
+        this(code,DEFAULT_MESSAGE,messageId,args,false);
+    }
+
+    /**
+     * Instantiates a new Error info.
+     *
+     * @param code        the code
+     * @param messageId   the message id
+     * @param retrievable the retrievable
+     */
+    public ErrorInfo(String code, String messageId,boolean retrievable) {
+        this(code,DEFAULT_MESSAGE,messageId,null,retrievable);
     }
 
     /**
@@ -95,7 +126,7 @@ public class ErrorInfo implements Serializable {
      * @param messageId the message id
      */
     public ErrorInfo(String code, String messageId) {
-        this(code,DEFAULT_MESSAGE,messageId,null);
+        this(code,DEFAULT_MESSAGE,messageId,null,false);
     }
 
     /**
@@ -121,17 +152,35 @@ public class ErrorInfo implements Serializable {
      *
      * @return the default message
      */
-    public String getDefaultMessage() {
-        return defaultMessage;
+    public String getMessage() {
+        return message;
     }
 
     /**
      * Sets default message.
      *
-     * @param defaultMessage the default message
+     * @param message the default message
      */
-    public void setDefaultMessage(String defaultMessage) {
-        this.defaultMessage = defaultMessage;
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    /**
+     * Is retrievable boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isRetrievable() {
+        return retrievable;
+    }
+
+    /**
+     * Sets retrievable.
+     *
+     * @param retrievable the retrievable
+     */
+    public void setRetrievable(boolean retrievable) {
+        this.retrievable = retrievable;
     }
 
     /**
@@ -154,7 +203,7 @@ public class ErrorInfo implements Serializable {
 
     /**
      * 获取本地化消息
-     * 优先根据messageId从资源文件上获取，如果获取不到，则返回defaultMessage
+     * 优先根据messageId从资源文件上获取，如果获取不到，则返回message,最后返回DEFAULT_MESSAGE
      *
      * @param context the context
      * @param locale  the locale
@@ -170,7 +219,10 @@ public class ErrorInfo implements Serializable {
             logger.debug(e.getMessage());
         } finally{
             if (localMessage==null || localMessage.length()<=0){
-                localMessage=defaultMessage;
+                localMessage= message;
+            }
+            if (localMessage==null || localMessage.length()<=0){
+                localMessage= DEFAULT_MESSAGE;
             }
         }
         return localMessage;
@@ -188,12 +240,12 @@ public class ErrorInfo implements Serializable {
 
     /**
      * 应用参数
-     * 构造一个新的AbstractErrorInfo对象
+     * 构造一个新的ErrorInfo对象
      *
      * @param args the args
      * @return the error info
      */
     public ErrorInfo applyArgs(Object[] args){
-        return new ErrorInfo(code,defaultMessage,messageId, Arrays.asList(args));
+        return new ErrorInfo(code, message,messageId, Arrays.asList(args),retrievable);
     }
 }

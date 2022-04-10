@@ -59,7 +59,12 @@ public enum Mdm {
     /**
      * The Currency unit.
      */
-    CURRENCY_UNIT(new CurrencyUnitMetadata());
+    CURRENCY_UNIT(new CurrencyUnitMetadata()),
+
+    /**
+     * The Version.
+     */
+    VERSION(new VersionMetadata());
 
     private Metadata metadata;
 
@@ -68,10 +73,22 @@ public enum Mdm {
         this.metadata=metadata;
     }
 
+    /**
+     * Metadata metadata.
+     *
+     * @return the metadata
+     */
     public Metadata metadata(){
         return this.metadata;
     }
 
+    /**
+     * Value t.
+     *
+     * @param <T>    the type parameter
+     * @param tClass the t class
+     * @return the t
+     */
     public <T> T value(Class<T> tClass) {
         return (T)metadata.getMetadata();
     }

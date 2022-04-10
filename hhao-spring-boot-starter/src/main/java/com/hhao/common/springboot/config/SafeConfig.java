@@ -16,8 +16,9 @@
 
 package com.hhao.common.springboot.config;
 
-import com.hhao.common.springboot.safe.DefaultSafeHtmlExecutor;
-import com.hhao.common.springboot.safe.SafeHtmlExecutor;
+import com.hhao.common.springboot.safe.SafeHtmlInterceptorHandler;
+import com.hhao.common.springboot.safe.executor.DefaultSafeHtmlExecutor;
+import com.hhao.common.springboot.safe.executor.SafeHtmlExecutor;
 import com.hhao.common.springboot.safe.decode.Base64DecodeHandler;
 import com.hhao.common.springboot.safe.decode.DecodeHandler;
 import com.hhao.common.springboot.safe.filter.DefaultSafeFilter;
@@ -85,9 +86,28 @@ public class SafeConfig extends AbstractBaseConfig {
         return new Base64DecodeHandler();
     }
 
+    /**
+     * Safe filter safe filter.
+     *
+     * @param safeHtmlExecutor the safe html executor
+     * @return the safe filter
+     */
     @Bean
     @ConditionalOnMissingBean
     public SafeFilter safeFilter(SafeHtmlExecutor safeHtmlExecutor){
         return new DefaultSafeFilter(safeHtmlExecutor);
+    }
+
+    /**
+     * 构建拦截器
+     * 相关查看AopConfig
+     *
+     * @param safeFilter the safe filter
+     * @return the safe html interceptor handler
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public SafeHtmlInterceptorHandler safeHtmlInterceptorHandler(SafeFilter safeFilter){
+        return new SafeHtmlInterceptorHandler(safeFilter);
     }
 }

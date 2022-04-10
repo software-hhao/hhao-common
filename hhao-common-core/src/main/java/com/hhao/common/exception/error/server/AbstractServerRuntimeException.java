@@ -25,10 +25,62 @@ import com.hhao.common.lang.NonNull;
  * 服务异常，属于业务异常
  * 所有服务异常的根类
  *
- * @author  Wang
+ * @author Wang
  * @since 1.0.0
  */
 public class AbstractServerRuntimeException extends AbstractBaseRuntimeException {
+    /**
+     * Instantiates a new Abstract server runtime exception.
+     *
+     * @param message the message
+     */
+    public AbstractServerRuntimeException(String message) {
+        super(message);
+    }
+
+    /**
+     * Instantiates a new Abstract server runtime exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     */
+    public AbstractServerRuntimeException(String message,Throwable cause) {
+        super(message,cause);
+    }
+
+    /**
+     * Instantiates a new Abstract server runtime exception.
+     *
+     * @param message the message
+     * @param args    the args
+     */
+    public AbstractServerRuntimeException(String message,Object [] args) {
+        super(message,args);
+    }
+
+    /**
+     * Instantiates a new Abstract server runtime exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     * @param args    the args
+     */
+    public AbstractServerRuntimeException(String message,Throwable cause,Object [] args) {
+        super(message,cause,args);
+    }
+
+    /**
+     * Instantiates a new Abstract server runtime exception.
+     *
+     * @param code    the code
+     * @param message the message
+     * @param cause   the cause
+     * @param args    the args
+     */
+    public AbstractServerRuntimeException(String code,String message,Throwable cause,Object [] args) {
+        super(code,message,cause,args);
+    }
+
     /**
      * Instantiates a new Abstract server runtime exception.
      *

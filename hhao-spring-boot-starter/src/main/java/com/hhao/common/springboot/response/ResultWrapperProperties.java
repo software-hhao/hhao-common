@@ -16,6 +16,7 @@
 
 package com.hhao.common.springboot.response;
 
+import com.hhao.common.CoreConstant;
 import org.springframework.beans.factory.annotation.Value;
 
 /**
@@ -28,26 +29,24 @@ public class ResultWrapperProperties {
     /**
      * The Status succeed.
      */
-    //@Value("${com.hhao.config.result.status.succeed:200}")
-    public int statusSucceed = ResultWrapperConstant.STATUS_SUCCEED;
+    public int statusSucceed = CoreConstant.DEFAULT_SUCCEED_STATUS;
 
     /**
      * The Status error.
      */
     @Value("${com.hhao.config.result.status.error:500}")
-    public int statusError = 500;
+    public int statusError = CoreConstant.DEFAULT_EXCEPTION_STATUS;
 
     /**
      * The Msg succeed.
      */
-    @Value("${com.hhao.config.result.msg.succeed:succeed}")
-    public   String msgSucceed ="succeed";
+    public   String msgSucceed = CoreConstant.DEFAULT_SUCCEED_MESSAGE;
 
     /**
      * The Msg error.
      */
-    @Value("${com.hhao.config.result.msg.error:error}")
-    public   String msgError ="error";
+    @Value("${com.hhao.config.result.msg.error:ERROR}")
+    public   String msgError =CoreConstant.DEFAULT_EXCEPTION_MESSAGE;
 
     /**
      * Gets status succeed.

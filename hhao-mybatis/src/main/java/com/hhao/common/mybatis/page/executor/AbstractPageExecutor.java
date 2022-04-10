@@ -150,7 +150,7 @@ public abstract class AbstractPageExecutor implements PageExecutor {
      */
     protected List<Object> setPageResult(PageInfo pageInfo, Object result){
         List<Object> newResult = (List<Object>) result;
-        pageInfo.setResult(newResult);
+        pageInfo.setData(newResult);
         return newResult;
     }
 

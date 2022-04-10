@@ -24,7 +24,7 @@ package com.hhao.common.dto;
  * @since 2022/2/22 21:54
  */
 public class PageQuery extends Query implements Page{
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1371078197560489285L;
 
     private long pageNum;
     private long pageSize;
@@ -96,4 +96,5 @@ public class PageQuery extends Query implements Page{
     public void setOrderColumns(String[] orderColumns) {
         this.orderColumns = orderColumns;
     }
+
 }

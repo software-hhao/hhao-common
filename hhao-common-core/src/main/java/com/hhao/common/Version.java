@@ -17,15 +17,23 @@
 
 package com.hhao.common;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * The type Version.
- * 版本信息
+ * 版本信息格式如下：
+ * groupId:artifactId:_majorVersion._minorVersion._patchLevel-_snapshotInfo
  *
  * @author Wang
  * @since 2021 /12/23 14:35
  */
 public class Version implements Comparable<Version>, java.io.Serializable {
+    protected final Logger logger = LoggerFactory.getLogger(Version.class);
     private static final long serialVersionUID = 1L;
+    private final static String SEPARATOR=":";
+    private final static String VERSION_SEPARATOR=".";
+    private final static String VERSION_SNAPSHOT_SEPARATOR="-";
 
     private final static Version UNKNOWN_VERSION = new Version(0, 0, 0, null, null, null);
 
@@ -159,17 +167,18 @@ public class Version implements Comparable<Version>, java.io.Serializable {
      * @return the string
      */
     public String toFullString() {
-        return _groupId + '/' + _artifactId + '/' + toString();
+        return _groupId + SEPARATOR + _artifactId + SEPARATOR + toString();
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(_majorVersion).append('.');
-        sb.append(_minorVersion).append('.');
+        sb.append(_majorVersion).append(VERSION_SEPARATOR);
+        sb.append(_minorVersion).append(VERSION_SEPARATOR);
         sb.append(_patchLevel);
+        sb.append(VERSION_SNAPSHOT_SEPARATOR);
         if (isSnapshot()) {
-            sb.append('-').append(_snapshotInfo);
+            sb.append(_snapshotInfo);
         }
         return sb.toString();
     }
@@ -181,9 +190,15 @@ public class Version implements Comparable<Version>, java.io.Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (o == this) return true;
-        if (o == null) return false;
-        if (o.getClass() != getClass()) return false;
+        if (o == this) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (o.getClass() != getClass()) {
+            return false;
+        }
         Version other = (Version) o;
         return (other._majorVersion == _majorVersion)
                 && (other._minorVersion == _minorVersion)
@@ -194,7 +209,9 @@ public class Version implements Comparable<Version>, java.io.Serializable {
 
     @Override
     public int compareTo(Version other) {
-        if (other == this) return 0;
+        if (other == this) {
+            return 0;
+        }
 
         int diff = _groupId.compareTo(other._groupId);
         if (diff == 0) {
@@ -210,5 +227,72 @@ public class Version implements Comparable<Version>, java.io.Serializable {
             }
         }
         return diff;
+    }
+
+    /**
+     * 将字符串解析为版本信息
+     * groupId:artifactId:_majorVersion._minorVersion._patchLevel-_snapshotInfo
+     *
+     * @param versionInfo
+     * @return
+     */
+    public static Version of(String versionInfo){
+        if (versionInfo==null || versionInfo.length()<=0){
+            return Version.UNKNOWN_VERSION;
+        }
+        String [] parts=versionInfo.split(Version.SEPARATOR);
+        if (parts==null || parts.length!=3){
+            return Version.UNKNOWN_VERSION;
+        }
+        int majorVersion=0;
+        int minorVersion=0;
+        int patchLevel=0;
+        String snapshotInfo=null;
+        String groupId=null;
+        String artifactId=null;
+
+
+        try {
+            if (parts[0].trim().length()>0){
+                groupId=parts[0].trim();
+            }
+            if (parts[1].trim().length()>0){
+                artifactId=parts[1].trim();
+            }
+            if (parts[2].trim().length()>0){
+                String versionStr=parts[2].trim();
+                parts=versionStr.split("\\" + VERSION_SEPARATOR);
+                if (parts==null | parts.length!=3){
+                    return Version.UNKNOWN_VERSION;
+                }
+                if (parts[0].trim().length()>0){
+                    majorVersion=Integer.parseInt(parts[0].trim());
+                }
+                if (parts[1].trim().length()>0){
+                    minorVersion=Integer.parseInt(parts[1].trim());
+                }
+                if (parts[2].trim().length()>0){
+                    String residue=parts[2].trim();
+                    parts=residue.split(VERSION_SNAPSHOT_SEPARATOR);
+                    if (parts==null || parts.length<1){
+                        return Version.UNKNOWN_VERSION;
+                    }
+                    if (parts[0].trim().length()>0){
+                        patchLevel=Integer.parseInt(parts[0].trim());
+                    }
+                    if (parts.length>1 && parts[1].trim().length()>0){
+                        snapshotInfo=parts[1].trim();
+                    }
+                }
+            }
+        } catch (NumberFormatException e) {
+            return Version.unknownVersion();
+        }
+        return new Version(majorVersion,minorVersion,patchLevel,snapshotInfo,groupId,artifactId);
+    }
+
+    public static void main(String [] args){
+        String str="::0.0.0-";
+        System.out.println(Version.of(str).toFullString());
     }
 }

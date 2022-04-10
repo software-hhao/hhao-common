@@ -17,6 +17,8 @@
 
 package com.hhao.common.exception;
 
+import com.hhao.common.CoreConstant;
+
 import java.util.List;
 
 /**
@@ -29,26 +31,67 @@ public class ErrorInfoBuilder {
     /**
      * Build error info.
      *
-     * @param code           the code
-     * @param messageId      the message id
-     * @param args           the args
-     * @param defaultMessage the default message
+     * @param code        the code
+     * @param messageId   the message id
+     * @param args        the args
+     * @param message     the default message
+     * @param retrievable the retrievable
      * @return the error info
      */
-    public static ErrorInfo build(String code, String messageId, List<Object> args,String defaultMessage){
-        return new ErrorInfo(code,defaultMessage,messageId,args);
+    public static ErrorInfo build(String code, String messageId, List<Object> args,String message,boolean retrievable){
+        return new ErrorInfo(code,message,messageId,args,retrievable);
+    }
+
+
+    /**
+     * Build error info.
+     *
+     * @param code      the code
+     * @param messageId the message id
+     * @param args      the args
+     * @param message   the message
+     * @return the error info
+     */
+    public static ErrorInfo build(String code, String messageId, List<Object> args,String message){
+        return new ErrorInfo(code,message,messageId,args,false);
     }
 
     /**
      * Build error info.
      *
-     * @param code           the code
-     * @param messageId      the message id
-     * @param defaultMessage the default message
+     * @param code        the code
+     * @param messageId   the message id
+     * @param message     the message
+     * @param retrievable the retrievable
      * @return the error info
      */
-    public static ErrorInfo build(String code, String messageId,String defaultMessage){
-        return new ErrorInfo(code,defaultMessage,messageId,null);
+    public static ErrorInfo build(String code, String messageId,String message,boolean retrievable){
+        return new ErrorInfo(code,message,messageId,null,retrievable);
+    }
+
+    /**
+     * Build error info.
+     *
+     * @param code      the code
+     * @param messageId the message id
+     * @param message   the message
+     * @return the error info
+     */
+    public static ErrorInfo build(String code, String messageId,String message){
+        return new ErrorInfo(code,message,messageId,null,false);
+    }
+
+    /**
+     * Build error info.
+     *
+     * @param code        the code
+     * @param messageId   the message id
+     * @param args        the args
+     * @param retrievable the retrievable
+     * @return the error info
+     */
+    public static ErrorInfo build(String code, String messageId, List<Object> args,boolean retrievable){
+        return new ErrorInfo(code,messageId,args,retrievable);
     }
 
     /**
@@ -66,11 +109,44 @@ public class ErrorInfoBuilder {
     /**
      * Build error info.
      *
+     * @param code        the code
+     * @param messageId   the message id
+     * @param retrievable the retrievable
+     * @return the error info
+     */
+    public static ErrorInfo build(String code, String messageId,boolean retrievable){
+        return new ErrorInfo(code,messageId,retrievable);
+    }
+
+    /**
+     * Build error info.
+     *
      * @param code      the code
      * @param messageId the message id
      * @return the error info
      */
     public static ErrorInfo build(String code, String messageId){
         return new ErrorInfo(code,messageId);
+    }
+
+    /**
+     * Build error info.
+     *
+     * @param message     the message
+     * @param retrievable the retrievable
+     * @return the error info
+     */
+    public static ErrorInfo build(String message,boolean retrievable){
+        return new ErrorInfo(String.valueOf(CoreConstant.DEFAULT_EXCEPTION_STATUS),message,null,null,retrievable);
+    }
+
+    /**
+     * Build error info.
+     *
+     * @param message the message
+     * @return the error info
+     */
+    public static ErrorInfo build(String message){
+        return new ErrorInfo(String.valueOf(CoreConstant.DEFAULT_EXCEPTION_STATUS),message,null,null,false);
     }
 }

@@ -24,7 +24,7 @@ package com.hhao.common.springboot.safe.filter;
 
 import com.hhao.common.exception.error.request.DecodeException;
 import com.hhao.common.springboot.safe.SafeHtml;
-import com.hhao.common.springboot.safe.SafeHtmlExecutor;
+import com.hhao.common.springboot.safe.executor.SafeHtmlExecutor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

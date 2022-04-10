@@ -25,10 +25,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration;
 import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Role;
+import org.springframework.context.annotation.*;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 
@@ -49,6 +46,7 @@ import javax.validation.Validator;
 @AutoConfigureBefore(ValidationAutoConfiguration.class)
 @ConditionalOnProperty(prefix = "com.hhao.config.validator",name = "enable",havingValue = "true",matchIfMissing = true)
 public class ValidatorConfig extends AbstractBaseConfig implements BeanPostProcessor {
+
     /**
      * Method validation post processor method validation post processor.
      *
@@ -70,6 +68,7 @@ public class ValidatorConfig extends AbstractBaseConfig implements BeanPostProce
      * @return the local validator factory bean
      */
     @Bean
+    @Primary
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     public LocalValidatorFactoryBean validator(MessageSource messageSource) {
         /***

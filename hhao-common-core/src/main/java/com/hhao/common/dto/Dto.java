@@ -17,6 +17,8 @@
 
 package com.hhao.common.dto;
 
+import com.hhao.common.Context;
+
 import java.io.Serializable;
 
 /**
@@ -28,5 +30,9 @@ import java.io.Serializable;
  */
 public abstract class Dto implements Serializable {
     private static final long serialVersionUID = 1L;
+    private String version= Context.getInstance().getVersion().toFullString();
 
+    public String getVersion() {
+        return version;
+    }
 }

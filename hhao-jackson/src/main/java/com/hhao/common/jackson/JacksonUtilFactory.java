@@ -18,7 +18,7 @@ package com.hhao.common.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.hhao.extend.money.jackson.MoneyProperties;
+import com.hhao.common.money.jackson.MoneyProperties;
 
 import java.util.Map;
 import java.util.Objects;

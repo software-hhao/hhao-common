@@ -20,8 +20,8 @@ package com.hhao.common.sprintboot.webflux.config.safe;
  * @author Wang
  * @since 2022/1/14 16:20
  */
-import com.hhao.common.springboot.safe.DefaultSafeHtmlExecutor;
-import com.hhao.common.springboot.safe.SafeHtmlExecutor;
+import com.hhao.common.springboot.safe.executor.DefaultSafeHtmlExecutor;
+import com.hhao.common.springboot.safe.executor.SafeHtmlExecutor;
 import com.hhao.common.springboot.safe.decode.Base64DecodeHandler;
 import com.hhao.common.springboot.safe.decode.DecodeHandler;
 import com.hhao.common.springboot.safe.filter.SafeFilter;

@@ -23,7 +23,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.hhao.common.jackson.DefaultJacksonUtilBuilder;
 import com.hhao.common.jackson.JacksonUtil;
 import com.hhao.common.jackson.JacksonUtilFactory;
-import com.hhao.extend.money.jackson.MoneyProperties;
+import com.hhao.common.money.jackson.MoneyProperties;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;

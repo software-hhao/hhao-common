@@ -29,6 +29,9 @@ import java.io.Serializable;
  * @since 1.0.0
  */
 public interface BaseException extends Serializable {
+    String MESSAGE_ID_BEGIN_MARK="${";
+    String MESSAGE_ID_END_MARK="}";
+
     long serialVersionUID = 1L;
 
     /**
@@ -37,4 +40,20 @@ public interface BaseException extends Serializable {
      * @return ErrorInfo error info
      */
     ErrorInfo getErrorInfo();
+
+    /**
+     * 将${}包含的message解析为messageId
+     * @param message
+     * @return
+     */
+    default String getMessageIdFromMessage(String message){
+        if (message==null || message.trim().length()<=3){
+            return null;
+        }
+        String messageId=message.trim();
+        if (messageId.startsWith(MESSAGE_ID_BEGIN_MARK) && messageId.endsWith(MESSAGE_ID_END_MARK)){
+            return messageId.substring(2,messageId.length()-1);
+        }
+        return null;
+    }
 }

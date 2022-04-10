@@ -29,6 +29,58 @@ import com.hhao.common.lang.NonNull;
  */
 public class ConnectException  extends AbstractServerRuntimeException {
     /**
+     * Instantiates a new Connect exception.
+     *
+     * @param message the message
+     */
+    public ConnectException(String message) {
+        super(message);
+    }
+
+    /**
+     * Instantiates a new Connect exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     */
+    public ConnectException(String message,Throwable cause) {
+        super(message,cause);
+    }
+
+    /**
+     * Instantiates a new Connect exception.
+     *
+     * @param message the message
+     * @param args    the args
+     */
+    public ConnectException(String message,Object [] args) {
+        super(message,args);
+    }
+
+    /**
+     * Instantiates a new Connect exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     * @param args    the args
+     */
+    public ConnectException(String message,Throwable cause,Object [] args) {
+        super(message,cause,args);
+    }
+
+    /**
+     * Instantiates a new Connect exception.
+     *
+     * @param code    the code
+     * @param message the message
+     * @param cause   the cause
+     * @param args    the args
+     */
+    public ConnectException(String code,String message,Throwable cause,Object [] args) {
+        super(code,message,cause,args);
+    }
+
+    /**
      * The constant ERROR_500_CONNECTION.
      */
     public static final ErrorInfo ERROR_500_CONNECTION = ErrorInfoBuilder.build("500.100", "error.code.500.100");

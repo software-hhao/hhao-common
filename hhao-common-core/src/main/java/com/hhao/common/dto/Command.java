@@ -21,8 +21,30 @@ package com.hhao.common.dto;
  * Command request from Client.
  *
  * @author Wang
- * @since 2022/2/22 21:39
+ * @since 2022 /2/22 21:39
  */
 public abstract class Command extends Dto {
     private static final long serialVersionUID = 1L;
+    /**
+     * 操作人
+     */
+    private Long operaterId;
+
+    /**
+     * Gets operater id.
+     *
+     * @return the operater id
+     */
+    public Long getOperaterId() {
+        return operaterId;
+    }
+
+    /**
+     * Sets operater id.
+     *
+     * @param operaterId the operater id
+     */
+    public void setOperaterId(Long operaterId) {
+        this.operaterId = operaterId;
+    }
 }

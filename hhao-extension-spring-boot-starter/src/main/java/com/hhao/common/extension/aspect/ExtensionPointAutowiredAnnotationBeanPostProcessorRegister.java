@@ -27,10 +27,10 @@ import org.springframework.core.type.AnnotationMetadata;
  * 注册：ExtensionPointAutowiredAnnotationBeanPostProcessor
  *
  * @author Wang
- * @since 2022/3/11 20:08
+ * @since 2022/3/11 22:08
  */
-@Deprecated
-public class ExtensionPointAutowiredAnnotationBeanPostProcessorRegister  implements ImportBeanDefinitionRegistrar {
+
+public class ExtensionPointAutowiredAnnotationBeanPostProcessorRegister implements ImportBeanDefinitionRegistrar {
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {

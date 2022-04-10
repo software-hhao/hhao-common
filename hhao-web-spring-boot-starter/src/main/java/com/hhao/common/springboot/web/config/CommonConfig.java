@@ -19,9 +19,12 @@ package com.hhao.common.springboot.web.config;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.i18n.LocaleContext;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.support.RequestContext;
 
 /**
  * The type Common config.
@@ -49,5 +52,4 @@ public class CommonConfig extends AbstractBaseMvcConfig {
             return "Nice to use hhao software, more information can visit https://github.com/software-hhao/hhao-common.";
         }
     }
-
 }

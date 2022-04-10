@@ -16,7 +16,7 @@
 
 package com.hhao.common.springboot.web.config.exception;
 
-import com.hhao.common.springboot.annotations.ResponseAutoWrapper;
+import com.hhao.common.springboot.response.ResponseAutoWrapper;
 import org.springframework.boot.autoconfigure.web.ErrorProperties;
 import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorViewResolver;
