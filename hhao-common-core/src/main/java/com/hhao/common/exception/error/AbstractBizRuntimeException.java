@@ -17,6 +17,7 @@
 
 package com.hhao.common.exception.error;
 
+import com.hhao.common.CoreConstant;
 import com.hhao.common.exception.AbstractBaseRuntimeException;
 import com.hhao.common.exception.ErrorInfo;
 
@@ -44,8 +45,29 @@ public class AbstractBizRuntimeException extends AbstractBaseRuntimeException {
      * @param message the message
      * @param cause   the cause
      */
-    public AbstractBizRuntimeException(String message, Throwable cause) {
+    public AbstractBizRuntimeException(String message,Throwable cause) {
         super(message,cause);
+    }
+
+    /**
+     * Instantiates a new Abstract biz runtime exception.
+     *
+     * @param message the message
+     * @param args    the args
+     */
+    public AbstractBizRuntimeException(String message,Object [] args) {
+        super(message,args);
+    }
+
+    /**
+     * Instantiates a new Abstract biz runtime exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     * @param args    the args
+     */
+    public AbstractBizRuntimeException(String message,Throwable cause,Object [] args) {
+        super(message,cause,args);
     }
 
     /**
@@ -54,9 +76,10 @@ public class AbstractBizRuntimeException extends AbstractBaseRuntimeException {
      * @param code    the code
      * @param message the message
      * @param cause   the cause
+     * @param args    the args
      */
-    public AbstractBizRuntimeException(String code,String message, Throwable cause) {
-        super(code,message,cause);
+    public AbstractBizRuntimeException(String code,String message,Throwable cause,Object [] args) {
+        super(code,message,cause,args);
     }
 
 

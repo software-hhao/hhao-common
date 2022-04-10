@@ -19,7 +19,7 @@ package com.hhao.common.springboot.extend.mapstruct;
 
 import com.hhao.common.springboot.AppContext;
 import com.hhao.common.utils.DateTimeUtils;
-import com.hhao.extend.money.MoneyUtils;
+import com.hhao.common.money.MoneyUtils;
 import org.javamoney.moneta.Money;
 
 import java.math.BigDecimal;

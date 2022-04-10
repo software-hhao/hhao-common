@@ -40,7 +40,16 @@ public interface CoreConstant {
     String DEFAULT_EXCEPTION_MESSAGE="ERROR";
 
 
+    /**
+     * The constant DEFAULT_BIZ_ID.
+     */
     String DEFAULT_BIZ_ID = "#defaultBizId#";
+    /**
+     * The constant DEFAULT_USE_CASE.
+     */
     String DEFAULT_USE_CASE = "#defaultUseCase#";
+    /**
+     * The constant DEFAULT_SCENARIO.
+     */
     String DEFAULT_SCENARIO = "#defaultScenario#";
 }

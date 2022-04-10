@@ -41,8 +41,29 @@ public class AuthorizeException extends AbstractRequestRuntimeException {
      * @param message the message
      * @param cause   the cause
      */
-    public AuthorizeException(String message, Throwable cause) {
+    public AuthorizeException(String message,Throwable cause) {
         super(message,cause);
+    }
+
+    /**
+     * Instantiates a new Authorize exception.
+     *
+     * @param message the message
+     * @param args    the args
+     */
+    public AuthorizeException(String message,Object [] args) {
+        super(message,args);
+    }
+
+    /**
+     * Instantiates a new Authorize exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     * @param args    the args
+     */
+    public AuthorizeException(String message,Throwable cause,Object [] args) {
+        super(message,cause,args);
     }
 
     /**
@@ -51,9 +72,10 @@ public class AuthorizeException extends AbstractRequestRuntimeException {
      * @param code    the code
      * @param message the message
      * @param cause   the cause
+     * @param args    the args
      */
-    public AuthorizeException(String code,String message, Throwable cause) {
-        super(code,message,cause);
+    public AuthorizeException(String code,String message,Throwable cause,Object [] args) {
+        super(code,message,cause,args);
     }
 
     /**

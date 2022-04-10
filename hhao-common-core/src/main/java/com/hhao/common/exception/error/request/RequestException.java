@@ -41,8 +41,29 @@ public class RequestException extends AbstractRequestRuntimeException {
      * @param message the message
      * @param cause   the cause
      */
-    public RequestException(String message, Throwable cause) {
+    public RequestException(String message,Throwable cause) {
         super(message,cause);
+    }
+
+    /**
+     * Instantiates a new Request exception.
+     *
+     * @param message the message
+     * @param args    the args
+     */
+    public RequestException(String message,Object [] args) {
+        super(message,args);
+    }
+
+    /**
+     * Instantiates a new Request exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     * @param args    the args
+     */
+    public RequestException(String message,Throwable cause,Object [] args) {
+        super(message,cause,args);
     }
 
     /**
@@ -51,9 +72,10 @@ public class RequestException extends AbstractRequestRuntimeException {
      * @param code    the code
      * @param message the message
      * @param cause   the cause
+     * @param args    the args
      */
-    public RequestException(String code,String message, Throwable cause) {
-        super(code,message,cause);
+    public RequestException(String code,String message,Throwable cause,Object [] args) {
+        super(code,message,cause,args);
     }
 
     /**

@@ -41,8 +41,29 @@ public class SystemException extends AbstractSystemRuntimeException {
      * @param message the message
      * @param cause   the cause
      */
-    public SystemException(String message, Throwable cause) {
+    public SystemException(String message,Throwable cause) {
         super(message,cause);
+    }
+
+    /**
+     * Instantiates a new System exception.
+     *
+     * @param message the message
+     * @param args    the args
+     */
+    public SystemException(String message,Object [] args) {
+        super(message,args);
+    }
+
+    /**
+     * Instantiates a new System exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     * @param args    the args
+     */
+    public SystemException(String message,Throwable cause,Object [] args) {
+        super(message,cause,args);
     }
 
     /**
@@ -51,9 +72,10 @@ public class SystemException extends AbstractSystemRuntimeException {
      * @param code    the code
      * @param message the message
      * @param cause   the cause
+     * @param args    the args
      */
-    public SystemException(String code,String message, Throwable cause) {
-        super(code,message,cause);
+    public SystemException(String code,String message,Throwable cause,Object [] args) {
+        super(code,message,cause,args);
     }
 
     /**

@@ -41,8 +41,29 @@ public class PayloadLengthException extends AbstractRequestRuntimeException {
      * @param message the message
      * @param cause   the cause
      */
-    public PayloadLengthException(String message, Throwable cause) {
+    public PayloadLengthException(String message,Throwable cause) {
         super(message,cause);
+    }
+
+    /**
+     * Instantiates a new Payload length exception.
+     *
+     * @param message the message
+     * @param args    the args
+     */
+    public PayloadLengthException(String message,Object [] args) {
+        super(message,args);
+    }
+
+    /**
+     * Instantiates a new Payload length exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     * @param args    the args
+     */
+    public PayloadLengthException(String message,Throwable cause,Object [] args) {
+        super(message,cause,args);
     }
 
     /**
@@ -51,9 +72,10 @@ public class PayloadLengthException extends AbstractRequestRuntimeException {
      * @param code    the code
      * @param message the message
      * @param cause   the cause
+     * @param args    the args
      */
-    public PayloadLengthException(String code,String message, Throwable cause) {
-        super(code,message,cause);
+    public PayloadLengthException(String code,String message,Throwable cause,Object [] args) {
+        super(code,message,cause,args);
     }
 
     /**

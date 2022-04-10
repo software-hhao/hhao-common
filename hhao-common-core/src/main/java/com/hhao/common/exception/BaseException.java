@@ -52,7 +52,7 @@ public interface BaseException extends Serializable {
         }
         String messageId=message.trim();
         if (messageId.startsWith(MESSAGE_ID_BEGIN_MARK) && messageId.endsWith(MESSAGE_ID_END_MARK)){
-            return messageId.substring(2,messageId.length()-2);
+            return messageId.substring(2,messageId.length()-1);
         }
         return null;
     }

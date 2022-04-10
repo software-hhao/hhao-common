@@ -43,8 +43,29 @@ public class ConnectException  extends AbstractServerRuntimeException {
      * @param message the message
      * @param cause   the cause
      */
-    public ConnectException(String message, Throwable cause) {
+    public ConnectException(String message,Throwable cause) {
         super(message,cause);
+    }
+
+    /**
+     * Instantiates a new Connect exception.
+     *
+     * @param message the message
+     * @param args    the args
+     */
+    public ConnectException(String message,Object [] args) {
+        super(message,args);
+    }
+
+    /**
+     * Instantiates a new Connect exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     * @param args    the args
+     */
+    public ConnectException(String message,Throwable cause,Object [] args) {
+        super(message,cause,args);
     }
 
     /**
@@ -53,9 +74,10 @@ public class ConnectException  extends AbstractServerRuntimeException {
      * @param code    the code
      * @param message the message
      * @param cause   the cause
+     * @param args    the args
      */
-    public ConnectException(String code,String message, Throwable cause) {
-        super(code,message,cause);
+    public ConnectException(String code,String message,Throwable cause,Object [] args) {
+        super(code,message,cause,args);
     }
 
     /**

@@ -42,8 +42,29 @@ public class AbstractSystemRuntimeException extends AbstractBaseRuntimeException
      * @param message the message
      * @param cause   the cause
      */
-    public AbstractSystemRuntimeException(String message, Throwable cause) {
+    public AbstractSystemRuntimeException(String message,Throwable cause) {
         super(message,cause);
+    }
+
+    /**
+     * Instantiates a new Abstract system runtime exception.
+     *
+     * @param message the message
+     * @param args    the args
+     */
+    public AbstractSystemRuntimeException(String message,Object [] args) {
+        super(message,args);
+    }
+
+    /**
+     * Instantiates a new Abstract system runtime exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     * @param args    the args
+     */
+    public AbstractSystemRuntimeException(String message,Throwable cause,Object [] args) {
+        super(message,cause,args);
     }
 
     /**
@@ -52,9 +73,10 @@ public class AbstractSystemRuntimeException extends AbstractBaseRuntimeException
      * @param code    the code
      * @param message the message
      * @param cause   the cause
+     * @param args    the args
      */
-    public AbstractSystemRuntimeException(String code,String message, Throwable cause) {
-        super(code,message,cause);
+    public AbstractSystemRuntimeException(String code,String message,Throwable cause,Object [] args) {
+        super(code,message,cause,args);
     }
 
     /**

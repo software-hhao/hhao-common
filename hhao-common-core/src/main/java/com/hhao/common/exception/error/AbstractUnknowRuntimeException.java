@@ -43,8 +43,29 @@ public class AbstractUnknowRuntimeException extends AbstractBaseRuntimeException
      * @param message the message
      * @param cause   the cause
      */
-    public AbstractUnknowRuntimeException(String message, Throwable cause) {
+    public AbstractUnknowRuntimeException(String message,Throwable cause) {
         super(message,cause);
+    }
+
+    /**
+     * Instantiates a new Abstract unknow runtime exception.
+     *
+     * @param message the message
+     * @param args    the args
+     */
+    public AbstractUnknowRuntimeException(String message,Object [] args) {
+        super(message,args);
+    }
+
+    /**
+     * Instantiates a new Abstract unknow runtime exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     * @param args    the args
+     */
+    public AbstractUnknowRuntimeException(String message,Throwable cause,Object [] args) {
+        super(message,cause,args);
     }
 
     /**
@@ -53,9 +74,10 @@ public class AbstractUnknowRuntimeException extends AbstractBaseRuntimeException
      * @param code    the code
      * @param message the message
      * @param cause   the cause
+     * @param args    the args
      */
-    public AbstractUnknowRuntimeException(String code,String message, Throwable cause) {
-        super(code,message,cause);
+    public AbstractUnknowRuntimeException(String code,String message,Throwable cause,Object [] args) {
+        super(code,message,cause,args);
     }
 
     /**

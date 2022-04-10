@@ -40,8 +40,29 @@ public class IllegalArgumentException extends AbstractBaseRuntimeException {
      * @param message the message
      * @param cause   the cause
      */
-    public IllegalArgumentException(String message, Throwable cause) {
+    public IllegalArgumentException(String message,Throwable cause) {
         super(message,cause);
+    }
+
+    /**
+     * Instantiates a new Illegal argument exception.
+     *
+     * @param message the message
+     * @param args    the args
+     */
+    public IllegalArgumentException(String message,Object [] args) {
+        super(message,args);
+    }
+
+    /**
+     * Instantiates a new Illegal argument exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     * @param args    the args
+     */
+    public IllegalArgumentException(String message,Throwable cause,Object [] args) {
+        super(message,cause,args);
     }
 
     /**
@@ -50,9 +71,10 @@ public class IllegalArgumentException extends AbstractBaseRuntimeException {
      * @param code    the code
      * @param message the message
      * @param cause   the cause
+     * @param args    the args
      */
-    public IllegalArgumentException(String code,String message, Throwable cause) {
-        super(code,message,cause);
+    public IllegalArgumentException(String code,String message,Throwable cause,Object [] args) {
+        super(code,message,cause,args);
     }
 
     /**

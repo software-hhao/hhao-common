@@ -42,8 +42,29 @@ public class ServiceUnavailableException extends AbstractServerRuntimeException 
      * @param message the message
      * @param cause   the cause
      */
-    public ServiceUnavailableException(String message, Throwable cause) {
+    public ServiceUnavailableException(String message,Throwable cause) {
         super(message,cause);
+    }
+
+    /**
+     * Instantiates a new Service unavailable exception.
+     *
+     * @param message the message
+     * @param args    the args
+     */
+    public ServiceUnavailableException(String message,Object [] args) {
+        super(message,args);
+    }
+
+    /**
+     * Instantiates a new Service unavailable exception.
+     *
+     * @param message the message
+     * @param cause   the cause
+     * @param args    the args
+     */
+    public ServiceUnavailableException(String message,Throwable cause,Object [] args) {
+        super(message,cause,args);
     }
 
     /**
@@ -52,9 +73,10 @@ public class ServiceUnavailableException extends AbstractServerRuntimeException 
      * @param code    the code
      * @param message the message
      * @param cause   the cause
+     * @param args    the args
      */
-    public ServiceUnavailableException(String code,String message, Throwable cause) {
-        super(code,message,cause);
+    public ServiceUnavailableException(String code,String message,Throwable cause,Object [] args) {
+        super(code,message,cause,args);
     }
 
     /**
