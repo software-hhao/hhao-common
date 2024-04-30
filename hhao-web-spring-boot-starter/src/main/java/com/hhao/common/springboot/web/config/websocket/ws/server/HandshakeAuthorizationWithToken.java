@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,7 @@
 package com.hhao.common.springboot.web.config.websocket.ws.server;
 
 
-import com.hhao.common.exception.error.request.AuthorizeException;
+import com.hhao.common.exception.error.request.AuthenticationException;
 import com.hhao.common.security.AbstractUser;
 import com.hhao.common.utils.StringUtils;
 import org.springframework.http.HttpHeaders;
@@ -43,12 +43,12 @@ public class HandshakeAuthorizationWithToken implements HandshakeAuthorization {
      * The constant TOKEN_NAME.
      */
 //token参数的名称
-    protected static final String TOKEN_NAME="token";
+    protected static final String TOKEN_NAME = "token";
     /**
      * The constant COOKIE_NAME.
      */
 //cookie转存到HttpHeaders中的名称
-    protected static final String COOKIE_NAME="cookie";
+    protected static final String COOKIE_NAME = "cookie";
 
     /**
      * 从HttpHeaders分解出cookie
@@ -56,14 +56,14 @@ public class HandshakeAuthorizationWithToken implements HandshakeAuthorization {
      * @param headers the headers
      * @return map
      */
-    protected Map<String,String> getCookie(HttpHeaders headers){
-        Map<String,String> cookieMap=new HashMap<>();
-        List<String> content=headers.get(COOKIE_NAME);
-        if (content!=null){
-            content.forEach(msg->{
-                String [] infos= msg.split("=");
-                if (infos!=null && infos.length==2){
-                    cookieMap.put(StringUtils.trimAllWhitespace(infos[0]),StringUtils.trimAllWhitespace(infos[1]));
+    protected Map<String, String> getCookie(HttpHeaders headers) {
+        Map<String, String> cookieMap = new HashMap<>();
+        List<String> content = headers.get(COOKIE_NAME);
+        if (content != null) {
+            content.forEach(msg -> {
+                String[] infos = msg.split("=");
+                if (infos != null && infos.length == 2) {
+                    cookieMap.put(StringUtils.trimAllWhitespace(infos[0]), StringUtils.trimAllWhitespace(infos[1]));
                 }
             });
         }
@@ -77,8 +77,8 @@ public class HandshakeAuthorizationWithToken implements HandshakeAuthorization {
      * @param paramName the param name
      * @return string
      */
-    protected String getParameter(ServerHttpRequest request,String paramName){
-        if (request instanceof ServletServerHttpRequest){
+    protected String getParameter(ServerHttpRequest request, String paramName) {
+        if (request instanceof ServletServerHttpRequest) {
             return ((ServletServerHttpRequest) request).getServletRequest().getParameter(paramName);
         }
         return null;
@@ -93,36 +93,36 @@ public class HandshakeAuthorizationWithToken implements HandshakeAuthorization {
      * @param request the request
      * @return string
      */
-    protected String getToken(ServerHttpRequest request){
-        String token="";
+    protected String getToken(ServerHttpRequest request) {
+        String token = "";
         //先从request header取
-        List<String> values=request.getHeaders().get(TOKEN_NAME);
-        if (values!=null && values.size()==1){
-            token=values.get(0);
+        List<String> values = request.getHeaders().get(TOKEN_NAME);
+        if (values != null && values.size() == 1) {
+            token = values.get(0);
         }
         //再从URL的param中取
-        if (!StringUtils.hasLength(token)){
-            token=this.getParameter(request,TOKEN_NAME);
+        if (!StringUtils.hasLength(token)) {
+            token = this.getParameter(request, TOKEN_NAME);
         }
         //最后从cookie中取
-        if (!StringUtils.hasLength(token)){
-            token=this.getCookie(request.getHeaders()).get(TOKEN_NAME);
+        if (!StringUtils.hasLength(token)) {
+            token = this.getCookie(request.getHeaders()).get(TOKEN_NAME);
         }
         return token;
     }
 
     @Override
     public boolean handshake(ServerHttpRequest request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
-        String token=this.getToken(request);
-        if (StringUtils.hasLength(token)){
+        String token = this.getToken(request);
+        if (StringUtils.hasLength(token)) {
             try {
-                AbstractUser user=authorize(token);
+                AbstractUser user = authorize(token);
                 attributes.put("token", token);
-                if (user!=null) {
+                if (user != null) {
                     attributes.put("user", user);
                 }
                 return true;
-            } catch (AuthorizeException e) {
+            } catch (AuthenticationException e) {
                 e.printStackTrace();
             }
         }
@@ -135,11 +135,11 @@ public class HandshakeAuthorizationWithToken implements HandshakeAuthorization {
      * 如果存在用户，则返回Principal，否则返回null
      */
     @Override
-    public AbstractUser authorize(String token) throws AuthorizeException {
-        if (!StringUtils.hasLength(token)){
-            throw new AuthorizeException();
+    public AbstractUser authorize(String token) throws AuthenticationException {
+        if (!StringUtils.hasLength(token)) {
+            throw new AuthenticationException();
         }
-        AbstractUser user=new AbstractUser() {
+        AbstractUser user = new AbstractUser() {
             @Override
             public String getName() {
                 return token;

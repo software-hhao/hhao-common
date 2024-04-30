@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,33 +31,32 @@ import javax.money.MonetaryAmount;
  * @since 1.0.0
  */
 public class MoneyModule extends SimpleModule {
-    private MoneyProperties moneyProperties =new MoneyProperties(true,false,true);
+    private MoneyJsonSerializationConfig moneyJsonSerializationConfig =new MoneyJsonSerializationConfig();
 
     /**
      * Instantiates a new Money module.
      */
     public MoneyModule(){
-        this(new MoneyProperties(true,false,true));
+        this(new MoneyJsonSerializationConfig());
     }
 
 
     /**
      * Instantiates a new Money module.
      */
-    public MoneyModule( MoneyProperties moneyProperties) {
-        this.moneyProperties = moneyProperties;
+    public MoneyModule( MoneyJsonSerializationConfig moneyJsonSerializationConfig) {
+        this.moneyJsonSerializationConfig = moneyJsonSerializationConfig;
 
-
-        addDeserializer(MonetaryAmount.class,new MonetaryAmountDeserializer(this.moneyProperties));
-        addDeserializer(FastMoney.class,new MonetaryAmountDeserializer(this.moneyProperties));
-        addDeserializer(Money.class,new MonetaryAmountDeserializer(this.moneyProperties));
-        addDeserializer(RoundedMoney.class,new MonetaryAmountDeserializer(this.moneyProperties));
+        addDeserializer(MonetaryAmount.class,new MonetaryAmountDeserializer(this.moneyJsonSerializationConfig));
+        addDeserializer(FastMoney.class,new MonetaryAmountDeserializer(this.moneyJsonSerializationConfig));
+        addDeserializer(Money.class,new MonetaryAmountDeserializer(this.moneyJsonSerializationConfig));
+        addDeserializer(RoundedMoney.class,new MonetaryAmountDeserializer(this.moneyJsonSerializationConfig));
         addDeserializer(CurrencyUnit.class, new CurrencyUnitDeserializer());
 
-        addSerializer(MonetaryAmount.class,new MonetaryAmountSerializer(MonetaryAmount.class,this.moneyProperties));
-        addSerializer(FastMoney.class,new MonetaryAmountSerializer(FastMoney.class,this.moneyProperties));
-        addSerializer(Money.class,new MonetaryAmountSerializer(Money.class,this.moneyProperties));
-        addSerializer(RoundedMoney.class,new MonetaryAmountSerializer(RoundedMoney.class,this.moneyProperties));
+        addSerializer(MonetaryAmount.class,new MonetaryAmountSerializer(MonetaryAmount.class,this.moneyJsonSerializationConfig));
+        addSerializer(FastMoney.class,new MonetaryAmountSerializer(FastMoney.class,this.moneyJsonSerializationConfig));
+        addSerializer(Money.class,new MonetaryAmountSerializer(Money.class,this.moneyJsonSerializationConfig));
+        addSerializer(RoundedMoney.class,new MonetaryAmountSerializer(RoundedMoney.class,this.moneyJsonSerializationConfig));
         addSerializer(CurrencyUnit.class, new CurrencyUnitSerializer());
     }
 

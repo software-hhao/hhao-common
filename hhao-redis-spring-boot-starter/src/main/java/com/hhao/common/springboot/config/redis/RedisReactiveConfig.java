@@ -1,11 +1,11 @@
 /*
- * Copyright 2020-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,7 +45,6 @@ public class RedisReactiveConfig {
     @SuppressWarnings("all")
     public ReactiveRedisTemplate<String, Object> reactiveRedisTemplate(ReactiveRedisConnectionFactory reactiveRedisConnectionFactory, @Qualifier("genericJackson2JsonRedisSerializer") RedisSerializer<Object> redisSerializer) {
         StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
-
         RedisSerializationContext<String, Object> serializationContext = RedisSerializationContext
                 .<String,Object>newSerializationContext()
                 .key(stringRedisSerializer)
@@ -53,7 +52,6 @@ public class RedisReactiveConfig {
                 .hashKey(stringRedisSerializer)
                 .hashValue(redisSerializer)
                 .build();
-
         return new ReactiveRedisTemplate<>(reactiveRedisConnectionFactory, serializationContext);
     }
 

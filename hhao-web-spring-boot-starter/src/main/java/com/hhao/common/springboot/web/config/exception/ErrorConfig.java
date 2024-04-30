@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,13 +22,14 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.hhao.common.exception.ErrorInfo;
+import com.hhao.common.exception.ErrorCode;
 import com.hhao.common.exception.ExceptionTransfer;
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
 import com.hhao.common.springboot.AppContext;
-import com.hhao.common.springboot.exception.util.FieldErrorHelper;
+import com.hhao.common.springboot.exception.support.FieldErrorHelper;
 import com.hhao.common.springboot.web.config.AbstractBaseMvcConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.servlet.Servlet;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -54,7 +55,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.FieldError;
 import org.springframework.web.servlet.DispatcherServlet;
 
-import javax.servlet.Servlet;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
@@ -69,17 +69,14 @@ import java.util.stream.Collectors;
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnMissingBean(ErrorConfig.class)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-@ConditionalOnClass({ Servlet.class, DispatcherServlet.class })
+@ConditionalOnClass({Servlet.class, DispatcherServlet.class})
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
-@EnableConfigurationProperties({ ServerProperties.class, WebMvcProperties.class })
-@ConditionalOnProperty(prefix = "com.hhao.config.error",name = "enable",havingValue = "true",matchIfMissing = true)
+@EnableConfigurationProperties({ServerProperties.class, WebMvcProperties.class})
+@ConditionalOnProperty(prefix = "com.hhao.config.error", name = "enable", havingValue = "true", matchIfMissing = true)
 public class ErrorConfig extends AbstractBaseMvcConfig {
-    /**
-     * The Logger.
-     */
     protected final Logger logger = LoggerFactory.getLogger(ErrorConfig.class);
     private final ServerProperties serverProperties;
-    private final String errorMessageSource = ("classpath:" + ErrorInfo.class.getPackageName() + "/messages").replaceAll("[.]", "/");
+    private final String errorMessageSource = ("classpath:" + ErrorCode.class.getPackageName() + "/messages").replaceAll("[.]", "/");
 
 
     /**
@@ -108,7 +105,7 @@ public class ErrorConfig extends AbstractBaseMvcConfig {
      * @return the default exception transfer
      */
     @Bean
-    public DefaultExceptionTransfer defaultExceptionTransfer(){
+    public DefaultExceptionTransfer defaultExceptionTransfer() {
         return new DefaultExceptionTransfer();
     }
 
@@ -123,56 +120,10 @@ public class ErrorConfig extends AbstractBaseMvcConfig {
     @Bean
     @ConditionalOnMissingBean(value = ErrorController.class, search = SearchStrategy.CURRENT)
     public CustomErrorController customErrorController(ErrorAttributes errorAttributes,
-                                                      ObjectProvider<ErrorViewResolver> errorViewResolvers) {
+                                                       ObjectProvider<ErrorViewResolver> errorViewResolvers) {
         return new CustomErrorController(errorAttributes, this.serverProperties.getError(),
                 errorViewResolvers.orderedStream().collect(Collectors.toList()));
     }
-
-    /***
-     * 在容器启动之后执行 1、如果采用jackson，则加入FieldError的反序列化 2、加入自定义默认的错误消息文件
-     *
-     * @author Wang
-     */
-    @Component
-    public class ApplicationAfterRunner implements ApplicationRunner, Ordered {
-        /**
-         * The Message source.
-         */
-        MessageSource messageSource;
-
-        /**
-         * Instantiates a new Application after runner.
-         *
-         * @param messageSource the message source
-         */
-        @Autowired
-        public ApplicationAfterRunner(MessageSource messageSource) {
-            this.messageSource = messageSource;
-        }
-
-        /**
-         * Run.
-         *
-         * @param args the args
-         * @throws Exception the exception
-         */
-        @Override
-        public void run(ApplicationArguments args) throws Exception {
-            updateJsonObjectMapper();
-            addMessageSource(messageSource);
-        }
-
-        /**
-         * Gets order.
-         *
-         * @return the order
-         */
-        @Override
-        public int getOrder() {
-            return 0;
-        }
-    }
-
 
     /***
      * 添加错误信息的资源文件
@@ -211,7 +162,7 @@ public class ErrorConfig extends AbstractBaseMvcConfig {
      * @author Wang
      * @Date 16:29 2019/7/18
      **/
-    private class FieldErrorSerializer extends StdSerializer<FieldError> implements ContextualSerializer {
+    private static class FieldErrorSerializer extends StdSerializer<FieldError> implements ContextualSerializer {
         private ApplicationContext applicationContext;
         private Locale locale;
 
@@ -261,6 +212,51 @@ public class ErrorConfig extends AbstractBaseMvcConfig {
             gen.writeStringField("code", fieldError.getCode());
             gen.writeObjectField("rejectedValue", fieldError.getRejectedValue());
             gen.writeEndObject();
+        }
+    }
+
+    /***
+     * 在容器启动之后执行 1、如果采用jackson，则加入FieldError的反序列化 2、加入自定义默认的错误消息文件
+     *
+     * @author Wang
+     */
+    @Component
+    public class ApplicationAfterRunner implements ApplicationRunner, Ordered {
+        /**
+         * The Message source.
+         */
+        MessageSource messageSource;
+
+        /**
+         * Instantiates a new Application after runner.
+         *
+         * @param messageSource the message source
+         */
+        @Autowired
+        public ApplicationAfterRunner(MessageSource messageSource) {
+            this.messageSource = messageSource;
+        }
+
+        /**
+         * Run.
+         *
+         * @param args the args
+         * @throws Exception the exception
+         */
+        @Override
+        public void run(ApplicationArguments args) throws Exception {
+            updateJsonObjectMapper();
+            addMessageSource(messageSource);
+        }
+
+        /**
+         * Gets order.
+         *
+         * @return the order
+         */
+        @Override
+        public int getOrder() {
+            return 0;
         }
     }
 

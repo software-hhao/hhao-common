@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,14 +17,14 @@
 package com.hhao.common.springboot.web.config.filter;
 
 import com.hhao.common.exception.error.request.PayloadLengthException;
+import jakarta.servlet.ReadListener;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpMethod;
-import org.springframework.lang.Nullable;
 import org.springframework.web.util.WebUtils;
 
-import javax.servlet.ReadListener;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -38,19 +38,19 @@ import java.util.*;
  * @author Wang
  * @since 1.0.0
  */
-public class CachingAfterRequestWrapper  extends HttpServletRequestWrapper {
+public class CachingAfterRequestWrapper extends HttpServletRequestWrapper {
     private static final String FORM_CONTENT_TYPE = "application/x-www-form-urlencoded";
 
 
     private final ByteArrayOutputStream cachedContent;
 
-    @Nullable
+
     private final Integer contentCacheLimit;
 
-    @Nullable
+
     private ServletInputStream inputStream;
 
-    @Nullable
+
     private BufferedReader reader;
 
 
@@ -77,8 +77,8 @@ public class CachingAfterRequestWrapper  extends HttpServletRequestWrapper {
     public CachingAfterRequestWrapper(HttpServletRequest request, int contentCacheLimit) {
         super(request);
         int contentLength = request.getContentLength();
-        contentLength=contentLength >= 0 ? contentLength : 0;
-        contentLength=contentLength>contentCacheLimit?contentCacheLimit:contentLength;
+        contentLength = contentLength >= 0 ? contentLength : 0;
+        contentLength = contentLength > contentCacheLimit ? contentCacheLimit : contentLength;
         this.cachedContent = new ByteArrayOutputStream(contentLength);
         this.contentCacheLimit = contentCacheLimit;
     }
@@ -208,8 +208,7 @@ public class CachingAfterRequestWrapper  extends HttpServletRequestWrapper {
                     }
                 }
             }
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             throw new IllegalStateException("Failed to write request parameters to cached content", ex);
         }
     }
@@ -270,8 +269,7 @@ public class CachingAfterRequestWrapper  extends HttpServletRequestWrapper {
                 if (contentCacheLimit != null && cachedContent.size() == contentCacheLimit) {
                     this.overflow = true;
                     handleContentOverflow(contentCacheLimit);
-                }
-                else {
+                } else {
                     cachedContent.write(ch);
                 }
             }
@@ -286,7 +284,7 @@ public class CachingAfterRequestWrapper  extends HttpServletRequestWrapper {
          * @throws IOException the io exception
          */
         @Override
-        public int read(byte[] b) throws IOException {
+        public int read(@NotNull byte[] b) throws IOException {
             int count = this.is.read(b);
             writeToCache(b, 0, count);
             return count;
@@ -315,7 +313,7 @@ public class CachingAfterRequestWrapper  extends HttpServletRequestWrapper {
          * @throws IOException the io exception
          */
         @Override
-        public int read(final byte[] b, final int off, final int len) throws IOException {
+        public int read(@NotNull final byte[] b, final int off, final int len) throws IOException {
             int count = this.is.read(b, off, len);
             writeToCache(b, off, count);
             return count;

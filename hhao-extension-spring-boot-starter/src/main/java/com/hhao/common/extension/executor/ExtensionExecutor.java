@@ -20,8 +20,8 @@ import com.hhao.common.extension.BizScenario;
 import com.hhao.common.extension.model.ExtensionCoordinate;
 import com.hhao.common.extension.model.ExtensionPoint;
 import com.hhao.common.extension.register.ExtensionRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;

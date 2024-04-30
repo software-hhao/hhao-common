@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2008-2024 wangsheng
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.hhao.common.utils.path;
 
 
-import com.hhao.common.lang.Nullable;
 import com.hhao.common.utils.Assert;
 import com.hhao.common.utils.StringUtils;
 
@@ -51,7 +50,7 @@ public class AntPathMatcher implements PathMatcher {
 
     private boolean trimTokens = false;
 
-    @Nullable
+    
     private volatile Boolean cachePatterns;
 
     private final Map<String, String[]> tokenizedPatternCache = new ConcurrentHashMap<>(256);
@@ -87,7 +86,7 @@ public class AntPathMatcher implements PathMatcher {
      *
      * @param pathSeparator the path separator
      */
-    public void setPathSeparator(@Nullable String pathSeparator) {
+    public void setPathSeparator( String pathSeparator) {
         this.pathSeparator = (pathSeparator != null ? pathSeparator : DEFAULT_PATH_SEPARATOR);
         this.pathSeparatorPatternCache = new PathSeparatorPatternCache(this.pathSeparator);
     }
@@ -129,7 +128,7 @@ public class AntPathMatcher implements PathMatcher {
 
 
     @Override
-    public boolean isPattern(@Nullable String path) {
+    public boolean isPattern( String path) {
         if (path == null) {
             return false;
         }
@@ -170,8 +169,8 @@ public class AntPathMatcher implements PathMatcher {
      * @param uriTemplateVariables the uri template variables
      * @return the boolean
      */
-    protected boolean doMatch(String pattern, @Nullable String path, boolean fullMatch,
-                              @Nullable Map<String, String> uriTemplateVariables) {
+    protected boolean doMatch(String pattern,  String path, boolean fullMatch,
+                               Map<String, String> uriTemplateVariables) {
 
         if (path == null || path.startsWith(this.pathSeparator) != pattern.startsWith(this.pathSeparator)) {
             return false;
@@ -392,7 +391,7 @@ public class AntPathMatcher implements PathMatcher {
 
 
     private boolean matchStrings(String pattern, String str,
-                                 @Nullable Map<String, String> uriTemplateVariables) {
+                                  Map<String, String> uriTemplateVariables) {
 
         return getStringMatcher(pattern).matchStrings(str, uriTemplateVariables);
     }
@@ -548,7 +547,7 @@ public class AntPathMatcher implements PathMatcher {
 
         private final boolean exactMatch;
 
-        @Nullable
+        
         private final Pattern pattern;
 
         private final List<String> variableNames = new ArrayList<>();
@@ -627,7 +626,7 @@ public class AntPathMatcher implements PathMatcher {
          * @param uriTemplateVariables the uri template variables
          * @return {@code true} if the string matches against the pattern, or {@code false} otherwise.
          */
-        public boolean matchStrings(String str, @Nullable Map<String, String> uriTemplateVariables) {
+        public boolean matchStrings(String str,  Map<String, String> uriTemplateVariables) {
             if (this.exactMatch) {
                 return this.caseSensitive ? this.rawPattern.equals(str) : this.rawPattern.equalsIgnoreCase(str);
             }
@@ -746,7 +745,7 @@ public class AntPathMatcher implements PathMatcher {
          */
         private static class PatternInfo {
 
-            @Nullable
+            
             private final String pattern;
 
             private int uriVars;
@@ -759,7 +758,7 @@ public class AntPathMatcher implements PathMatcher {
 
             private boolean prefixPattern;
 
-            @Nullable
+            
             private Integer length;
 
             /**
@@ -767,7 +766,7 @@ public class AntPathMatcher implements PathMatcher {
              *
              * @param pattern the pattern
              */
-            public PatternInfo(@Nullable String pattern) {
+            public PatternInfo( String pattern) {
                 this.pattern = pattern;
                 if (this.pattern != null) {
                     initCounters();

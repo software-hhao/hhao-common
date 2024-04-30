@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,16 +16,14 @@
 
 package com.hhao.common.springboot.web.config;
 
-import com.hhao.common.springboot.response.ResponseAutoWrapper;
-import com.hhao.common.springboot.response.ResultWrapper;
-import com.hhao.common.springboot.response.ResultWrapperBuilder;
-import com.hhao.common.springboot.response.ResultWrapperProperties;
-import com.hhao.common.springboot.response.UnResultWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
+import com.hhao.common.springboot.response.*;
+import jakarta.servlet.RequestDispatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,8 +38,9 @@ import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-import javax.servlet.RequestDispatcher;
 import java.lang.reflect.Method;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * 通过ResponseAutoWrapper注解，执行Rest统一返回
@@ -52,19 +51,15 @@ import java.lang.reflect.Method;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnMissingBean(GlobalReturnConfig.class)
-@ConditionalOnProperty(prefix = "com.hhao.config.global-return",name = "enable",havingValue = "true",matchIfMissing = true)
+@EnableConfigurationProperties({ResultWrapperProperties.class})
+@ConditionalOnProperty(prefix = "com.hhao.config.global-return", name = "enable", havingValue = "true", matchIfMissing = true)
 public class GlobalReturnConfig {
     protected final Logger logger = LoggerFactory.getLogger(GlobalReturnConfig.class);
+    private ResultWrapperProperties resultWrapperProperties;
 
-    /**
-     * Result wrapper properties result wrapper properties.
-     *
-     * @return the result wrapper properties
-     */
-    @Bean
-    @ConditionalOnMissingBean(ResultWrapperProperties.class)
-    public ResultWrapperProperties resultWrapperProperties(){
-        return new ResultWrapperProperties();
+    @Autowired
+    public GlobalReturnConfig(ResultWrapperProperties resultWrapperProperties) {
+        this.resultWrapperProperties = resultWrapperProperties;
     }
 
     /**
@@ -75,7 +70,7 @@ public class GlobalReturnConfig {
      */
     @Bean
     @ConditionalOnMissingBean(ResultWrapperBuilder.class)
-    public ResultWrapperBuilder resultWrapperBuilder(ResultWrapperProperties resultWrapperProperties){
+    public ResultWrapperBuilder resultWrapperBuilder(ResultWrapperProperties resultWrapperProperties) {
         return new ResultWrapperBuilder(resultWrapperProperties);
     }
 
@@ -88,44 +83,46 @@ public class GlobalReturnConfig {
     @ConditionalOnMissingBean(name = "responseWrapper")
     public ResponseBodyAdvice<Object> responseWrapper() {
         return new ResponseBodyAdvice<Object>() {
+            private final ConcurrentMap<Method, Boolean> supportsCache = new ConcurrentHashMap<>();
+
             @Override
             public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-                if (returnType==null){
-                    return false;
-                }
-                Method method=returnType.getMethod();
-                if (method==null){
-                    return false;
-                }
-                //如果返回值类型继承自UnResultWrapper,则不支持自动包装
-                if (method.getReturnType()!=null && method.getReturnType().isAssignableFrom(UnResultWrapper.class)){
-                    return false;
-                }
-                //判断是否有ResponseAutoWrapper的注解
-                //方法级注解
-                ResponseAutoWrapper  responseAutoWrapper=method.getAnnotation(ResponseAutoWrapper.class);
-                if (responseAutoWrapper==null && method.getDeclaringClass()!=null){
-                    //类级注解
-                    responseAutoWrapper=method.getDeclaringClass().getAnnotation(ResponseAutoWrapper.class);
-                }
-                if (responseAutoWrapper==null || responseAutoWrapper.value()==false){
-                    return false;
-                }
-                return true;
+                return supportsCache.computeIfAbsent(returnType.getMethod(), k -> {
+                    if (returnType == null) {
+                        return false;
+                    }
+                    Method method = returnType.getMethod();
+                    if (method == null) {
+                        return false;
+                    }
+                    Class<?> returnTypeClass = method.getReturnType();
+                    // 如果返回值类型继承自UnResultWrapper,则不支持自动包装
+                    if (UnResultWrapper.class.isAssignableFrom(returnTypeClass)) {
+                        return false;
+                    }
+                    // 判断是否有ResponseAutoWrapper的注解
+                    //方法级注解
+                    ResponseAutoWrapper responseAutoWrapper = method.getAnnotation(ResponseAutoWrapper.class);
+                    if (responseAutoWrapper == null && method.getDeclaringClass() != null) {
+                        //类级注解
+                        responseAutoWrapper = method.getDeclaringClass().getAnnotation(ResponseAutoWrapper.class);
+                    }
+                    return responseAutoWrapper != null && responseAutoWrapper.value();
+                });
             }
 
             @Override
             public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
-                logger.info("MediaType:{}",selectedContentType.toString());
+                logger.info("MediaType:{}", selectedContentType.toString());
                 //对json或xml返回进行包装
-                if (selectedContentType.includes(MediaType.APPLICATION_JSON) || selectedContentType.includes(MediaType.APPLICATION_XML)){
+                if (selectedContentType.includes(MediaType.APPLICATION_JSON) || selectedContentType.includes(MediaType.APPLICATION_XML)) {
                     //如果已经是ResultWrapper,则直接返回
                     if (body instanceof ResultWrapper) {
                         return body;
-                    } else if ((((ServletServerHttpRequest) request).getServletRequest().getDispatcherType().ordinal()== DispatcherType.ERROR.ordinal()) || body instanceof Exception){
-                        Integer status=getStatue((ServletServerHttpRequest)request);
-                        String msg=HttpStatus.valueOf(status).getReasonPhrase();
-                        return ResultWrapperBuilder.error(body,status,msg!=null?msg:"Http Status " + status);
+                    } else if ((((ServletServerHttpRequest) request).getServletRequest().getDispatcherType().ordinal() == DispatcherType.ERROR.ordinal()) || body instanceof Exception) {
+                        Integer status = getStatue((ServletServerHttpRequest) request);
+                        String msg = HttpStatus.valueOf(status).getReasonPhrase();
+                        return ResultWrapperBuilder.error(body, status, msg != null ? msg : "Http Status " + status);
                     }
                     return ResultWrapperBuilder.ok(body);
                 }
@@ -133,12 +130,14 @@ public class GlobalReturnConfig {
                 return body;
             }
         };
-    };
+    }
 
-    private Integer getStatue(ServletServerHttpRequest request){
-        Integer status=(Integer) request.getServletRequest().getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
-        if (status==null){
-            status=999;
+    ;
+
+    private Integer getStatue(ServletServerHttpRequest request) {
+        Integer status = (Integer) request.getServletRequest().getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
+        if (status == null) {
+            status = 999;
         }
         return status;
     }
@@ -161,8 +160,8 @@ public class GlobalReturnConfig {
          */
         @Autowired
         @Lazy
-        public ResponseWrapperAdvice(ResponseBodyAdvice<Object> responseBodyAdvice){
-            this.responseBodyAdvice=responseBodyAdvice;
+        public ResponseWrapperAdvice(ResponseBodyAdvice<Object> responseBodyAdvice) {
+            this.responseBodyAdvice = responseBodyAdvice;
         }
 
         /**

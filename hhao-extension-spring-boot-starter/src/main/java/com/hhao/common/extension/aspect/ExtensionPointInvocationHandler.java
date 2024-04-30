@@ -1,12 +1,12 @@
 
 /*
- * Copyright 2018-2022 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,11 +21,11 @@ import com.hhao.common.extension.BizScenario;
 import com.hhao.common.extension.annotation.ExtensionPointAutowired;
 import com.hhao.common.extension.executor.AbstractComponentExecutor;
 import com.hhao.common.extension.executor.ExtensionExecutorUtil;
-import com.hhao.common.extension.model.ExtensionPoint;
-import com.hhao.common.extension.model.MultiValues;
+import com.hhao.common.extension.model.*;
 import com.hhao.common.extension.strategy.InterruptionStrategy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.util.ReflectionUtils;
 
@@ -49,33 +49,17 @@ public class ExtensionPointInvocationHandler implements InvocationHandler {
     private AnnotationAttributes annotationAttributes;
     private ExtensionPointAutowired.Model model;
     private InterruptionStrategy interruptionStrategy;
-
-    /**
-     * Gets annotation attributes.
-     *
-     * @return the annotation attributes
-     */
-    public AnnotationAttributes getAnnotationAttributes() {
-        return annotationAttributes;
-    }
-
-    /**
-     * Sets annotation attributes.
-     *
-     * @param annotationAttributes the annotation attributes
-     */
-    public void setAnnotationAttributes(AnnotationAttributes annotationAttributes) {
-        this.annotationAttributes = annotationAttributes;
-        initProperty(annotationAttributes);
-    }
+    private CombinedReturnBuilder combinedReturnBuilder;
+    private ApplicationContext applicationContext;
 
     /**
      * Instantiates a new Extension point invocation handler.
      *
      * @param interfaceClass the interface class
      */
-    public ExtensionPointInvocationHandler(Class<?> interfaceClass) {
+    public ExtensionPointInvocationHandler(Class<?> interfaceClass,ApplicationContext applicationContext) {
         this.interfaceClass = interfaceClass;
+        this.applicationContext=applicationContext;
     }
 
     @SuppressWarnings("unchecked")
@@ -110,23 +94,23 @@ public class ExtensionPointInvocationHandler implements InvocationHandler {
             checkMultiReturnType(method);
             List<ExtensionPoint> exps = executor.locateComponents((Class<ExtensionPoint>) interfaceClass, bizScenario, args);
             if (exps!=null) {
-                MultiValues multiValues = new MultiValues(exps.size());
+                CombinedReturn combinedReturn = combinedReturnBuilder.combinedReturnInstance(exps.size());
                 Object result = null;
 
                 for (ExtensionPoint exp : exps) {
                     try {
                         result = ReflectionUtils.invokeMethod(method, exp, args);
                         if (result!=null) {
-                            multiValues.mergerReturnValue((MultiValues) result);
+                            combinedReturn.combineReturnValue((SimpleReturn) result);
                         }
                         if (interruptionStrategy.interrupt(result)) {
-                            return multiValues;
+                            return combinedReturn;
                         }
                     } catch (Exception e) {
                         exp.onError(e, args);
                     }
                 }
-                return multiValues;
+                return combinedReturn;
             }
         }
         return null;
@@ -142,9 +126,12 @@ public class ExtensionPointInvocationHandler implements InvocationHandler {
         return BizScenario.newDefault();
     }
 
-    private void initProperty(AnnotationAttributes annotationAttributes){
+    public void initProperty(AnnotationAttributes annotationAttributes){
+        this.annotationAttributes=annotationAttributes;
+
         this.interruptionStrategy=getInterruptionStrategy(annotationAttributes);
         this.model=getModel(annotationAttributes);
+        this.combinedReturnBuilder=applicationContext.getBean(CombinedReturnBuilder.class);
     }
 
     private ExtensionPointAutowired.Model getModel(AnnotationAttributes annotationAttributes) {
@@ -173,7 +160,7 @@ public class ExtensionPointInvocationHandler implements InvocationHandler {
      */
     private void checkMultiReturnType(Method method){
         if (!method.getReturnType().getName().equals("void") &&
-        !method.getReturnType().getName().equals(MultiValues.class.getName())){
+        !method.getReturnType().isAssignableFrom(SimpleReturn.class)){
             throw new RuntimeException("The return value of the composite extension point with ExtensionPointAutowired only supports MultiValues type");
         }
     }

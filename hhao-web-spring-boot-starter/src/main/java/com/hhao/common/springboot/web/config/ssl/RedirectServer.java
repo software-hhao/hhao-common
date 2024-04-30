@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,18 +31,19 @@ import org.springframework.boot.web.servlet.server.AbstractServletWebServerFacto
  */
 public interface RedirectServer {
     /**
-     * The enum Run state.
+     * 构建服务器
+     *
+     * @param factory the factory
+     * @return redirect server
      */
-    enum RUN_STATE {
-        /**
-         * 正在运行状态
-         */
-        RUNNING,
-        /**
-         * 停止状态
-         */
-        STOP;
-    };
+    static RedirectServer build(AbstractServletWebServerFactory factory) {
+        if (factory instanceof TomcatServletWebServerFactory) {
+            return new TomcatRedirectServer((TomcatServletWebServerFactory) factory);
+        }
+        return null;
+    }
+
+    ;
 
     /**
      * 启动服务
@@ -73,16 +74,17 @@ public interface RedirectServer {
     void setState(RUN_STATE state);
 
     /**
-     * 构建服务器
-     *
-     * @param factory the factory
-     * @return redirect server
+     * The enum Run state.
      */
-    static RedirectServer build(AbstractServletWebServerFactory factory) {
-        if (factory instanceof TomcatServletWebServerFactory) {
-            return new TomcatRedirectServer((TomcatServletWebServerFactory) factory);
-        }
-        return null;
+    enum RUN_STATE {
+        /**
+         * 正在运行状态
+         */
+        RUNNING,
+        /**
+         * 停止状态
+         */
+        STOP;
     }
 
     /**

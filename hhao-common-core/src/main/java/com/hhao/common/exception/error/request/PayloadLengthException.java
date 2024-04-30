@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,8 @@
 
 package com.hhao.common.exception.error.request;
 
-import com.hhao.common.exception.ErrorInfo;
-import com.hhao.common.exception.ErrorInfos;
+import com.hhao.common.exception.DefaultErrorCodes;
+import com.hhao.common.exception.ErrorCode;
 
 /**
  * 请求内容(body)长度超限
@@ -25,7 +25,7 @@ import com.hhao.common.exception.ErrorInfos;
  * @author Wang
  * @since 1.0.0
  */
-public class PayloadLengthException extends AbstractRequestRuntimeException {
+public class PayloadLengthException extends RequestRuntimeException {
     /**
      * Instantiates a new Payload length exception.
      *
@@ -81,10 +81,10 @@ public class PayloadLengthException extends AbstractRequestRuntimeException {
     /**
      * Instantiates a new Payload length exception.
      *
-     * @param errorInfo the error info
+     * @param errorCode the error info
      */
-    public PayloadLengthException(ErrorInfo errorInfo) {
-        super(errorInfo);
+    public PayloadLengthException(ErrorCode errorCode) {
+        super(errorCode);
     }
 
     /**
@@ -93,6 +93,6 @@ public class PayloadLengthException extends AbstractRequestRuntimeException {
      * @param contentCacheLimit the content cache limit
      */
     public PayloadLengthException(Integer contentCacheLimit) {
-        super(ErrorInfos.ERROR_400_PAYLOAD_LENGTH.applyArgs(new Object[]{contentCacheLimit}));
+        super(DefaultErrorCodes.ERROR_400_PAYLOAD_LENGTH.applyArgs(new Object[]{contentCacheLimit}));
     }
 }

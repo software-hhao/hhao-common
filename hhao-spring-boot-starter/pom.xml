@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <parent>
         <groupId>io.github.software-hhao</groupId>
         <artifactId>hhao-common</artifactId>
-        <version>1.1.1-SNAPSHOT</version>
+        <version>3.0.2-SNAPSHOT</version>
     </parent>
-
     <modelVersion>4.0.0</modelVersion>
     <artifactId>hhao-spring-boot-starter</artifactId>
     <packaging>jar</packaging>
@@ -16,55 +14,58 @@
             <groupId>io.github.software-hhao</groupId>
             <artifactId>hhao-common-core</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.github.software-hhao</groupId>
             <artifactId>hhao-jackson</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.github.software-hhao</groupId>
             <artifactId>hhao-utils</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
             <scope>runtime</scope>
         </dependency>
-
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
             <scope>runtime</scope>
         </dependency>
-
         <!--验证处理-->
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>javax.el</groupId>
-            <artifactId>javax.el-api</artifactId>
+            <groupId>jakarta.el</groupId>
+            <artifactId>jakarta.el-api</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.glassfish</groupId>
-            <artifactId>javax.el</artifactId>
+            <artifactId>jakarta.el</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+            <optional>true</optional>
+        </dependency>
         <!--https://github.com/nahsra/antisamy-->
         <dependency>
             <groupId>org.owasp.antisamy</groupId>
@@ -80,21 +81,26 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+        </dependency>
         <!--https://doc.xiaominfo.com/knife4j/documentation/-->
         <!--https://github.com/springfox/springfox-demos-->
         <!--https://github.com/springfox/springfox-->
+        <!--
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
             <artifactId>knife4j-spring-boot-starter</artifactId>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
-
+        -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 </project>

@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,7 @@
 package com.hhao.common.springboot.web.config.websocket.stomp.server;
 
 
-import com.hhao.common.exception.error.request.AuthorizeException;
+import com.hhao.common.exception.error.request.AuthenticationException;
 import com.hhao.common.security.AbstractUser;
 import com.hhao.common.springboot.web.config.websocket.Authorization;
 import com.hhao.common.utils.Assert;
@@ -41,66 +41,69 @@ import java.util.Map;
  * @since 1.0.0
  */
 public class DefaultChannelInterceptor implements ChannelInterceptor {
-    private Authorization authorization=null;
-    private static final String TOKEN_NAME="token";
+    private static final String TOKEN_NAME = "token";
+    private Authorization authorization = null;
 
     /**
      * Instantiates a new Default channel interceptor.
      *
      * @param authorization the authorization
      */
-    public DefaultChannelInterceptor(Authorization authorization){
-        this.authorization=authorization;
+    public DefaultChannelInterceptor(Authorization authorization) {
+        this.authorization = authorization;
     }
 
     /**
      * nativeHeaders这里存放了header中的信息
      * login,passcode,client-id,accept-version,heart-beat,token
+     *
      * @param messageHeaders
      * @return
      */
-    private Map<String, Object> getNativeHeaders(MessageHeaders messageHeaders){
-        return (Map<String, Object>)messageHeaders.get("nativeHeaders");
+    private Map<String, Object> getNativeHeaders(MessageHeaders messageHeaders) {
+        return (Map<String, Object>) messageHeaders.get("nativeHeaders");
     }
 
     /**
      * simpSessionAttributes这里存放了cookie中的信息
      * token
+     *
      * @param messageHeaders
      * @return
      */
-    private Map<String, Object> getSimpSessionAttributes(MessageHeaders messageHeaders){
-        return (Map<String, Object>)messageHeaders.get("simpSessionAttributes");
+    private Map<String, Object> getSimpSessionAttributes(MessageHeaders messageHeaders) {
+        return (Map<String, Object>) messageHeaders.get("simpSessionAttributes");
     }
 
     /**
      * 返回token信息，按以下顺序查找
      * 1、header
      * 2、cookie
+     *
      * @param messageHeaders
      * @return
      */
-    private String getToken(MessageHeaders messageHeaders){
-        Assert.notNull(messageHeaders,"NativeHeaders must not null");
+    private String getToken(MessageHeaders messageHeaders) {
+        Assert.notNull(messageHeaders, "NativeHeaders must not null");
 
-        String token="";
+        String token = "";
         //1、header
-        Map<String, Object> headerValues=this.getNativeHeaders(messageHeaders);
-        if (headerValues!=null){
-            ArrayList value=(ArrayList) headerValues.get(TOKEN_NAME);
-            if (value!=null){
-                token=(String)value.get(0);
+        Map<String, Object> headerValues = this.getNativeHeaders(messageHeaders);
+        if (headerValues != null) {
+            ArrayList value = (ArrayList) headerValues.get(TOKEN_NAME);
+            if (value != null) {
+                token = (String) value.get(0);
             }
         }
-        if (StringUtils.hasLength(token)){
+        if (StringUtils.hasLength(token)) {
             return token;
         }
         //2.cookie
-        headerValues=this.getSimpSessionAttributes(messageHeaders);
-        if (headerValues!=null){
-            ArrayList value=(ArrayList) headerValues.get(TOKEN_NAME);
-            if (value!=null){
-                token=(String)value.get(0);
+        headerValues = this.getSimpSessionAttributes(messageHeaders);
+        if (headerValues != null) {
+            ArrayList value = (ArrayList) headerValues.get(TOKEN_NAME);
+            if (value != null) {
+                token = (String) value.get(0);
             }
         }
         return token;
@@ -117,11 +120,11 @@ public class DefaultChannelInterceptor implements ChannelInterceptor {
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-            String token=this.getToken(accessor.toMessageHeaders());
-            if (!StringUtils.hasLength(token)){
-                throw new AuthorizeException();
+            String token = this.getToken(accessor.toMessageHeaders());
+            if (!StringUtils.hasLength(token)) {
+                throw new AuthenticationException();
             }
-            AbstractUser user=authorization.authorize(token);
+            AbstractUser user = authorization.authorize(token);
             accessor.setUser(user);
         }
         return message;

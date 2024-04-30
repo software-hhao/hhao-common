@@ -3,10 +3,10 @@ package com.hhao.common.extension.test;
 import com.hhao.common.extension.BizScenario;
 import com.hhao.common.extension.executor.ExtensionExecutor;
 import com.hhao.common.extension.model.ExtensionPoint;
+import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -2,7 +2,8 @@ package com.hhao.common.extension.test;
 
 import com.hhao.common.extension.BizScenario;
 import com.hhao.common.extension.annotation.Extension;
-import com.hhao.common.extension.model.MultiValues;
+import com.hhao.common.extension.model.Return;
+import com.hhao.common.extension.model.SimpleReturn;
 
 /**
  * @author Wang
@@ -21,7 +22,7 @@ public class MyDoExtension implements DoExtension {
     }
 
     @Override
-    public MultiValues autoWired(BizScenario bizScenario, String str) {
-        return MultiValues.of(execute(str));
+    public Return<String> autoWired(BizScenario bizScenario, String str) {
+        return SimpleReturn.of(execute(str));
     }
 }

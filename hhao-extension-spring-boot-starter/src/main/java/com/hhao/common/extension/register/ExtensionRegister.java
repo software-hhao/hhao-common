@@ -65,7 +65,7 @@ public class ExtensionRegister {
             throw new RuntimeException("Please assign a extension point interface for " + targetClz);
         }
         for (Class intf : interfaces) {
-            if (isAssignableFromExtension(intf)){
+            if (isImplementExtensionPoint(intf)){
                 return intf.getName();
             }
         }
@@ -78,7 +78,7 @@ public class ExtensionRegister {
      * @param targetClz
      * @return
      */
-    private boolean isAssignableFromExtension(Class<?> targetClz){
+    private boolean isImplementExtensionPoint(Class<?> targetClz){
         if (targetClz==null){
             return false;
         }
@@ -90,7 +90,7 @@ public class ExtensionRegister {
             if (intf.equals(ExtensionPoint.class)){
                 return true;
             }
-            return isAssignableFromExtension(intf);
+            return isImplementExtensionPoint(intf);
         }
         return false;
     }

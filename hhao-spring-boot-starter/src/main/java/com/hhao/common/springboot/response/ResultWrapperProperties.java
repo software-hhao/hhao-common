@@ -1,123 +1,73 @@
-/*
- * Copyright 2018-2021 WangSheng.
- *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       https://www.gnu.org/licenses/gpl-3.0.html
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.hhao.common.springboot.response;
 
 import com.hhao.common.CoreConstant;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/**
- * The type Result wrapper properties.
- *
- * @author Wang
- * @since 1.0.0
- */
+
+@ConfigurationProperties(prefix = "com.hhao.config.global-return.result-wrapper")
 public class ResultWrapperProperties {
-    /**
-     * The Status succeed.
-     */
-    public int statusSucceed = CoreConstant.DEFAULT_SUCCEED_STATUS;
+    private ResultStatus status;
+    private ResultMessage msg;
 
-    /**
-     * The Status error.
-     */
-    @Value("${com.hhao.config.result.status.error:500}")
-    public int statusError = CoreConstant.DEFAULT_EXCEPTION_STATUS;
-
-    /**
-     * The Msg succeed.
-     */
-    public   String msgSucceed = CoreConstant.DEFAULT_SUCCEED_MESSAGE;
-
-    /**
-     * The Msg error.
-     */
-    @Value("${com.hhao.config.result.msg.error:ERROR}")
-    public   String msgError =CoreConstant.DEFAULT_EXCEPTION_MESSAGE;
-
-    /**
-     * Gets status succeed.
-     *
-     * @return the status succeed
-     */
-    public int getStatusSucceed() {
-        return statusSucceed;
+    // Getter and Setter methods
+    public ResultStatus getStatus() {
+        return status;
     }
 
-    /**
-     * Sets status succeed.
-     *
-     * @param statusSucceed the status succeed
-     */
-    public void setStatusSucceed(int statusSucceed) {
-        this.statusSucceed = statusSucceed;
+    public void setStatus(ResultStatus status) {
+        this.status = status;
     }
 
-    /**
-     * Gets status error.
-     *
-     * @return the status error
-     */
-    public int getStatusError() {
-        return statusError;
+    public ResultMessage getMsg() {
+        return msg;
     }
 
-    /**
-     * Sets status error.
-     *
-     * @param statusError the status error
-     */
-    public void setStatusError(int statusError) {
-        this.statusError = statusError;
+    public void setMsg(ResultMessage msg) {
+        this.msg = msg;
     }
 
-    /**
-     * Gets msg succeed.
-     *
-     * @return the msg succeed
-     */
-    public String getMsgSucceed() {
-        return msgSucceed;
+    // Nested classes to match the YAML structure
+    public static class ResultStatus {
+        private int error= CoreConstant.DEFAULT_EXCEPTION_STATUS;
+        private int succeed=CoreConstant.DEFAULT_SUCCEED_STATUS;
+
+        // Getters and Setters
+        public int getError() {
+            return error;
+        }
+
+        public void setError(int error) {
+            this.error = error;
+        }
+
+        public int getSucceed() {
+            return succeed;
+        }
+
+        public void setSucceed(int succeed) {
+            this.succeed = succeed;
+        }
     }
 
+    public static class ResultMessage {
+        private String succeed=CoreConstant.DEFAULT_SUCCEED_MESSAGE;
+        private String error=CoreConstant.DEFAULT_EXCEPTION_MESSAGE;
 
-    /**
-     * Sets msg succeed.
-     *
-     * @param msgSucceed the msg succeed
-     */
-    public void setMsgSucceed(String msgSucceed) {
-        this.msgSucceed = msgSucceed;
-    }
+        // Getters and Setters
+        public String getSucceed() {
+            return succeed;
+        }
 
-    /**
-     * Gets msg error.
-     *
-     * @return the msg error
-     */
-    public String getMsgError() {
-        return msgError;
-    }
+        public void setSucceed(String succeed) {
+            this.succeed = succeed;
+        }
 
-    /**
-     * Sets msg error.
-     *
-     * @param msgError the msg error
-     */
-    public void setMsgError(String msgError) {
-        this.msgError = msgError;
+        public String getError() {
+            return error;
+        }
+
+        public void setError(String error) {
+            this.error = error;
+        }
     }
 }

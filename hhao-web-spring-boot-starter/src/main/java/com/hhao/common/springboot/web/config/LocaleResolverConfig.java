@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,7 +37,7 @@ import java.util.Locale;
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnMissingBean(LocaleResolverConfig.class)
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
-@ConditionalOnProperty(prefix = "com.hhao.config.locale-resolver",name = "enable",havingValue = "true",matchIfMissing = true)
+@ConditionalOnProperty(prefix = "com.hhao.config.locale-resolver", name = "enable", havingValue = "true", matchIfMissing = true)
 public class LocaleResolverConfig extends AbstractBaseMvcConfig {
 
     /**
@@ -46,8 +46,8 @@ public class LocaleResolverConfig extends AbstractBaseMvcConfig {
      * @return the cookie locale resolver
      */
     @Bean(name = "localeResolver")
-    public CookieLocaleResolver cookieLocaleResolver(){
-        CookieLocaleResolver cookieLocaleResolver=new CookieLocaleResolver();
+    public CookieLocaleResolver cookieLocaleResolver() {
+        CookieLocaleResolver cookieLocaleResolver = new CookieLocaleResolver();
         cookieLocaleResolver.setDefaultLocale(Locale.CHINA);
         return new CookieLocaleResolver();
     }
@@ -58,8 +58,8 @@ public class LocaleResolverConfig extends AbstractBaseMvcConfig {
      * @return the locale change interceptor
      */
     @Bean
-    public LocaleChangeInterceptor localeChangeInterceptor(){
-        LocaleChangeInterceptor localeChangeInterceptor=new LocaleChangeInterceptor();
+    public LocaleChangeInterceptor localeChangeInterceptor() {
+        LocaleChangeInterceptor localeChangeInterceptor = new LocaleChangeInterceptor();
         localeChangeInterceptor.setParamName("locale");
         localeChangeInterceptor.setIgnoreInvalidLocale(true);
 

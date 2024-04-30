@@ -1,12 +1,12 @@
 
 /*
- * Copyright 2018-2022 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -64,11 +64,10 @@ public class RedisCacheEx  extends RedisCache {
     }
 
     @Override
-    public void put(Object key, @Nullable Object value) {
+    public void put(Object key,  Object value) {
         Object cacheValue = preProcessCacheValue(value);
 
         if (!isAllowNullValues() && cacheValue == null) {
-
             throw new IllegalArgumentException(String.format(
                     "Cache '%s' does not allow 'null' values. Avoid storing null via '@Cacheable(unless=\"#result == null\")' or configure RedisCache to allow 'null' via RedisCacheConfiguration.",
                     name));
@@ -78,11 +77,11 @@ public class RedisCacheEx  extends RedisCache {
             cacheWriter.put(name, createAndConvertCacheKey(key), serializeCacheValue(cacheValue), Duration.ofSeconds(NullValueTtl));
             return;
         }
-        cacheWriter.put(name, createAndConvertCacheKey(key), serializeCacheValue(cacheValue), cacheConfig.getTtl());
+        cacheWriter.put(name, createAndConvertCacheKey(key), serializeCacheValue(cacheValue), cacheConfig.getTtlFunction().getTimeToLive(Object.class, null));
     }
 
     @Override
-    public ValueWrapper putIfAbsent(Object key, @Nullable Object value) {
+    public ValueWrapper putIfAbsent(Object key,  Object value) {
         Object cacheValue = preProcessCacheValue(value);
 
         if (!isAllowNullValues() && cacheValue == null) {
@@ -92,11 +91,9 @@ public class RedisCacheEx  extends RedisCache {
         byte[] result=null;
 
         if (value==null) {
-            result=cacheWriter.putIfAbsent(name, createAndConvertCacheKey(key), serializeCacheValue(cacheValue),
-                    Duration.ofSeconds(NullValueTtl));
+            result=cacheWriter.putIfAbsent(name, createAndConvertCacheKey(key), serializeCacheValue(cacheValue), Duration.ofSeconds(NullValueTtl));
         }else{
-            result=cacheWriter.putIfAbsent(name, createAndConvertCacheKey(key), serializeCacheValue(cacheValue),
-                    cacheConfig.getTtl());
+            result=cacheWriter.putIfAbsent(name, createAndConvertCacheKey(key), serializeCacheValue(cacheValue), cacheConfig.getTtlFunction().getTimeToLive(Object.class, null));
         }
 
         if (result == null) {

@@ -1,12 +1,11 @@
-
 /*
- * Copyright 2018-2022 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,9 +19,8 @@ package com.hhao.common.exception;
 
 import com.hhao.common.Context;
 import com.hhao.common.CoreConstant;
-import com.hhao.common.lang.NonNull;
 
-import java.util.Formatter;
+import java.util.Arrays;
 
 /**
  * 非受检异常的根类，从RuntimeException继承
@@ -39,7 +37,7 @@ public abstract class AbstractBaseRuntimeException extends RuntimeException impl
     /**
      * ErrorInfo
      */
-    private ErrorInfo errorInfo;
+    private ErrorCode errorCode;
 
     /**
      * message:如果是${}包围的，解析为messageId，否则解析为message
@@ -91,56 +89,54 @@ public abstract class AbstractBaseRuntimeException extends RuntimeException impl
      */
     public AbstractBaseRuntimeException(String code,String message,Throwable cause,Object [] args) {
         super(cause);
-        String messageId=getMessageIdFromMessage(message);
-        if (messageId==null){
-            this.errorInfo = ErrorInfoBuilder.build(message);
-            if (args!=null){
-                this.errorInfo=this.errorInfo.applyArgs(args);
-            }
-        }else{
-            if (args!=null){
-                messageId=new Formatter().format(messageId, args).toString();
-            }
-            this.errorInfo = ErrorInfoBuilder.build(code,messageId);
+        if (args==null){
+            args=new Object[]{};
         }
+        this.errorCode = new ErrorCode(code,message,Arrays.asList(args));
     }
 
     /**
      * Instantiates a new Abstract base runtime exception.
      *
-     * @param errorInfo the error info
+     * @param errorCode the error info
      * @param cause     the cause
      */
-    public AbstractBaseRuntimeException(@NonNull ErrorInfo errorInfo, Throwable cause) {
+    public AbstractBaseRuntimeException( ErrorCode errorCode, Throwable cause) {
         super(cause);
-        this.errorInfo = errorInfo;
+        if (errorCode == null) {
+            throw new IllegalArgumentException("ErrorCode cannot be null");
+        }
+        this.errorCode = errorCode;
     }
 
     /**
      * Instantiates a new Abstract base runtime exception.
      *
-     * @param errorInfo the error info
+     * @param errorCode the error info
      */
-    public AbstractBaseRuntimeException(@NonNull ErrorInfo errorInfo) {
-        this.errorInfo = errorInfo;
+    public AbstractBaseRuntimeException( ErrorCode errorCode) {
+        this(errorCode, null);
     }
 
     @Override
-    public ErrorInfo getErrorInfo() {
-        return errorInfo;
+    public ErrorCode getErrorCode() {
+        return errorCode;
     }
 
     /**
      * Sets error info.
      *
-     * @param errorInfo the error info
+     * @param errorCode the error info
      */
-    public void setErrorInfo(ErrorInfo errorInfo) {
-        this.errorInfo = errorInfo;
+    public void setErrorCode(ErrorCode errorCode) {
+        if (errorCode == null) {
+            throw new IllegalArgumentException("ErrorCode cannot be null");
+        }
+        this.errorCode = errorCode;
     }
 
     @Override
     public String getMessage() {
-        return errorInfo.getLocalMessage(Context.getInstance());
+        return errorCode.getLocalMessage(Context.getInstance());
     }
 }

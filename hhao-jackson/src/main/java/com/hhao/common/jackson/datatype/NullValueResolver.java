@@ -1,12 +1,12 @@
 
 /*
- * Copyright 2018-2022 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.hhao.common.jackson.support.NullValue;
 
 import java.io.IOException;
@@ -35,9 +36,17 @@ import java.io.IOException;
  * @author Wang
  * @since 2022/2/7 21:34
  */
-public class NullValueResolver {
+public class NullValueResolver extends SimpleModule {
+    /**
+     * Instantiates a new Null value resolver.
+     */
+    public NullValueResolver(){
+        super("NullValueResolver");
+        addSerializer(NullValue.class, new NullValueSerializer());
+        addDeserializer(NullValue.class, new NullValueDeserializer());
+    }
 
-    public static class NullValueSerializer extends JsonSerializer<NullValue> {
+    private static class NullValueSerializer extends JsonSerializer<NullValue> {
         @Override
         public void serialize(NullValue value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
             gen.writeObject(null);
@@ -56,7 +65,7 @@ public class NullValueResolver {
         }
     }
 
-    public static class NullValueDeserializer extends JsonDeserializer<NullValue> {
+    private static class NullValueDeserializer extends JsonDeserializer<NullValue> {
         @Override
         public NullValue deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
             return new NullValue();

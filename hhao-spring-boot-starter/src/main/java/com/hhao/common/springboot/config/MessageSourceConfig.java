@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,8 @@
 
 package com.hhao.common.springboot.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -32,6 +32,7 @@ import org.springframework.context.support.AbstractResourceBasedMessageSource;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 
@@ -59,7 +60,9 @@ public class MessageSourceConfig extends AbstractBaseConfig {
     /**
      * classpath:/i18n/messages
      */
-    private static final String DEFAULT_BASENAME=ResourceUtils.CLASSPATH_URL_PREFIX + BASE_FOLDER + File.separator + BASE_NAME;
+    //private static final String DEFAULT_BASENAME=ResourceUtils.CLASSPATH_URL_PREFIX + BASE_FOLDER + File.separator + BASE_NAME;
+    //包含jar包下的资源文件
+    private static final String DEFAULT_BASENAME= ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + BASE_FOLDER + File.separator + BASE_NAME;
     /**
      * file:应用路径/i18n/messages
      */

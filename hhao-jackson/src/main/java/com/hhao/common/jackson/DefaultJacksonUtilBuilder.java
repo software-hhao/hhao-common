@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,11 +26,10 @@ import com.fasterxml.jackson.datatype.jdk7.Jdk7Module;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-import com.hhao.common.jackson.datatype.EnumModule;
+import com.hhao.common.jackson.datatype.EnumResolver;
 import com.hhao.common.jackson.datatype.JavaDateTimeModule;
-import com.hhao.common.jackson.datatype.SupportModule;
+import com.hhao.common.jackson.datatype.NullValueResolver;
 import com.hhao.common.money.jackson.MoneyModule;
-import com.hhao.common.money.jackson.MoneyProperties;
 
 import java.util.List;
 import java.util.Map;
@@ -51,18 +50,17 @@ public class DefaultJacksonUtilBuilder<T extends ObjectMapper> implements Jackso
     private Map<Enum, Boolean> configures = new ConcurrentHashMap<>();
     private Function<BeanProperty, JsonFormat.Value> jsonFormatFilterFunction;
 
+    public DefaultJacksonUtilBuilder(JacksonConfigProperties config) {
+        this.initWellKnownConfigures();
+        this.initWellKnownModules(config);
+    }
+
     public List<Module> getModules() {
         return modules;
     }
 
     public Map<Enum, Boolean> getConfigures() {
         return configures;
-    }
-
-    public DefaultJacksonUtilBuilder init(Boolean dataTimeErrorThrow, MoneyProperties moneyProperties) {
-        this.initWellKnownConfigures();
-        this.initWellKnownModules(dataTimeErrorThrow,moneyProperties);
-        return this;
     }
 
     /**
@@ -76,7 +74,6 @@ public class DefaultJacksonUtilBuilder<T extends ObjectMapper> implements Jackso
         //true:未包含@JsonView的属性全部输出
         //false:未包含@JsonView的属性不输出
         //configures.put(MapperFeature.DEFAULT_VIEW_INCLUSION, true);
-
         configures.put(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         configures.put(JsonParser.Feature.ALLOW_COMMENTS, false);
 
@@ -88,15 +85,15 @@ public class DefaultJacksonUtilBuilder<T extends ObjectMapper> implements Jackso
      *
      * @return void
      **/
-    public DefaultJacksonUtilBuilder initWellKnownModules(Boolean dataTimeErrorThrow,MoneyProperties moneyProperties) {
+    public DefaultJacksonUtilBuilder initWellKnownModules(JacksonConfigProperties config) {
         modules.add(new JavaTimeModule());
         modules.add(new Jdk8Module());
         modules.add(new Jdk7Module());
         modules.add(new ParameterNamesModule());
-        modules.add(new EnumModule());
-        modules.add(new JavaDateTimeModule(dataTimeErrorThrow,jsonFormatFilterFunction));
-        modules.add(new MoneyModule(moneyProperties));
-        modules.add(new SupportModule());
+        modules.add(new EnumResolver());
+        modules.add(new JavaDateTimeModule(config.getThrowExceptionOnDatetimeConversionError(),jsonFormatFilterFunction));
+        modules.add(new MoneyModule(config.getMoneyJsonSerializationConfig()));
+        modules.add(new NullValueResolver());
         return this;
     }
 
@@ -115,62 +112,55 @@ public class DefaultJacksonUtilBuilder<T extends ObjectMapper> implements Jackso
         return this;
     }
 
-    protected ObjectMapper registerModule(ObjectMapper objectMapper) {
-        for(Module module:modules){
-            objectMapper=objectMapper.registerModule(module);
-        }
+    public ObjectMapper registerModule(final ObjectMapper objectMapper) {
+        modules.forEach(module -> objectMapper.registerModule(module));
         return objectMapper;
     }
 
-    protected ObjectMapper configure(ObjectMapper objectMapper) {
-        for(Map.Entry<Enum, Boolean> entry:configures.entrySet()){
-            Enum feature=entry.getKey();
-            Boolean value=entry.getValue();
-
+    public ObjectMapper configure(final ObjectMapper objectMapper) {
+        configures.forEach((feature, value) -> {
             if (feature instanceof SerializationFeature) {
-                objectMapper=objectMapper.configure((SerializationFeature) feature, value);
+                objectMapper.configure((SerializationFeature) feature, value);
             } else if (feature instanceof MapperFeature) {
                 //objectMapper.configure((MapperFeature) feature, value);
             } else if (feature instanceof DeserializationFeature) {
-                objectMapper=objectMapper.configure((DeserializationFeature) feature, value);
+                objectMapper.configure((DeserializationFeature) feature, value);
             } else if (feature instanceof JsonGenerator.Feature) {
-                objectMapper=objectMapper.configure((JsonGenerator.Feature) feature, value);
+                objectMapper.configure((JsonGenerator.Feature) feature, value);
             } else if (feature instanceof JsonParser.Feature) {
-                objectMapper=objectMapper.configure((JsonParser.Feature) feature, value);
+                objectMapper.configure((JsonParser.Feature) feature, value);
             }
-        }
-
+        });
         return objectMapper;
     }
 
     @Override
-    public JacksonUtil build(Class<T> targetClass,Consumer<T> consumer) {
-        T mapper=null;
-        if (targetClass.equals(ObjectMapper.class)){
-            mapper=(T)new ObjectMapper();
-        }else{
-            mapper=(T)new XmlMapper();
-        }
-        registerModule(mapper);
-        configure(mapper);
-        if (consumer != null) {
-            consumer.accept(mapper);
-        }
-        return new DefaultJacksonUtil(mapper);
-    }
-
-    @Override
-    public JacksonUtil build(ObjectMapper mapper,Consumer<ObjectMapper> consumer) {
-        registerModule(mapper);
-        configure(mapper);
-        if (consumer != null) {
-            consumer.accept(mapper);
-        }
-        return new DefaultJacksonUtil(mapper);
+    public JacksonUtil build(Class<T> targetClass, Consumer<T> consumer) {
+        T mapper = createObjectMapper(targetClass);
+        return buildInternal((ObjectMapper) mapper, (Consumer<ObjectMapper>) consumer);
     }
 
     @Override
     public JacksonUtil build(Class<T> targetClass){
         return build(targetClass,null);
+    }
+
+    private T createObjectMapper(Class<T> targetClass) {
+        if (targetClass.equals(ObjectMapper.class)) {
+            return targetClass.cast(new ObjectMapper());
+        } else if (targetClass.equals(XmlMapper.class)) {
+            return targetClass.cast(new XmlMapper());
+        } else {
+            throw new IllegalArgumentException("Unsupported ObjectMapper type: " + targetClass.getName());
+        }
+    }
+
+    private JacksonUtil buildInternal(ObjectMapper objectMapper, Consumer<ObjectMapper> consumer) {
+        registerModule(objectMapper);
+        configure(objectMapper);
+        if (consumer != null) {
+            consumer.accept(objectMapper);
+        }
+        return new DefaultJacksonUtil(objectMapper);
     }
 }

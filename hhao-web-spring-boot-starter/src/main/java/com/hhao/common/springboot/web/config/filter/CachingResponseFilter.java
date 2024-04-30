@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,16 +16,17 @@
 
 package com.hhao.common.springboot.web.config.filter;
 
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.context.request.async.WebAsyncUtils;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
  * 增出response的包装过滤
+ * 如果是异步请求，应把它排除在过滤器外
  *
  * @author Wang
  * @since 1.0.0
@@ -38,8 +39,8 @@ public class CachingResponseFilter implements Filter {
      *
      * @param matchProperties the match properties
      */
-    public CachingResponseFilter(MatchProperties matchProperties){
-        this.matchProperties=matchProperties;
+    public CachingResponseFilter(MatchProperties matchProperties) {
+        this.matchProperties = matchProperties;
     }
 
     /**
@@ -78,6 +79,13 @@ public class CachingResponseFilter implements Filter {
         }
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
+
+        // 由于ContentCachingResponseWrapper采用FastByteArrayOutputStream保存输出的内容
+        // 会遇到字符集问题，默认字符集取自respose.getCharacterEncoding()
+        // 如果不设置，则默认字符集为ISO-8859-1
+        if (httpRequest.getCharacterEncoding() != null) {
+            httpResponse.setCharacterEncoding(httpRequest.getCharacterEncoding());
+        }
 
         //路径过滤
         if (matchProperties.match(httpRequest.getRequestURI())) {

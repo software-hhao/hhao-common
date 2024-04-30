@@ -1,12 +1,12 @@
 
 /*
- * Copyright 2018-2022 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,18 +18,18 @@
 package com.hhao.common.springboot.config.redis.session;
 
 
+import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.session.SessionProperties;
-import org.springframework.boot.autoconfigure.session.StoreType;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.session.data.redis.config.annotation.web.http.RedisIndexedHttpSessionConfiguration;
 
 /**
  * 相关类：
  * org.springframework.boot.autoconfigure.session.SessionAutoConfiguration
- * org.springframework.boot.autoconfigure.session.RedisSessionConfiguration
+ * org.springframework.boot.autoconfigure.session.SpringHttpSessionConfiguration
  * org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration:主要是配置了RedisIndexedSessionRepository Session仓库类
  * org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration:主要是配置了SessionRepositoryFilter Session仓库过滤器
  * RedisSessionProperties
@@ -81,24 +81,33 @@ import org.springframework.data.redis.serializer.RedisSerializer;
  *     }
  *
  *
- * 这个类没啥用，RedisSessionConfiguration都会被SessionAutoConfiguration启动
- * 如果不想使用session，只能去掉包
- *
  * @author Wang
  * @since 2022/1/30 21:19
  */
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties(SessionProperties.class)
-//不能启用这个注解，走SpringBoot自动启动session的RedisSessionConfiguration这个类来启动,否则无法通过配置设置过期时间
-//@EnableRedisHttpSession()
-public class SessionConfig {
-    public SessionConfig(SessionProperties sessionProperties){
-        sessionProperties.setStoreType(StoreType.REDIS);
-    }
+@ConditionalOnClass(RedisIndexedHttpSessionConfiguration.class)
+public class SessionConfig implements BeanClassLoaderAware {
+    private ClassLoader loader;
 
+    /**
+     * 默认会采用springSessionDefaultRedisSerializer bean 来装配RedisTemplate
+     * 此处定义springSessionDefaultRedisSerializer bean可以装配到默认的RedisTemplate
+     * 默认的RedisTemplate定义在AbstractRedisHttpSessionConfiguration
+     *
+     * 这里采用genericJackson2JsonRedisSerializer Bean来设置springSessionDefaultRedisSerializer bean
+     * genericJackson2JsonRedisSerializer Bean在RedisConfig中定义
+     *
+     * @param redisSerializer
+     * @return
+     */
     @Bean("springSessionDefaultRedisSerializer")
     @SuppressWarnings("all")
     public RedisSerializer<Object> springSessionDefaultRedisSerializer(@Qualifier("genericJackson2JsonRedisSerializer") RedisSerializer<Object> redisSerializer) {
         return redisSerializer;
+    }
+
+    @Override
+    public void setBeanClassLoader(ClassLoader classLoader) {
+        this.loader=classLoader;
     }
 }

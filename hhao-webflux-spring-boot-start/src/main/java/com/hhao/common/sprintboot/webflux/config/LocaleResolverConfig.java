@@ -1,12 +1,12 @@
 
 /*
- * Copyright 2018-2022 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -63,7 +63,7 @@ public class LocaleResolverConfig {
      **/
     public static class LocaleResolver implements LocaleContextResolver {
         @Override
-        public void setLocaleContext(ServerWebExchange exchange, @Nullable LocaleContext locale) {
+        public void setLocaleContext(ServerWebExchange exchange,  LocaleContext locale) {
             throw new UnsupportedOperationException(
                     "Cannot change HTTP accept header - use a different locale context resolution strategy");
         }

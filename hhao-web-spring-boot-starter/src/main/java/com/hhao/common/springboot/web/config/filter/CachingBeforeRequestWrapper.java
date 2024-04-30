@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,15 +17,14 @@
 package com.hhao.common.springboot.web.config.filter;
 
 import com.hhao.common.exception.error.request.PayloadLengthException;
+import jakarta.servlet.ReadListener;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpMethod;
-import org.springframework.lang.Nullable;
 import org.springframework.web.util.WebUtils;
 
-import javax.servlet.ReadListener;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.net.URLEncoder;
 import java.util.*;
@@ -53,13 +52,13 @@ public class CachingBeforeRequestWrapper extends HttpServletRequestWrapper {
     /**
      * 封装后的输入流
      */
-    @Nullable
+
     private ServletInputStream inputStream;
 
     /**
      * 封装后的Reader
      */
-    @Nullable
+
     private BufferedReader reader;
 
     /**
@@ -72,17 +71,17 @@ public class CachingBeforeRequestWrapper extends HttpServletRequestWrapper {
         super(request);
         int contentLength = request.getContentLength();
         //如果内容长度大于限制长度，抛出错误
-        if (contentLength>contentCacheLimit){
+        if (contentLength > contentCacheLimit) {
             handleContentOverflow(contentCacheLimit);
         }
-        this.cachedContent = new ByteArrayOutputStream(contentLength<0?0:contentLength);
+        this.cachedContent = new ByteArrayOutputStream(contentLength < 0 ? 0 : contentLength);
         this.contentCacheLimit = contentCacheLimit;
 
         //缓存操作
         if (isFormPost()) {
             //表单方式内容的缓存
             writeRequestParametersToCachedContent();
-        }else{
+        } else {
             //其它方式的内容缓存
             //注意：如果是文件上传、下载可能要做一些限制
             writePayloadToCachedContent();
@@ -201,19 +200,18 @@ public class CachingBeforeRequestWrapper extends HttpServletRequestWrapper {
                     }
                 }
             }
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             throw new IllegalStateException("Failed to write request parameters to cached content", ex);
         }
     }
 
-    private void writePayloadToCachedContent(){
+    private void writePayloadToCachedContent() {
         try {
-            ServletInputStream is=this.getRequest().getInputStream();
-            int ch =-1;
-            boolean overflow=false;
+            ServletInputStream is = this.getRequest().getInputStream();
+            int ch = -1;
+            boolean overflow = false;
 
-            while((ch=is.read())!=-1 && !overflow){
+            while ((ch = is.read()) != -1 && !overflow) {
                 if (contentCacheLimit != null && cachedContent.size() == contentCacheLimit) {
                     overflow = true;
                     break;
@@ -257,7 +255,7 @@ public class CachingBeforeRequestWrapper extends HttpServletRequestWrapper {
     }
 
 
-    private class ContentCachingInputStream extends ServletInputStream {
+    private static class ContentCachingInputStream extends ServletInputStream {
         private final ByteArrayInputStream is;
 
         /**
@@ -265,7 +263,7 @@ public class CachingBeforeRequestWrapper extends HttpServletRequestWrapper {
          *
          * @param payload the payload
          */
-        public ContentCachingInputStream(byte [] payload) {
+        public ContentCachingInputStream(byte[] payload) {
             this.is = new ByteArrayInputStream(payload);
         }
 
@@ -288,7 +286,7 @@ public class CachingBeforeRequestWrapper extends HttpServletRequestWrapper {
          * @throws IOException the io exception
          */
         @Override
-        public int read(byte[] b) throws IOException {
+        public int read(@NotNull byte[] b) throws IOException {
             int count = this.is.read(b);
             return count;
         }
@@ -303,7 +301,7 @@ public class CachingBeforeRequestWrapper extends HttpServletRequestWrapper {
          * @throws IOException the io exception
          */
         @Override
-        public int read(final byte[] b, final int off, final int len) throws IOException {
+        public int read(@NotNull final byte[] b, final int off, final int len) throws IOException {
             int count = this.is.read(b, off, len);
             return count;
         }

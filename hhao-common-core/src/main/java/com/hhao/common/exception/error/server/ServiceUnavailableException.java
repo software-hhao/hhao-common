@@ -1,12 +1,11 @@
-
 /*
- * Copyright 2018-2022 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,8 +16,8 @@
 
 package com.hhao.common.exception.error.server;
 
-import com.hhao.common.exception.ErrorInfo;
-import com.hhao.common.exception.ErrorInfos;
+import com.hhao.common.exception.ErrorCode;
+import com.hhao.common.exception.DefaultErrorCodes;
 
 /**
  * 系统繁忙错误，如系统被降级、限流
@@ -26,7 +25,7 @@ import com.hhao.common.exception.ErrorInfos;
  * @author Wang
  * @since 2022 /1/6 17:06
  */
-public class ServiceUnavailableException extends AbstractServerRuntimeException {
+public class ServiceUnavailableException extends ServerRuntimeException {
     /**
      * Instantiates a new Service unavailable exception.
      *
@@ -82,20 +81,20 @@ public class ServiceUnavailableException extends AbstractServerRuntimeException 
     /**
      * Instantiates a new System busy runtime exception.
      *
-     * @param errorInfo the error info
+     * @param errorCode the error info
      * @param cause     the cause
      */
-    public ServiceUnavailableException(ErrorInfo errorInfo, Throwable cause) {
-        super(errorInfo, cause);
+    public ServiceUnavailableException(ErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
     }
 
     /**
      * Instantiates a new System busy runtime exception.
      *
-     * @param errorInfo the error info
+     * @param errorCode the error info
      */
-    public ServiceUnavailableException(ErrorInfo errorInfo) {
-        super(errorInfo);
+    public ServiceUnavailableException(ErrorCode errorCode) {
+        super(errorCode);
     }
 
     /**
@@ -104,13 +103,13 @@ public class ServiceUnavailableException extends AbstractServerRuntimeException 
      * @param cause the cause
      */
     public ServiceUnavailableException(Throwable cause) {
-        super(ErrorInfos.ERROR_503, cause);
+        super(DefaultErrorCodes.ERROR_503, cause);
     }
 
     /**
      * Instantiates a new System busy runtime exception.
      */
     public ServiceUnavailableException() {
-        super(ErrorInfos.ERROR_503);
+        super(DefaultErrorCodes.ERROR_503);
     }
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,14 +16,18 @@
 
 package com.hhao.common.springboot.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
+import com.hhao.common.springboot.lifecycle.SmartLifecycleHandler;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.OrderComparator;
+
+import java.util.List;
 
 /**
  * org.springframework.context.support.DefaultLifecycleProcessor
@@ -43,19 +47,20 @@ public class AppSmartLifecycleConfig extends AbstractBaseConfig {
      * @return app smart lifecycle
      */
     @Bean
-    public AppSmartLifecycle appSmartLifecycle(ApplicationArguments applicationArguments){
-        return new AppSmartLifecycle(applicationArguments);
+    public AppSmartLifecycle appSmartLifecycle(ApplicationArguments applicationArguments, List<SmartLifecycleHandler> smartLifecycleHandlers){
+        return new AppSmartLifecycle(applicationArguments,smartLifecycleHandlers);
     }
 
     /**
      * The type App smart lifecycle.
      */
-    public class AppSmartLifecycle implements SmartLifecycle {
+    public static class AppSmartLifecycle implements SmartLifecycle {
         /**
          * The Logger.
          */
         protected final Logger logger = LoggerFactory.getLogger(AppSmartLifecycle.class);
         private final ApplicationArguments applicationArguments;
+        private List<SmartLifecycleHandler> smartLifecycleHandlers;
         private boolean isRunning = false;
 
         /**
@@ -63,8 +68,10 @@ public class AppSmartLifecycleConfig extends AbstractBaseConfig {
          *
          * @param applicationArguments the application arguments
          */
-        public AppSmartLifecycle(ApplicationArguments applicationArguments) {
+        public AppSmartLifecycle(ApplicationArguments applicationArguments,List<SmartLifecycleHandler> smartLifecycleHandlers) {
             this.applicationArguments = applicationArguments;
+            this.smartLifecycleHandlers=smartLifecycleHandlers;
+            OrderComparator.sort(this.smartLifecycleHandlers);
         }
 
         /**
@@ -108,7 +115,9 @@ public class AppSmartLifecycleConfig extends AbstractBaseConfig {
          * @param applicationArguments the application arguments
          */
         protected void doStart(ApplicationArguments applicationArguments) {
-
+            for(SmartLifecycleHandler smartLifecycleHandler:smartLifecycleHandlers){
+                smartLifecycleHandler.start(applicationArguments);
+            }
         }
 
 
@@ -149,7 +158,9 @@ public class AppSmartLifecycleConfig extends AbstractBaseConfig {
          * @param applicationArguments the application arguments
          */
         protected void doStop(ApplicationArguments applicationArguments) {
-
+            for(int i=smartLifecycleHandlers.size();i>0;i--){
+                smartLifecycleHandlers.get(i-1).stop(applicationArguments);
+            }
         }
 
 

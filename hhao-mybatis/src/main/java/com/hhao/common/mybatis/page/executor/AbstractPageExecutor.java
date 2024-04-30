@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package com.hhao.common.mybatis.page.executor;
 
 import com.hhao.common.mybatis.page.PageInfo;
 import com.hhao.common.mybatis.page.PageMetaData;
+import com.hhao.common.mybatis.page.exception.MyBatisException;
 import com.hhao.common.mybatis.page.executor.sql.SqlExecutor;
 import com.hhao.common.mybatis.page.executor.sql.SqlExecutorFactory;
 import org.apache.ibatis.executor.Executor;
@@ -130,6 +131,9 @@ public abstract class AbstractPageExecutor implements PageExecutor {
         //包含count语句的结果集
         if (pageInfo.isIncludeTotalRows()){
             List<List<Object>> newResult = (List<List<Object>>) result;
+            if (newResult.size()!=2){
+                throw new MyBatisException("Check JDBC supports multiple queries!!You can change SingleQueryDynamicPageExecutor or SingleQueryStaticPageExecutor.");
+            }
             setPageResult(pageInfo,newResult.get(0));
             setCountResult(pageInfo,newResult.get(1));
             return newResult.get(0);

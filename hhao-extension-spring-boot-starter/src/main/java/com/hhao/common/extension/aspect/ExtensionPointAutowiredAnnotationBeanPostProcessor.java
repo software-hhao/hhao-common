@@ -1,12 +1,12 @@
 
 /*
- * Copyright 2018-2022 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -75,6 +75,8 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
      */
     private BeanDefinitionRegistry beanDefinitionRegistry;
 
+    private ApplicationContext applicationContext;
+
     private int order = Ordered.LOWEST_PRECEDENCE;
 
     /**
@@ -90,7 +92,7 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
 
 
 
-    @Nullable
+    
     private ConfigurableListableBeanFactory beanFactory;
 
     private final Set<String> lookupMethodsChecked = Collections.newSetFromMap(new ConcurrentHashMap<>(256));
@@ -171,7 +173,7 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
     }
 
     @Override
-    @Nullable
+    
     public Constructor<?>[] determineCandidateConstructors(Class<?> beanClass, final String beanName)
             throws BeanCreationException {
 
@@ -324,12 +326,6 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
         return pvs;
     }
 
-    @Deprecated
-    @Override
-    public PropertyValues postProcessPropertyValues(PropertyValues pvs, PropertyDescriptor[] pds, Object bean, String beanName) {
-        return postProcessProperties(pvs, bean, beanName);
-    }
-
     /**
      * 'Native' processing method for direct calls with an arbitrary target instance,
      * resolving all of its fields and methods which are annotated with one of the
@@ -352,7 +348,7 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
         }
     }
 
-    private InjectionMetadata findAutowiringMetadata(String beanName, Class<?> clazz, @Nullable PropertyValues pvs) {
+    private InjectionMetadata findAutowiringMetadata(String beanName, Class<?> clazz,  PropertyValues pvs) {
         // Fall back to class name as cache key, for backwards compatibility with custom callers.
         String cacheKey = (StringUtils.hasLength(beanName) ? beanName : clazz.getName());
         // Quick check on the concurrent map first, with minimal locking.
@@ -440,7 +436,7 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
         return InjectionMetadata.forElements(elements, clazz);
     }
 
-    @Nullable
+    
     private MergedAnnotation<?> findAutowiredAnnotation(AccessibleObject ao) {
         MergedAnnotations annotations = MergedAnnotations.from(ao);
         for (Class<? extends Annotation> type : this.autowiredAnnotationTypes) {
@@ -512,7 +508,7 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
     /**
      * Register the specified bean as dependent on the autowired beans.
      */
-    private void registerDependentBeans(@Nullable String beanName, Set<String> autowiredBeanNames) {
+    private void registerDependentBeans( String beanName, Set<String> autowiredBeanNames) {
         if (beanName != null) {
             for (String autowiredBeanName : autowiredBeanNames) {
                 if (this.beanFactory != null && this.beanFactory.containsBean(autowiredBeanName)) {
@@ -529,8 +525,8 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
     /**
      * Resolve the specified cached method argument or field value.
      */
-    @Nullable
-    private Object resolvedCachedArgument(@Nullable String beanName, @Nullable Object cachedArgument) {
+    
+    private Object resolvedCachedArgument( String beanName,  Object cachedArgument) {
         if (cachedArgument instanceof DependencyDescriptor) {
             DependencyDescriptor descriptor = (DependencyDescriptor) cachedArgument;
             Assert.state(this.beanFactory != null, "No BeanFactory available");
@@ -548,6 +544,7 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
      */
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext=applicationContext;
         this.beanDefinitionRegistry = (BeanDefinitionRegistry) applicationContext.getAutowireCapableBeanFactory();
     }
 
@@ -690,6 +687,10 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
         });
     }
 
+    private void initExtensionPointInvocationHandler(ExtensionPointInvocationHandler extensionPointInvocationHandler,AnnotationAttributes annotationAttributes){
+        extensionPointInvocationHandler.initProperty(annotationAttributes);
+    }
+
     /**
      * 以上修订=========================
      */
@@ -698,14 +699,13 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
      * Class representing injection information about an annotated field.
      */
     private class AutowiredFieldElement extends InjectionMetadata.InjectedElement {
-
         private final boolean required;
 
         private volatile boolean cached;
 
         private AnnotationAttributes annotationAttributes;
 
-        @Nullable
+        
         private volatile Object cachedFieldValue;
 
         public AutowiredFieldElement(Field field, boolean required,AnnotationAttributes annotationAttributes) {
@@ -715,7 +715,7 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
         }
 
         @Override
-        protected void inject(Object bean, @Nullable String beanName, @Nullable PropertyValues pvs) throws Throwable {
+        protected void inject(Object bean,  String beanName,  PropertyValues pvs) throws Throwable {
             Field field = (Field) this.member;
             Object value;
             if (this.cached) {
@@ -736,8 +736,8 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
             }
         }
 
-        @Nullable
-        private Object resolveFieldValue(Field field, Object bean, @Nullable String beanName) {
+        
+        private Object resolveFieldValue(Field field, Object bean,  String beanName) {
             DependencyDescriptor desc = new DependencyDescriptor(field, this.required);
             desc.setContainingClass(bean.getClass());
             Set<String> autowiredBeanNames = new LinkedHashSet<>(1);
@@ -756,7 +756,7 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
                 // 通过beanName获取要注入的bean对象
                 value = beanFactory.getBean(injectBeanName);
                 // 设置属性
-                ((ExtensionPointInvocationHandler)Proxy.getInvocationHandler(value)).setAnnotationAttributes(annotationAttributes);
+                initExtensionPointInvocationHandler((ExtensionPointInvocationHandler)Proxy.getInvocationHandler(value),annotationAttributes);
             }else {
                 try {
                     value = beanFactory.resolveDependency(desc, beanName, autowiredBeanNames, typeConverter);
@@ -767,7 +767,6 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
             /**
              * 以上修订=========================
              */
-
             synchronized (this) {
                 if (!this.cached) {
                     Object cachedFieldValue = null;
@@ -796,24 +795,23 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
      * Class representing injection information about an annotated method.
      */
     private class AutowiredMethodElement extends InjectionMetadata.InjectedElement {
-
         private final boolean required;
 
         private volatile boolean cached;
 
         private AnnotationAttributes annotationAttributes;
 
-        @Nullable
+        
         private volatile Object[] cachedMethodArguments;
 
-        public AutowiredMethodElement(Method method, boolean required, @Nullable PropertyDescriptor pd,AnnotationAttributes annotationAttributes) {
+        public AutowiredMethodElement(Method method, boolean required,  PropertyDescriptor pd,AnnotationAttributes annotationAttributes) {
             super(method, pd);
             this.required = required;
             this.annotationAttributes=annotationAttributes;
         }
 
         @Override
-        protected void inject(Object bean, @Nullable String beanName, @Nullable PropertyValues pvs) throws Throwable {
+        protected void inject(Object bean,  String beanName,  PropertyValues pvs) throws Throwable {
             if (checkPropertySkipping(pvs)) {
                 return;
             }
@@ -842,8 +840,8 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
             }
         }
 
-        @Nullable
-        private Object[] resolveCachedArguments(@Nullable String beanName) {
+        
+        private Object[] resolveCachedArguments( String beanName) {
             Object[] cachedMethodArguments = this.cachedMethodArguments;
             if (cachedMethodArguments == null) {
                 return null;
@@ -855,8 +853,8 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
             return arguments;
         }
 
-        @Nullable
-        private Object[] resolveMethodArguments(Method method, Object bean, @Nullable String beanName) {
+        
+        private Object[] resolveMethodArguments(Method method, Object bean,  String beanName) {
             int argumentCount = method.getParameterCount();
             Object[] arguments = new Object[argumentCount];
             DependencyDescriptor[] descriptors = new DependencyDescriptor[argumentCount];
@@ -880,7 +878,7 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
                         // 通过beanName获取要注入的bean对象
                         Object arg = beanFactory.getBean(injectBeanName);
                         //设置属性
-                        ((ExtensionPointInvocationHandler)Proxy.getInvocationHandler(arg)).setAnnotationAttributes(annotationAttributes);
+                        initExtensionPointInvocationHandler((ExtensionPointInvocationHandler)Proxy.getInvocationHandler(arg),annotationAttributes);
                         arguments[i] = arg;
                     }else {
                         Object arg = beanFactory.resolveDependency(currDesc, beanName, autowiredBeans, typeConverter);
@@ -949,7 +947,4 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
             return beanFactory.getBean(this.shortcut, this.requiredType);
         }
     }
-
-
-
 }

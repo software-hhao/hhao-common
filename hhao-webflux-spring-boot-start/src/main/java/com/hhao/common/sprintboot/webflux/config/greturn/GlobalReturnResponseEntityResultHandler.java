@@ -1,11 +1,11 @@
 /*
- * Copyright 2020-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,14 +23,15 @@ import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.http.*;
 import org.springframework.http.codec.HttpMessageWriter;
 import org.springframework.util.Assert;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.reactive.HandlerResult;
 import org.springframework.web.reactive.accept.RequestedContentTypeResolver;
 import org.springframework.web.reactive.result.method.annotation.ResponseEntityResultHandler;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.time.Instant;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -39,7 +40,7 @@ import java.util.Set;
  * @since 2022/1/15 14:41
  */
 public class GlobalReturnResponseEntityResultHandler extends ResponseEntityResultHandler {
-    private static final Set<HttpMethod> SAFE_METHODS = EnumSet.of(HttpMethod.GET, HttpMethod.HEAD);
+    private static final Set<HttpMethod> SAFE_METHODS = Set.of(HttpMethod.GET, HttpMethod.HEAD);
 
     public GlobalReturnResponseEntityResultHandler(List<HttpMessageWriter<?>> writers, RequestedContentTypeResolver resolver) {
         super(writers, resolver);
@@ -68,32 +69,53 @@ public class GlobalReturnResponseEntityResultHandler extends ResponseEntityResul
             boolean isContinuation = (KotlinDetector.isSuspendingFunction(actualParameter.getMethod()) &&
                     !COROUTINES_FLOW_CLASS_NAME.equals(actualParameter.getParameterType().getName()));
             bodyParameter = (isContinuation ? actualParameter.nested() : actualParameter.nested().nested());
-        } else {
+        }
+        else {
             returnValueMono = Mono.justOrEmpty(result.getReturnValue());
             bodyParameter = actualParameter.nested();
         }
 
         return returnValueMono.flatMap(returnValue -> {
             HttpEntity<?> httpEntity;
-            if (returnValue instanceof HttpEntity) {
-                httpEntity = (HttpEntity<?>) returnValue;
-            } else if (returnValue instanceof HttpHeaders) {
-                httpEntity = new ResponseEntity<>((HttpHeaders) returnValue, HttpStatus.OK);
-            } else {
-                throw new IllegalArgumentException(
-                        "HttpEntity or HttpHeaders expected but got: " + returnValue.getClass());
+            if (returnValue instanceof HttpEntity<?> he) {
+                httpEntity = he;
+            }
+            else if (returnValue instanceof ErrorResponse response) {
+                httpEntity = new ResponseEntity<>(response.getBody(), response.getHeaders(), response.getStatusCode());
+            }
+            else if (returnValue instanceof ProblemDetail detail) {
+                httpEntity = ResponseEntity.of(detail).build();
+            }
+            else if (returnValue instanceof HttpHeaders headers) {
+                httpEntity = new ResponseEntity<>(headers, HttpStatus.OK);
+            }
+            else {
+                return Mono.error(() -> new IllegalArgumentException(
+                        "HttpEntity or HttpHeaders expected but got: " + returnValue.getClass()));
             }
 
-            if (httpEntity instanceof ResponseEntity) {
-                exchange.getResponse().setRawStatusCode(
-                        ((ResponseEntity<?>) httpEntity).getStatusCodeValue());
+            if (httpEntity.getBody() instanceof ProblemDetail detail) {
+                if (detail.getInstance() == null) {
+                    URI path = URI.create(exchange.getRequest().getPath().value());
+                    detail.setInstance(path);
+                }
+                if (logger.isWarnEnabled() && httpEntity instanceof ResponseEntity<?> responseEntity) {
+                    if (responseEntity.getStatusCode().value() != detail.getStatus()) {
+                        logger.warn(actualParameter.getExecutable().toGenericString() +
+                                " returned ResponseEntity: " + responseEntity + ", but its status" +
+                                " doesn't match the ProblemDetail status: " + detail.getStatus());
+                    }
+                }
+            }
+
+            if (httpEntity instanceof ResponseEntity<?> responseEntity) {
+                exchange.getResponse().setStatusCode(responseEntity.getStatusCode());
             }
 
             HttpHeaders entityHeaders = httpEntity.getHeaders();
             HttpHeaders responseHeaders = exchange.getResponse().getHeaders();
             if (!entityHeaders.isEmpty()) {
-                entityHeaders.entrySet().stream()
-                        .forEach(entry -> responseHeaders.put(entry.getKey(), entry.getValue()));
+                responseHeaders.putAll(entityHeaders);
             }
 
             if (httpEntity.getBody() == null || returnValue instanceof HttpHeaders) {
@@ -110,11 +132,11 @@ public class GlobalReturnResponseEntityResultHandler extends ResponseEntityResul
             //以上部份未改变基类的
             //以下部份加入包装判断与返回
             Object body=httpEntity.getBody();
-            if (Utils.supports(bodyParameter)){
+            if (ResultWrapperHelper.getInstance().supportsAutoWrapping(bodyParameter)){
                 //只支持显式提交MediaType为json和xml的两种结果集封装
                 MediaType selectedContentType = exchange.getRequest().getHeaders().getContentType();
                 if (selectedContentType==null || selectedContentType.includes(MediaType.APPLICATION_JSON) || selectedContentType.includes(MediaType.APPLICATION_XML)) {
-                    body=Utils.wrapperResult(body);
+                    body= ResultWrapperHelper.getInstance().wrapperResult(body);
                 }
             }
             return writeBody(body, bodyParameter, actualParameter, exchange);

@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -54,27 +54,27 @@ import java.util.Map;
 @EnableWebSocket
 @ConditionalOnMissingBean(WebSocketServerConfig.class)
 @ConditionalOnClass({WebSocketHandlerRegistry.class})
-@ConditionalOnProperty(prefix = "com.hhao.config.websocket-server",name = "enable",havingValue = "true",matchIfMissing = false)
+@ConditionalOnProperty(prefix = "com.hhao.config.websocket-server", name = "enable", havingValue = "true", matchIfMissing = false)
 public class WebSocketServerConfig extends AbstractBaseMvcConfig implements WebSocketConfigurer {
     /**
      * 注册用@WebSocketServer标注的websocket服务端
      */
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        Map<String, Object> handlerMap=this.getApplicationContext().getBeansWithAnnotation(WebSocketServer.class);
-        handlerMap.keySet().forEach(key->{
-            WebSocketHandler webSocketHandler=(WebSocketHandler) handlerMap.get(key);
-            WebSocketServer webSocket=webSocketHandler.getClass().getDeclaredAnnotation(WebSocketServer.class);
+        Map<String, Object> handlerMap = this.getApplicationContext().getBeansWithAnnotation(WebSocketServer.class);
+        handlerMap.keySet().forEach(key -> {
+            WebSocketHandler webSocketHandler = (WebSocketHandler) handlerMap.get(key);
+            WebSocketServer webSocket = webSocketHandler.getClass().getDeclaredAnnotation(WebSocketServer.class);
 
-            registry.addHandler(webSocketHandler,webSocket.value()!=null?webSocket.value():webSocket.paths())
+            registry.addHandler(webSocketHandler, webSocket.value() != null ? webSocket.value() : webSocket.paths())
                     .setAllowedOrigins(webSocket.origins())
                     .setHandshakeHandler(getHandshakeHandler())
                     .addInterceptors(getHandshakeInterceptor())
                     .withSockJS()
-                    .setDisconnectDelay(10*1000)
+                    .setDisconnectDelay(10 * 1000)
                     .setSessionCookieNeeded(true);
-                    //.setHttpMessageCacheSize(1000)
-                    //.setStreamBytesLimit(512*1024)
+            //.setHttpMessageCacheSize(1000)
+            //.setStreamBytesLimit(512*1024)
         });
     }
 
@@ -103,7 +103,7 @@ public class WebSocketServerConfig extends AbstractBaseMvcConfig implements WebS
      *
      * @return the handshake authorization
      */
-    protected HandshakeAuthorization getHandshakeAuthorization(){
+    protected HandshakeAuthorization getHandshakeAuthorization() {
         return new HandshakeAuthorizationWithToken();
     }
 
@@ -113,7 +113,9 @@ public class WebSocketServerConfig extends AbstractBaseMvcConfig implements WebS
      * @return the default web socket session manager
      */
     @Bean
-    public DefaultWebSocketSessionManager webSocketSessionManager(){
+    @ConditionalOnMissingBean
+    public DefaultWebSocketSessionManager defaultWebSocketSessionManager() {
         return new DefaultWebSocketSessionManager();
     }
+
 }

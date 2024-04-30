@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,16 +25,20 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.hhao.common.Context;
-import com.hhao.common.metadata.Mdm;
-import com.hhao.common.metadata.MonetaryAmountFromStringFormatMetadata;
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
+import com.hhao.common.metadata.CurrencyConfig;
+import com.hhao.common.metadata.SystemMetadata;
 import com.hhao.common.money.MoneyFormat;
-import com.hhao.common.money.MoneyUtils;
+import com.hhao.common.utils.MoneyUtils;
 import org.javamoney.moneta.format.CurrencyStyle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.money.*;
+import javax.money.Monetary;
+import javax.money.MonetaryAmount;
+import javax.money.MonetaryRounding;
+import javax.money.RoundingQueryBuilder;
 import java.io.IOException;
+import java.util.Currency;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,7 +58,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MonetaryAmountDeserializer<T extends MonetaryAmount> extends JsonDeserializer<T> implements ContextualDeserializer {
     protected final Logger logger = LoggerFactory.getLogger(MonetaryAmountDeserializer.class);
 
-    private MoneyProperties moneyProperties =null;
+    private MoneyJsonSerializationConfig moneyJsonSerializationConfig =null;
     private MonetaryAmountDeserializerWithMetadata deserializerWithMetadata;
     private Map<String,MonetaryAmountDeserializerWithMoneyFormat> deserializerWithMoneyFormatMap =new ConcurrentHashMap<>();
 
@@ -62,14 +66,14 @@ public class MonetaryAmountDeserializer<T extends MonetaryAmount> extends JsonDe
 
     }
 
-    public MonetaryAmountDeserializer(MoneyProperties moneyProperties){
-        this.moneyProperties=moneyProperties;
+    public MonetaryAmountDeserializer(MoneyJsonSerializationConfig moneyJsonSerializationConfig){
+        this.moneyJsonSerializationConfig = moneyJsonSerializationConfig;
         deserializerWithMetadata=new MonetaryAmountDeserializerWithMetadata();
     }
 
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException {
-        if (!moneyProperties.getDeserializerUseMoneyFormat() || property==null){
+        if (!moneyJsonSerializationConfig.getPreferMoneyFormatAnnotationForDeserialization() || property==null){
             return deserializerWithMetadata;
         }
         MoneyFormat moneyFormat=property.getAnnotation(MoneyFormat.class);
@@ -90,24 +94,28 @@ public class MonetaryAmountDeserializer<T extends MonetaryAmount> extends JsonDe
         return null;
     }
 
-    protected MonetaryAmount deserialize(JsonParser p,Locale locale, String pattern,MonetaryRounding rounding) throws IOException{
+    protected MonetaryAmount exDeserialize(JsonParser p,Locale locale,String pattern) throws IOException {
         if (p.getText()==null || p.getText().isBlank()){
             return null;
         }
         String str=p.getText().trim();
-        //如果输入是个Object,解析其中的amount和currency
+        String amount=null;
+        String currency=null;
+
         if (p.currentToken().equals(JsonToken.START_OBJECT)){
-            String amount=null;
-            String currency=null;
+            //如果输入是个Object,解析其中的amount和currency
             do{
                 p.nextToken();
                 if (p.currentToken().equals(JsonToken.FIELD_NAME)){
-                    if(p.getText().equals(moneyProperties.getAmountFieldName())){
-                        while(p.currentToken()!=null && !p.currentToken().equals(JsonToken.VALUE_NUMBER_FLOAT) && !p.currentToken().equals(JsonToken.VALUE_NUMBER_INT)){
+                    if(p.getText().equals(moneyJsonSerializationConfig.getMoneyAmountFieldName())){
+                        //while(p.currentToken()!=null && !p.currentToken().equals(JsonToken.VALUE_NUMBER_FLOAT) && !p.currentToken().equals(JsonToken.VALUE_NUMBER_INT)){
+                        //    p.nextToken();
+                        //}
+                        while(p.currentToken()!=null && !p.currentToken().equals(JsonToken.VALUE_STRING)){
                             p.nextToken();
                         }
                         amount=p.getText().trim();
-                    }else if(p.getText().equals(moneyProperties.getCurrencyUnitFieldName())){
+                    }else if(p.getText().equals(moneyJsonSerializationConfig.getCurrencyCodeFieldName())){
                         p.nextToken();
                         currency=p.getText().trim();
                     }
@@ -115,37 +123,43 @@ public class MonetaryAmountDeserializer<T extends MonetaryAmount> extends JsonDe
             }while(!p.currentToken().equals(JsonToken.END_OBJECT) && p.currentToken()!=null);
 
             if (amount!=null && currency!=null){
-                if (pattern.startsWith(MonetaryAmountFromStringFormatMetadata.PLACE_SYMBOL)){
-                    str=currency+amount;
-                }else{
-                    str=amount+currency;
+                // 如果不是MoneyFormat定义，则需要从元数据中获取pattern
+                if (pattern == null || pattern.isBlank()){
+                    CurrencyConfig currencyConfig = SystemMetadata.getInstance().getCurrencyConfig(currency);
+                    pattern = currencyConfig.getPatternForParse();
                 }
+                String patternPlaceSymbol = SystemMetadata.getInstance().getMetadataProperties().getMonetaryConfig().getPatternPlaceSymbol();
+                if (pattern.startsWith(patternPlaceSymbol)){
+                    // 去除前置货币占位符
+                    pattern = pattern.substring(patternPlaceSymbol.length()).trim();
+                }else if (pattern.endsWith(patternPlaceSymbol)){
+                    // 去除后置货币占位符
+                    pattern = pattern.substring(0, pattern.length() - patternPlaceSymbol.length()).trim();
+                }
+                // amount不带货币符号,pattern移除货币占位符
+                return MoneyUtils.stringToMoney(amount,currency,pattern);
             }else{
-                if (moneyProperties.getErrorThrowException()){
-                    throw new MonetaryException("error json money string");
+                if (moneyJsonSerializationConfig.getThrowExceptionOnConversionError()){
+                    throw new JsonMappingException(p, "Money format error,the amount and currency must be in the object");
                 }
                 return null;
             }
-        }
-        try {
-            //判断是否是完整的Money字符串，完整的串形如：CNY23.45
-            if (!MoneyUtils.isCompleteMoneyText(str,locale,CurrencyStyle.CODE)){
-                if (pattern.startsWith(MonetaryAmountFromStringFormatMetadata.PLACE_SYMBOL)) {
-                    str = MoneyUtils.prefixMoneyText(str, locale, CurrencyStyle.CODE);
-                } else if (pattern.endsWith(MonetaryAmountFromStringFormatMetadata.PLACE_SYMBOL)) {
-                    str = MoneyUtils.suffixMoneyText(str, locale, CurrencyStyle.CODE);
+        }else{
+            // 不是Object,直接解析
+            amount=str.trim();
+            if (locale!=null){
+                // 如果MoneyFormat有定义，走MoneyFormat中的定义
+                currency=Currency.getInstance(locale).getCurrencyCode();
+                if (pattern == null || pattern.isBlank()){
+                    CurrencyConfig currencyConfig = SystemMetadata.getInstance().getCurrencyConfig(currency);
+                    pattern = currencyConfig.getPatternForParse();
                 }
-            }
-            MonetaryAmount money = MoneyUtils.stringToMoney(str, locale, CurrencyStyle.CODE, pattern);
-            //返回取精后的值
-            return money.with(rounding);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            if (moneyProperties.getErrorThrowException()){
-                throw e;
+                return MoneyUtils.stringToMoney(amount,pattern,Currency.getInstance(currency));
+            }else{
+                // 直接转换
+                return MoneyUtils.stringToMoney(amount);
             }
         }
-        return null;
     }
 
     /**
@@ -169,7 +183,7 @@ public class MonetaryAmountDeserializer<T extends MonetaryAmount> extends JsonDe
 
         @Override
         public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            return (T)MonetaryAmountDeserializer.this.deserialize(p,Context.findLocale(moneyFormat.locale()),pattern,rounding);
+            return (T)MonetaryAmountDeserializer.this.exDeserialize(p,Context.findLocale(moneyFormat.locale()),pattern);
         }
     }
 
@@ -177,22 +191,13 @@ public class MonetaryAmountDeserializer<T extends MonetaryAmount> extends JsonDe
      * 使用元数据MONETARY_AMOUNT_FROM_STRING、MONETARY_ROUNDING定义的格式进行转换;
      */
     public class MonetaryAmountDeserializerWithMetadata <T extends MonetaryAmount> extends JsonDeserializer<T>{
-        Map<String,Object> formatAttrs=null;
-        private CurrencyStyle currencyStyle=null;
-        private String pattern=null;
-        private MonetaryRounding rounding=null;
-
         public MonetaryAmountDeserializerWithMetadata(){
-            //取元数据
-            formatAttrs= Mdm.MONETARY_AMOUNT_FROM_STRING.value(Map.class);
-            currencyStyle=(CurrencyStyle)formatAttrs.get(MonetaryAmountFromStringFormatMetadata.CURRENCY_STYLE);
-            pattern=(String)formatAttrs.get(MonetaryAmountFromStringFormatMetadata.CURRENCY_PATTERN);
-            rounding=Mdm.MONETARY_ROUNDING.value(MonetaryRounding.class);
+
         }
 
         @Override
         public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            return (T)MonetaryAmountDeserializer.this.deserialize(p,(Locale) formatAttrs.get(MonetaryAmountFromStringFormatMetadata.LOCALE),pattern,rounding);
+            return (T)MonetaryAmountDeserializer.this.exDeserialize(p,null,null);
         }
     }
 }

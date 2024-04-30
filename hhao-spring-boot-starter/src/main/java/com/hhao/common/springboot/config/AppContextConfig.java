@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,7 @@
 package com.hhao.common.springboot.config;
 
 import com.hhao.common.Context;
-import com.hhao.common.metadata.Mdm;
+import com.hhao.common.metadata.SystemMetadata;
 import com.hhao.common.springboot.AppContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,7 +55,7 @@ public class AppContextConfig extends AbstractBaseConfig {
      * @return the context
      */
     protected Context configureContext() {
-        return Context.ContextFactory.create(new AppContext() {
+        return Context.ContextFactory.setContext(new AppContext() {
             protected final Log logger = LogFactory.getLog(AppContext.class);
 
             @Override
@@ -68,7 +68,7 @@ public class AppContextConfig extends AbstractBaseConfig {
                 if (LocaleContextHolder.getLocale()!=null){
                     return LocaleContextHolder.getLocale();
                 }
-                return Mdm.LOCALE.value(Locale.class);
+                return SystemMetadata.getInstance().getLocale();
             }
 
             @Override
@@ -76,7 +76,7 @@ public class AppContextConfig extends AbstractBaseConfig {
                 if (LocaleContextHolder.getTimeZone()!=null) {
                     return LocaleContextHolder.getTimeZone().toZoneId();
                 }
-                return Mdm.ZONE.value(ZoneId.class);
+                return SystemMetadata.getInstance().getZoneId();
             }
 
             @Override
@@ -96,6 +96,4 @@ public class AppContextConfig extends AbstractBaseConfig {
     public Context appContext() {
         return configureContext();
     }
-
-
 }

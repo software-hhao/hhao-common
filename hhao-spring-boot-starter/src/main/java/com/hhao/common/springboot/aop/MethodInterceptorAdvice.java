@@ -1,11 +1,11 @@
 /*
- * Copyright 2020-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,20 +16,15 @@
 
 package com.hhao.common.springboot.aop;
 
-import com.hhao.common.springboot.safe.SafeHtml;
-import jdk.jfr.AnnotationElement;
+import jakarta.annotation.Nonnull;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.springframework.aop.ProxyMethodInvocation;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -61,9 +56,8 @@ public class MethodInterceptorAdvice implements Ordered, MethodInterceptor, Seri
         return order;
     }
 
-    @Nullable
     @Override
-    public Object invoke(@Nonnull MethodInvocation invocation) throws Throwable {
+    public Object invoke( MethodInvocation invocation) throws Throwable {
         //if (!(invocation instanceof ProxyMethodInvocation)) {
         //    throw new IllegalStateException("MethodInvocation is not a Spring ProxyMethodInvocation: " + invocation);
         //}

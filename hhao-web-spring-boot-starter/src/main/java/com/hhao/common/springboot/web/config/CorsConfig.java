@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
 
 package com.hhao.common.springboot.web.config;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +32,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
  * maxAge设置为30分钟
  * allowCredentials:公开敏感的特定于用户的信息(如cookie和CSRF令牌)，注意，只在适当的地方使用，使用时要配置allowOriginPatterns
  * {@code @CrossOrigin}在类级别也受支持，并且被所有方法继承
- *
+ * <p>
  * 全局设置
  * 缺省情况下，全局配置启用如下功能:
  * 所有的起源。
@@ -45,7 +46,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnMissingBean(CorsConfig.class)
-@ConditionalOnProperty(prefix = "com.hhao.config.cors",name = "enable",havingValue = "true",matchIfMissing = false)
+@ConditionalOnProperty(prefix = "com.hhao.config.cors", name = "enable", havingValue = "true", matchIfMissing = false)
 public class CorsConfig extends AbstractBaseMvcConfig {
 
     /**
@@ -54,7 +55,7 @@ public class CorsConfig extends AbstractBaseMvcConfig {
      * @param registry the registry
      */
     @Override
-    public void addCorsMappings(CorsRegistry registry) {
+    public void addCorsMappings(@NotNull CorsRegistry registry) {
 
 //        registry.addMapping("/api/**")
 //                .allowedOrigins("https://domain2.com")

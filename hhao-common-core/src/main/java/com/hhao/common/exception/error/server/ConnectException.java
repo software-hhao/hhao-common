@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.hhao.common.exception.error.server;
 
-import com.hhao.common.exception.ErrorInfo;
-import com.hhao.common.exception.ErrorInfoBuilder;
-import com.hhao.common.lang.NonNull;
+import com.hhao.common.exception.DefaultErrorCodes;
+import com.hhao.common.exception.ErrorCode;
 
 
 /**
@@ -27,7 +25,7 @@ import com.hhao.common.lang.NonNull;
  * @author Wang
  * @since 1.0.0
  */
-public class ConnectException  extends AbstractServerRuntimeException {
+public class ConnectException  extends ServerRuntimeException {
     /**
      * Instantiates a new Connect exception.
      *
@@ -81,34 +79,29 @@ public class ConnectException  extends AbstractServerRuntimeException {
     }
 
     /**
-     * The constant ERROR_500_CONNECTION.
-     */
-    public static final ErrorInfo ERROR_500_CONNECTION = ErrorInfoBuilder.build("500.100", "error.code.500.100");
-
-    /**
      * Instantiates a new Connect exception.
      *
-     * @param errorInfo the error info
+     * @param errorCode the error info
      * @param cause     the cause
      */
-    public ConnectException(@NonNull ErrorInfo errorInfo, Throwable cause) {
-        super(errorInfo,cause);
+    public ConnectException( ErrorCode errorCode, Throwable cause) {
+        super(errorCode,cause);
     }
 
     /**
      * Instantiates a new Connect exception.
      *
-     * @param errorInfo the error info
+     * @param errorCode the error info
      */
-    public ConnectException(@NonNull ErrorInfo errorInfo) {
-        this(errorInfo,null);
+    public ConnectException( ErrorCode errorCode) {
+        this(errorCode,null);
     }
 
     /**
      * Instantiates a new Connect exception.
      */
     public ConnectException() {
-        this(ERROR_500_CONNECTION);
+        this(DefaultErrorCodes.ERROR_500_CONNECT);
     }
 
     /**
@@ -117,6 +110,6 @@ public class ConnectException  extends AbstractServerRuntimeException {
      * @param cause the cause
      */
     public ConnectException(Throwable cause) {
-        this(ERROR_500_CONNECTION,cause);
+        this(DefaultErrorCodes.ERROR_500_CONNECT,cause);
     }
 }

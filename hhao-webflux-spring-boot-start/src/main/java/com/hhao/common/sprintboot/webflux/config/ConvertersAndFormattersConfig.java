@@ -1,12 +1,12 @@
 
 /*
- * Copyright 2018-2022 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,12 +17,12 @@
 
 package com.hhao.common.sprintboot.webflux.config;
 
-import com.hhao.common.metadata.Mdm;
-import com.hhao.common.springboot.convert.*;
-import com.hhao.common.springboot.format.DateTimeAnnotationFormatterFactory;
+import com.hhao.common.metadata.SystemMetadata;
 import com.hhao.common.money.spring.CurrencyUnitAndStringConvert;
 import com.hhao.common.money.spring.MonetaryAmountAndStringConverter;
 import com.hhao.common.money.spring.MonetaryAmountAnnotationFormatterFactory;
+import com.hhao.common.springboot.convert.*;
+import com.hhao.common.springboot.format.DateTimeAnnotationFormatterFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -36,8 +36,6 @@ import org.springframework.format.number.NumberFormatAnnotationFormatterFactory;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.format.support.FormattingConversionService;
 
-import java.time.format.DateTimeFormatter;
-
 /**
  * @author Wang
  * @since 2022/1/14 13:44
@@ -47,18 +45,18 @@ import java.time.format.DateTimeFormatter;
 @ConditionalOnProperty(prefix = "com.hhao.config.converters-and-formatters",name = "enable",havingValue = "true",matchIfMissing = true)
 public class ConvertersAndFormattersConfig extends AbstractBaseWebFluxConfig {
 
-    @Value("${com.hhao.config.converters-and-formatters.dataTimeErrorThrow:true}")
-    private Boolean dataTimeErrorThrow;
+    @Value("${com.hhao.config.converters-and-formatters.throwExceptionOnConversionError:true}")
+    private Boolean throwExceptionOnConversionError;
 
     @Override
     public void addFormatters(FormatterRegistry registry) {
         //日期时间类与字符串互换
         //registry.addConverter(new InstantAndLocalDateTimeStringConverter());
-        registry.addConverter(new InstantAndNumberStringConverter(dataTimeErrorThrow));
-        registry.addConverter(new LocalDateAndStringConverter(dataTimeErrorThrow));
-        registry.addConverter(new LocalTimeAndStringConverter(dataTimeErrorThrow));
-        registry.addConverter(new LocalDateTimeAndStringConverter(dataTimeErrorThrow));
-        registry.addConverter(new ZonedDateTimeAndStringConverter(dataTimeErrorThrow));
+        registry.addConverter(new InstantAndNumberStringConverter(throwExceptionOnConversionError));
+        registry.addConverter(new LocalDateAndStringConverter(throwExceptionOnConversionError));
+        registry.addConverter(new LocalTimeAndStringConverter(throwExceptionOnConversionError));
+        registry.addConverter(new LocalDateTimeAndStringConverter(throwExceptionOnConversionError));
+        registry.addConverter(new ZonedDateTimeAndStringConverter(throwExceptionOnConversionError));
         //Enum与String的互转
         registry.addConverterFactory(new StringToEnumConverterFactory());
         registry.addConverterFactory(new EnumToStringConverterFactory());
@@ -72,7 +70,7 @@ public class ConvertersAndFormattersConfig extends AbstractBaseWebFluxConfig {
         registry.addConverter(new CurrencyUnitAndStringConvert());
 
         //Instant格式化转换类,根据注解DateTimeFormat进行转换
-        registry.addFormatterForFieldAnnotation(new DateTimeAnnotationFormatterFactory(dataTimeErrorThrow));
+        registry.addFormatterForFieldAnnotation(new DateTimeAnnotationFormatterFactory(throwExceptionOnConversionError));
         registry.addFormatterForFieldAnnotation(new MonetaryAmountAnnotationFormatterFactory());
     }
 
@@ -91,14 +89,14 @@ public class ConvertersAndFormattersConfig extends AbstractBaseWebFluxConfig {
 
         // Register JSR-310 date conversion with a specific global format
         DateTimeFormatterRegistrar dateTimeFormatterRegistrar = new DateTimeFormatterRegistrar();
-        dateTimeFormatterRegistrar.setDateFormatter(Mdm.DATE_FORMATTER.value(DateTimeFormatter.class));
-        dateTimeFormatterRegistrar.setTimeFormatter(Mdm.TIME_FORMATTER.value(DateTimeFormatter.class));
-        dateTimeFormatterRegistrar.setDateTimeFormatter(Mdm.DATE_TIME_FORMATTER.value(DateTimeFormatter.class));
+        dateTimeFormatterRegistrar.setDateFormatter(SystemMetadata.getInstance().getDateFormatter());
+        dateTimeFormatterRegistrar.setTimeFormatter(SystemMetadata.getInstance().getTimeFormatter());
+        dateTimeFormatterRegistrar.setDateTimeFormatter(SystemMetadata.getInstance().getDateTimeFormatter());
         dateTimeFormatterRegistrar.registerFormatters(conversionService);
 
         // Register date conversion with a specific global format
         DateFormatterRegistrar dateFormatterRegistrar = new DateFormatterRegistrar();
-        dateFormatterRegistrar.setFormatter(new DateFormatter(Mdm.DATE_FORMATTER.metadata().getValue()));
+        dateFormatterRegistrar.setFormatter(new DateFormatter(SystemMetadata.getInstance().getMetadataProperties().getFormatters().getDate()));
         dateFormatterRegistrar.registerFormatters(conversionService);
 
         return conversionService;

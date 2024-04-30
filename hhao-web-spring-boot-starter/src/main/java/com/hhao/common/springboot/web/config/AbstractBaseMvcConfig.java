@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
 
 package com.hhao.common.springboot.web.config;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -34,23 +35,23 @@ public class AbstractBaseMvcConfig implements ApplicationContextAware, WebMvcCon
     protected ApplicationContext applicationContext;
 
     /**
-     * Sets application context.
-     *
-     * @param applicationContext the application context
-     * @throws BeansException the beans exception
-     */
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
-
-    /**
      * Gets application context.
      *
      * @return the application context
      */
     public ApplicationContext getApplicationContext() {
         return applicationContext;
+    }
+
+    /**
+     * Sets application context.
+     *
+     * @param applicationContext the application context
+     * @throws BeansException the beans exception
+     */
+    @Override
+    public void setApplicationContext(@NotNull ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,12 +17,12 @@
 package com.hhao.common.springboot.response;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.hhao.common.dto.Response;
-import com.hhao.common.dto.SingleResponse;
+import com.hhao.common.ddd.dto.response.SingleResponse;
 import com.hhao.common.jackson.JacksonUtilFactory;
 import com.hhao.common.jackson.view.Views;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
+import com.hhao.common.springboot.jackson.SpringJacksonKeyType;
 
 import java.util.Map;
 
@@ -87,7 +87,7 @@ public class ResultWrapper<T> extends SingleResponse<T> {
             return null;
         }
         if (!targetClass.isAssignableFrom(Map.class) && this.getData() instanceof Map){
-            return JacksonUtilFactory.getJsonUtil().map2Pojo((Map<String,Object>)this.getData(),targetClass);
+            return JacksonUtilFactory.getJsonUtil(SpringJacksonKeyType.SPRING_RETURN).map2Pojo((Map<String,Object>)this.getData(),targetClass);
         }
         if (targetClass.isAssignableFrom(this.getData().getClass())){
             return (L)this.getData();
@@ -98,7 +98,7 @@ public class ResultWrapper<T> extends SingleResponse<T> {
     @Override
     public String toString(){
         if (this!=null){
-            return JacksonUtilFactory.getJsonUtil().obj2String(this);
+            return JacksonUtilFactory.getJsonUtil(SpringJacksonKeyType.SPRING_RETURN).obj2String(this);
         }
         return "";
     }

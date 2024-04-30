@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package com.hhao.common.springboot.web.config.filter;
 
 import com.hhao.common.springboot.web.config.AbstractBaseMvcConfig;
+import jakarta.servlet.DispatcherType;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -28,7 +29,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 
-import javax.servlet.DispatcherType;
 import java.util.EnumSet;
 
 /**
@@ -41,29 +41,13 @@ import java.util.EnumSet;
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnMissingBean(FilterConfig.class)
 @EnableConfigurationProperties
-@ConditionalOnProperty(prefix = "com.hhao.config.filter",name = "enable",havingValue = "true",matchIfMissing = false)
+@ConditionalOnProperty(prefix = "com.hhao.config.filter", name = "enable", havingValue = "true", matchIfMissing = false)
 public class FilterConfig extends AbstractBaseMvcConfig {
-
-    /**
-     * request缓存模式
-     */
-    public enum RequestCacheType{
-        /**
-         * 采用spring的ContentCachingRequestWrapper
-         */
-        cache_after,
-        /**
-         * 采用自定义的CachingRequestWrapper
-         */
-        cache_before
-    }
 
     @Value("${com.hhao.config.filter.caching-request.max-payload-length:1024}")
     private int maxPayloadLength;
-
     @Value("${com.hhao.config.filter.caching-request.type:cache_after}")
     private String requestType;
-
 
     /**
      * Request filter match properties match properties.
@@ -72,7 +56,7 @@ public class FilterConfig extends AbstractBaseMvcConfig {
      */
     @Bean(name = "requestFilterMatchProperties")
     @ConfigurationProperties(prefix = "com.hhao.config.filter.caching-request")
-    public MatchProperties requestFilterMatchProperties(){
+    public MatchProperties requestFilterMatchProperties() {
         return new MatchProperties();
     }
 
@@ -83,13 +67,13 @@ public class FilterConfig extends AbstractBaseMvcConfig {
      * @return filter registration bean
      */
     @Bean
-    @ConditionalOnProperty(prefix = "com.hhao.config.filter.caching-request",name = "enable",havingValue = "true",matchIfMissing = true)
-    FilterRegistrationBean cachingRequestFilter(@Qualifier("requestFilterMatchProperties")  MatchProperties matchProperties){
-        FilterRegistrationBean filterRegistrationBean=new FilterRegistrationBean();
-        if (RequestCacheType.cache_after.name().equals(requestType)){
-            filterRegistrationBean.setFilter(new CachingAfterRequestFilter(maxPayloadLength,matchProperties));
-        }else{
-            filterRegistrationBean.setFilter(new CachingBeforeRequestFilter(maxPayloadLength,matchProperties));
+    @ConditionalOnProperty(prefix = "com.hhao.config.filter.caching-request", name = "enable", havingValue = "true", matchIfMissing = false)
+    FilterRegistrationBean cachingRequestFilter(@Qualifier("requestFilterMatchProperties") MatchProperties matchProperties) {
+        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
+        if (RequestCacheType.cache_after.name().equals(requestType)) {
+            filterRegistrationBean.setFilter(new CachingAfterRequestFilter(maxPayloadLength, matchProperties));
+        } else {
+            filterRegistrationBean.setFilter(new CachingBeforeRequestFilter(maxPayloadLength, matchProperties));
         }
         filterRegistrationBean.addUrlPatterns("/*");
         filterRegistrationBean.setName("CachingRequestFilter");
@@ -105,7 +89,7 @@ public class FilterConfig extends AbstractBaseMvcConfig {
      */
     @Bean(name = "responseFilterMatchProperties")
     @ConfigurationProperties(prefix = "com.hhao.config.filter.caching-response")
-    public MatchProperties responseFilterMatchProperties(){
+    public MatchProperties responseFilterMatchProperties() {
         return new MatchProperties();
     }
 
@@ -116,9 +100,9 @@ public class FilterConfig extends AbstractBaseMvcConfig {
      * @return filter registration bean
      */
     @Bean
-    @ConditionalOnProperty(prefix = "com.hhao.config.filter.caching-response",name = "enable",havingValue = "true",matchIfMissing = false)
-    FilterRegistrationBean cachingResponseFilter(@Qualifier("responseFilterMatchProperties") MatchProperties matchProperties){
-        FilterRegistrationBean filterRegistrationBean=new FilterRegistrationBean();
+    @ConditionalOnProperty(prefix = "com.hhao.config.filter.caching-response", name = "enable", havingValue = "true", matchIfMissing = false)
+    FilterRegistrationBean cachingResponseFilter(@Qualifier("responseFilterMatchProperties") MatchProperties matchProperties) {
+        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
         filterRegistrationBean.setFilter(new CachingResponseFilter(matchProperties));
         filterRegistrationBean.addUrlPatterns("/*");
         filterRegistrationBean.setName("CachingResponseFilter");
@@ -134,9 +118,9 @@ public class FilterConfig extends AbstractBaseMvcConfig {
      * @return filter registration bean
      */
     @Bean
-    @ConditionalOnProperty(prefix = "com.hhao.config.filter.forwarded-header",name = "enable",havingValue = "true",matchIfMissing = false)
-    FilterRegistrationBean forwardedHeaderFilter(){
-        FilterRegistrationBean filterRegistrationBean=new FilterRegistrationBean();
+    @ConditionalOnProperty(prefix = "com.hhao.config.filter.forwarded-header", name = "enable", havingValue = "true", matchIfMissing = false)
+    FilterRegistrationBean forwardedHeaderFilter() {
+        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
         filterRegistrationBean.setFilter(new ForwardedHeaderFilter());
         filterRegistrationBean.addUrlPatterns("/*");
         filterRegistrationBean.setName("ForwardedHeaderFilter");
@@ -152,7 +136,7 @@ public class FilterConfig extends AbstractBaseMvcConfig {
      */
     @Bean(name = "logFilterMatchProperties")
     @ConfigurationProperties(prefix = "com.hhao.config.filter.log")
-    public MatchProperties logFilterMatchProperties(){
+    public MatchProperties logFilterMatchProperties() {
         return new MatchProperties();
     }
 
@@ -163,15 +147,29 @@ public class FilterConfig extends AbstractBaseMvcConfig {
      * @return the filter registration bean
      */
     @Bean
-    @ConditionalOnProperty(prefix = "com.hhao.config.filter.log",name = "enable",havingValue = "true",matchIfMissing = true)
-    FilterRegistrationBean logFilter(@Qualifier("logFilterMatchProperties") MatchProperties matchProperties){
-        FilterRegistrationBean filterRegistrationBean=new FilterRegistrationBean();
+    @ConditionalOnProperty(prefix = "com.hhao.config.filter.log", name = "enable", havingValue = "true", matchIfMissing = false)
+    FilterRegistrationBean logFilter(@Qualifier("logFilterMatchProperties") MatchProperties matchProperties) {
+        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
         filterRegistrationBean.setFilter(new LoggingFilter(matchProperties));
         filterRegistrationBean.addUrlPatterns("/*");
         filterRegistrationBean.setName("LogFilter");
         filterRegistrationBean.setOrder(4);
         filterRegistrationBean.setDispatcherTypes(EnumSet.allOf(DispatcherType.class));
         return filterRegistrationBean;
+    }
+
+    /**
+     * request缓存模式
+     */
+    public enum RequestCacheType {
+        /**
+         * 采用spring的ContentCachingRequestWrapper
+         */
+        cache_after,
+        /**
+         * 采用自定义的CachingRequestWrapper
+         */
+        cache_before
     }
 }
 

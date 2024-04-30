@@ -17,8 +17,6 @@
 
 package com.hhao.common.jackson.support;
 
-import com.hhao.common.lang.Nullable;
-
 /**
  * webflux中用于代替null值的对象
  *
@@ -29,7 +27,7 @@ public class NullValue {
     public static NullValue INSTANCE=new NullValue();
 
     @Override
-    public boolean equals(@Nullable Object obj) {
+    public boolean equals( Object obj) {
         return (obj instanceof NullValue || obj == null);
     }
 

@@ -1,11 +1,11 @@
 /*
- * Copyright 2020-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,13 +15,14 @@
  */
 package com.hhao.common.springboot.config;
 
-import com.hhao.common.springboot.aop.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
+import com.hhao.common.springboot.aop.InterceptorHandler;
+import com.hhao.common.springboot.aop.InterceptorHandlerChain;
+import com.hhao.common.springboot.aop.MethodInterceptorAdvice;
 import org.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,7 +51,7 @@ public class AopConfig extends AbstractBaseConfig {
     /**
      * pointcut定义，如未定义或为空，则不会启动接口的aop
      */
-    @Value("${com.hhao.aop.pointcut:}")
+    @Value("${com.hhao.config.aop.pointcut:}")
     private String pointcutApi;
 
 
@@ -114,9 +115,13 @@ public class AopConfig extends AbstractBaseConfig {
         ServiceLoader<InterceptorHandler> serviceLoader = ServiceLoader.load(InterceptorHandler.class);
         Iterator<InterceptorHandler> iterator = serviceLoader.iterator();
         while(iterator.hasNext()){
-            InterceptorHandler handler = iterator.next();
-            logger.info("load interceptor by spi ->{}",handler.getClass().getName());
-            interceptorHandlerChain.addHandler(handler);
+            try {
+                InterceptorHandler handler = iterator.next();
+                logger.info("load interceptor by spi ->{}", handler.getClass().getName());
+                interceptorHandlerChain.addHandler(handler);
+            } catch (Exception e) {
+                logger.error("Error loading interceptor from SPI", e);
+            }
         }
     }
 
@@ -128,10 +133,14 @@ public class AopConfig extends AbstractBaseConfig {
      */
     private void loadedHandlerBySpring(ObjectProvider<List<InterceptorHandler>> provider, InterceptorHandlerChain methodInterceptorChain) {
         List<InterceptorHandler> getListBySpring = provider.getIfAvailable();
-        if(!CollectionUtils.isEmpty(getListBySpring)){
+        if (!CollectionUtils.isEmpty(getListBySpring)) {
             for (InterceptorHandler handler : getListBySpring) {
-                logger.info("load interceptor by spring -> {}",handler.getClass().getName());
-                methodInterceptorChain.addHandler(handler);
+                try {
+                    logger.info("load interceptor by spring -> {}", handler.getClass().getName());
+                    methodInterceptorChain.addHandler(handler);
+                } catch (Exception e) {
+                    logger.error("Error loading interceptor from Spring", e);
+                }
             }
         }
     }

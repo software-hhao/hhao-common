@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,20 +17,19 @@
 package com.hhao.common.money.spring;
 
 import com.hhao.common.Context;
-import com.hhao.common.metadata.MonetaryAmountFromStringFormatMetadata;
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
+import com.hhao.common.metadata.CurrencyConfig;
+import com.hhao.common.metadata.SystemMetadata;
 import com.hhao.common.money.MoneyFormat;
-import com.hhao.common.money.MoneyUtils;
+import com.hhao.common.utils.MoneyUtils;
 import org.javamoney.moneta.format.CurrencyStyle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.format.Formatter;
 import org.springframework.util.StringUtils;
 
-import javax.money.Monetary;
-import javax.money.MonetaryAmount;
-import javax.money.MonetaryRounding;
-import javax.money.RoundingQueryBuilder;
+import javax.money.*;
 import java.text.ParseException;
+import java.util.Currency;
 import java.util.Locale;
 
 /**
@@ -76,24 +75,11 @@ public class MonetaryAmountFormatImpl implements Formatter<MonetaryAmount> {
             return null;
         }
         //字符串转Money
-        String str = ((String) text).trim();
-        try {
-            //判断是否是完整的Money字符串，完整的串形如：CNY 23.45,¥ 12.8789478
-            if (!MoneyUtils.isCompleteMoneyText(str, locale, CurrencyStyle.CODE)) {
-                if (pattern.startsWith(MonetaryAmountFromStringFormatMetadata.PLACE_SYMBOL)) {
-                    str = MoneyUtils.prefixMoneyText(str, locale, CurrencyStyle.CODE);
-                } else if (pattern.endsWith(MonetaryAmountFromStringFormatMetadata.PLACE_SYMBOL)) {
-                    str = MoneyUtils.suffixMoneyText(str, locale, CurrencyStyle.CODE);
-                }
-            }
-            MonetaryAmount money = MoneyUtils.stringToMoney(str, locale, CurrencyStyle.CODE, pattern);
-
-            //返回取精后的值
-            return money.with(rounding);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            throw e;
-        }
+        String amount = ((String) text).trim();
+        Currency currency=Currency.getInstance(locale);
+        MonetaryAmount money = MoneyUtils.stringToMoney(amount, pattern,currency);
+        //返回取精后的值
+        return money.with(rounding);
     }
 
     @Override
@@ -101,12 +87,9 @@ public class MonetaryAmountFormatImpl implements Formatter<MonetaryAmount> {
         if (money == null) {
             return "";
         }
-        try {
-            //先取精度，再转换
-            return MoneyUtils.moneyToString(money.with(rounding),locale,currencyStyle,pattern);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
-        return money.toString();
+        CurrencyUnit currencyUnit = money.getCurrency();
+        CurrencyConfig currencyConfig = SystemMetadata.getInstance().getCurrencyConfig(currencyUnit.getCurrencyCode());
+
+        return MoneyUtils.moneyToString(money.with(rounding),currencyConfig.getCurrencyLocale(),currencyStyle,pattern);
     }
 }

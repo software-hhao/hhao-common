@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,8 @@
 
 package com.hhao.common.exception.error.request;
 
-import com.hhao.common.exception.ErrorInfo;
-import com.hhao.common.exception.ErrorInfos;
+import com.hhao.common.exception.DefaultErrorCodes;
+import com.hhao.common.exception.ErrorCode;
 
 /**
  * 请求内容编码错误
@@ -25,7 +25,7 @@ import com.hhao.common.exception.ErrorInfos;
  * @author Wang
  * @since 1.0.0
  */
-public class DecodeException extends AbstractRequestRuntimeException {
+public class DecodeException extends RequestRuntimeException {
     /**
      * Instantiates a new Decode exception.
      *
@@ -81,11 +81,11 @@ public class DecodeException extends AbstractRequestRuntimeException {
     /**
      * Instantiates a new Decode exception.
      *
-     * @param errorInfo the error info
+     * @param errorCode the error info
      * @param cause     the cause
      */
-    public DecodeException(ErrorInfo errorInfo, Throwable cause) {
-        super(errorInfo, cause);
+    public DecodeException(ErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
     }
 
     /**
@@ -94,22 +94,22 @@ public class DecodeException extends AbstractRequestRuntimeException {
      * @param cause the cause
      */
     public DecodeException(Throwable cause) {
-        super(ErrorInfos.ERROR_400_DECODE, cause);
+        super(DefaultErrorCodes.ERROR_400_DECODE, cause);
     }
 
     /**
      * Instantiates a new Decode exception.
      *
-     * @param errorInfo the error info
+     * @param errorCode the error info
      */
-    public DecodeException(ErrorInfo errorInfo) {
-        super(errorInfo);
+    public DecodeException(ErrorCode errorCode) {
+        super(errorCode);
     }
 
     /**
      * Instantiates a new Decode exception.
      */
     public DecodeException() {
-        super(ErrorInfos.ERROR_400_DECODE);
+        super(DefaultErrorCodes.ERROR_400_DECODE);
     }
 }

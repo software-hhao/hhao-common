@@ -1,12 +1,12 @@
 
 /*
- * Copyright 2018-2022 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,8 +17,8 @@
 
 package com.hhao.common.springboot.config.redis.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.BitFieldSubCommands;
 import org.springframework.data.redis.connection.RedisListCommands;
@@ -383,8 +383,7 @@ public class RedisUtil {
 
     public Boolean hPutIfAbsent(String key, Object hashKey,Object value) {
         try {
-            redisTemplate.opsForHash().putIfAbsent(key, hashKey,value);
-            return true;
+            return redisTemplate.opsForHash().putIfAbsent(key, hashKey,value);
         } catch (Exception e) {
             logger.debug(e.getMessage());
             return false;

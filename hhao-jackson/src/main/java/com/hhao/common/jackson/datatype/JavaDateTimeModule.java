@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,10 +19,9 @@ package com.hhao.common.jackson.datatype;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.hhao.common.metadata.Mdm;
+import com.hhao.common.metadata.SystemMetadata;
 
 import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.util.function.Function;
 
 /**
@@ -48,17 +47,17 @@ public class JavaDateTimeModule extends SimpleModule {
         addDeserializer(Instant.class, new InstantResolver.InstantDeserializer());
 
         //自定义JDK8的LocalDate数据类型的序列化与反序列化
-        addSerializer(LocalDate.class, new DateTimeResolver<LocalDate>(dataTimeErrorThrow).getDateTimeSerializer(LocalDate.class, Mdm.DATE_FORMATTER.value(DateTimeFormatter.class), jsonFormatFilterFunction));
-        addDeserializer(LocalDate.class, new DateTimeResolver<LocalDate>(dataTimeErrorThrow).getDateTimeDeserializer(LocalDate.class, Mdm.DATE_FORMATTER.value(DateTimeFormatter.class), jsonFormatFilterFunction));
+        addSerializer(LocalDate.class, new DateTimeResolver<LocalDate>(dataTimeErrorThrow).getDateTimeSerializer(LocalDate.class, SystemMetadata.getInstance().getDateFormatter(), jsonFormatFilterFunction));
+        addDeserializer(LocalDate.class, new DateTimeResolver<LocalDate>(dataTimeErrorThrow).getDateTimeDeserializer(LocalDate.class, SystemMetadata.getInstance().getDateFormatter(), jsonFormatFilterFunction));
         //自定义JDK8的LocalDateTime数据类型的序列化与反序列化
-        addSerializer(LocalDateTime.class, new DateTimeResolver<LocalDateTime>(dataTimeErrorThrow).getDateTimeSerializer(LocalDateTime.class, Mdm.DATE_TIME_FORMATTER.value(DateTimeFormatter.class), jsonFormatFilterFunction));
-        addDeserializer(LocalDateTime.class, new DateTimeResolver<LocalDateTime>(dataTimeErrorThrow).getDateTimeDeserializer(LocalDateTime.class, Mdm.DATE_TIME_FORMATTER.value(DateTimeFormatter.class), jsonFormatFilterFunction));
+        addSerializer(LocalDateTime.class, new DateTimeResolver<LocalDateTime>(dataTimeErrorThrow).getDateTimeSerializer(LocalDateTime.class, SystemMetadata.getInstance().getDateTimeFormatter(), jsonFormatFilterFunction));
+        addDeserializer(LocalDateTime.class, new DateTimeResolver<LocalDateTime>(dataTimeErrorThrow).getDateTimeDeserializer(LocalDateTime.class, SystemMetadata.getInstance().getDateTimeFormatter(), jsonFormatFilterFunction));
         //自定义JDK8的LocalTime数据类型的序列化与反序列化
-        addSerializer(LocalTime.class, new DateTimeResolver<LocalTime>(dataTimeErrorThrow).getDateTimeSerializer(LocalTime.class,Mdm.TIME_FORMATTER.value(DateTimeFormatter.class), jsonFormatFilterFunction));
-        addDeserializer(LocalTime.class,new DateTimeResolver<LocalTime>(dataTimeErrorThrow).getDateTimeDeserializer(LocalTime.class, Mdm.TIME_FORMATTER.value(DateTimeFormatter.class), jsonFormatFilterFunction));
+        addSerializer(LocalTime.class, new DateTimeResolver<LocalTime>(dataTimeErrorThrow).getDateTimeSerializer(LocalTime.class,SystemMetadata.getInstance().getTimeFormatter(), jsonFormatFilterFunction));
+        addDeserializer(LocalTime.class,new DateTimeResolver<LocalTime>(dataTimeErrorThrow).getDateTimeDeserializer(LocalTime.class, SystemMetadata.getInstance().getTimeFormatter(), jsonFormatFilterFunction));
         //自定义JDK8的LocalTime数据类型的序列化与反序列化
-        addSerializer(ZonedDateTime.class, new DateTimeResolver<ZonedDateTime>(dataTimeErrorThrow).getDateTimeSerializer(ZonedDateTime.class, Mdm.DATE_TIME_FORMATTER.value(DateTimeFormatter.class), jsonFormatFilterFunction));
-        addDeserializer(ZonedDateTime.class, new DateTimeResolver<ZonedDateTime>(dataTimeErrorThrow).getDateTimeDeserializer(ZonedDateTime.class, Mdm.DATE_TIME_FORMATTER.value(DateTimeFormatter.class), jsonFormatFilterFunction));
+        addSerializer(ZonedDateTime.class, new DateTimeResolver<ZonedDateTime>(dataTimeErrorThrow).getDateTimeSerializer(ZonedDateTime.class, SystemMetadata.getInstance().getDateTimeFormatter(), jsonFormatFilterFunction));
+        addDeserializer(ZonedDateTime.class, new DateTimeResolver<ZonedDateTime>(dataTimeErrorThrow).getDateTimeDeserializer(ZonedDateTime.class, SystemMetadata.getInstance().getDateTimeFormatter(), jsonFormatFilterFunction));
     }
 
 }

@@ -212,7 +212,7 @@
         useLegacyBuilder:默认值为false。如果为true，那么带注释的客户机将使用MyBatis的SqlBuilder来生成动态SQL。在MyBatis 3.2及更高版本中，该构建器已被弃用，取而代之的是新的SQL类。如果为false, MBG将生成使用新的SQL构建器的客户端。
         -->
         <javaClientGenerator type="MIXEDMAPPER" targetPackage="com.hhao.common.springboot.web.mvc.mybaits.demo.book.mapper"  targetProject="src/main/java">
-            <property name="rootInterface" value="com.hhao.common.repository.DataObjectMapper"/>
+            <property name="rootInterface" value="com.hhao.common.ddd.infrastructure.repository.DataObjectMapper"/>
         </javaClientGenerator>
 
         <!--表名 tableName 代表你的数据库表，domainObjectName映射后的对象名称-->

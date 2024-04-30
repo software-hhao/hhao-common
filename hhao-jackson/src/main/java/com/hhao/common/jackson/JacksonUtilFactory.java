@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,8 @@ package com.hhao.common.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.hhao.common.money.jackson.MoneyProperties;
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
 
 import java.util.Map;
 import java.util.Objects;
@@ -31,22 +32,17 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 1.0.0
  */
 public class JacksonUtilFactory {
-    /**
-     * The constant DEFAULT_KEY.
-     */
-    public static Boolean dataTimeErrorThrow=true;
-    public static final String DEFAULT_KEY = "default";
-    private static Map<String, JacksonUtil> jsonUtilMap = new ConcurrentHashMap<>();
-    private static Map<String, JacksonUtil> xmlUtilMap = new ConcurrentHashMap<>();
+    private static final Logger logger = LoggerFactory.getLogger(JacksonUtilFactory.class);
+    private static Map<JacksonKey, JacksonUtil> jsonUtilMap = new ConcurrentHashMap<>();
+    private static Map<JacksonKey, JacksonUtil> xmlUtilMap = new ConcurrentHashMap<>();
 
     static {
-        jsonUtilMap.put(DEFAULT_KEY, new DefaultJacksonUtilBuilder()
-                .init(dataTimeErrorThrow,new MoneyProperties(true,false,true))
-                .build(ObjectMapper.class,mapper -> {
+        JacksonConfigProperties config = new JacksonConfigProperties();
+        jsonUtilMap.put(JacksonKeyType.DEFAULT, new DefaultJacksonUtilBuilder(config)
+                .build(ObjectMapper.class, mapper -> {
                 }));
 
-        xmlUtilMap.put(DEFAULT_KEY, new DefaultJacksonUtilBuilder()
-                .init(dataTimeErrorThrow,new MoneyProperties(true,false,true))
+        xmlUtilMap.put(JacksonKeyType.DEFAULT, new DefaultJacksonUtilBuilder(config)
                 .build(XmlMapper.class, mapper -> {
                 }));
     }
@@ -57,7 +53,7 @@ public class JacksonUtilFactory {
      * @param key      the key
      * @param jsonUtil the json util
      */
-    public static void addJsonUtil(String key, JacksonUtil jsonUtil) {
+    public static void addJsonUtil(JacksonKey key, JacksonUtil jsonUtil) {
         Objects.requireNonNull(jsonUtil, "jacksonUtil require not null");
         jsonUtilMap.put(key, jsonUtil);
     }
@@ -68,7 +64,7 @@ public class JacksonUtilFactory {
      * @param key     the key
      * @param xmlUtil the xml util
      */
-    public static void addXmlUtil(String key, JacksonUtil xmlUtil) {
+    public static void addXmlUtil(JacksonKey key, JacksonUtil xmlUtil) {
         Objects.requireNonNull(xmlUtil, "jacksonUtil require not null");
         xmlUtilMap.put(key, xmlUtil);
     }
@@ -79,17 +75,21 @@ public class JacksonUtilFactory {
      * @param key the key
      * @return the json util
      */
-    public static JacksonUtil getJsonUtil(String key) {
-        return jsonUtilMap.getOrDefault(key, getJsonUtil());
+    public static JacksonUtil getJsonUtil(JacksonKey key) {
+        JacksonUtil util = jsonUtilMap.get(key);
+        if (util == null) {
+            logger.warn("JacksonUtil for key '{}' not found, returning default.", key);
+            util = getJsonUtil(); // 确保getJsonUtil()有一个能处理默认情况的实现
+        }
+        return util;
     }
-
     /**
      * Gets json util.
      *
      * @return the json util
      */
     public static JacksonUtil getJsonUtil() {
-        return jsonUtilMap.get(DEFAULT_KEY);
+        return jsonUtilMap.get(JacksonKeyType.DEFAULT);
     }
 
     /**
@@ -98,8 +98,13 @@ public class JacksonUtilFactory {
      * @param key the key
      * @return the xml util
      */
-    public static JacksonUtil getXmlUtil(String key) {
-        return xmlUtilMap.getOrDefault(key, getXmlUtil());
+    public static JacksonUtil getXmlUtil(JacksonKey key) {
+        JacksonUtil util = xmlUtilMap.get(key);
+        if (util == null) {
+            logger.warn("JacksonUtil for key '{}' not found, returning default.", key);
+            util = getXmlUtil(); // 确保getXmlUtil()有一个能处理默认情况的实现
+        }
+        return util;
     }
 
     /**
@@ -108,6 +113,15 @@ public class JacksonUtilFactory {
      * @return the xml util
      */
     public static JacksonUtil getXmlUtil() {
-        return xmlUtilMap.get(DEFAULT_KEY);
+        return xmlUtilMap.get(JacksonKeyType.DEFAULT);
+    }
+
+    public interface JacksonKey {
+
+    }
+
+    public enum JacksonKeyType implements JacksonKey{
+        // 默认
+        DEFAULT
     }
 }

@@ -1,36 +1,121 @@
-  com:
-    hhao:
-      config:
-        #全局上下文配置
-        app-context:
-          enable: true
-        #生命周期
-        app-smart-lifecycle:
-          enable: true
-        #消息文件配置
-        message-source:
-          enable: true
-        #元数据配置
-        metadata:
-          enable: true
-        #validator配置
-        validator:
-          enable: true
+com:
+  hhao:
+    config:
+      #基本的convert、format配置
+      common:
+        enable: true
+      #全局异常配置
+      error:
+        enable: true
+      #全局上下文配置
+      app-context:
+        enable: true
+      #消息文件配置
+      message-source:
+        enable: true
+      #静态资源配置
+      resource:
+        enable: true
+      #validator配置
+      validator:
+        enable: true
+      #locale配置
+      locale-resolver:
+        enable: true
+      #jacckson配置
+      jackson:
+        enable: true
+        throwExceptionOnDatetimeConversionError: true
+        moneyJsonSerializationConfig:
+          moneyAmountFieldName: "amount"
+          currencyCodeFieldName: "currency"
+          formattedFieldName: "formatted"
+          throwExceptionOnConversionError: true
+          preferMoneyFormatAnnotationForDeserialization: true
+          preferMoneyFormatAnnotationForSerialization: true
+      convertersAndFormatters:
+        enable: true
+        throwExceptionOnConversionError: true
+      #开启全局的rest统一返回
+      global-return:
+        enable: true
         #统一返回结果设置
-        result:
+        resultWrapper:
           #默认状态值设置
           status:
-            succeed: 200
             error: 500
+            succeed: 200
           #默认提示消息设置
           msg:
-            succeed: succeed
+            succeed: ok
             error: error
-      #aop,安全过滤要开启
+      #开启跨域模块
+      cors:
+        enable: false
+      #过滤器模块
+      filter:
+        enable: true
+        #代理request
+        caching-request:
+          enable: true
+          max-payload-length: 2097152
+          #取值[cache_before,cache_after]
+          #前缓存更浪费资源
+          type: cache_after
+          include:
+          exclude: "/static/**,/favicon.ico"
+        #代理response
+        caching-response:
+          enable: true
+          include:
+          exclude: "/static/**,/favicon.ico,/async1"
+        #日志
+        log:
+          enable: true
+          include:
+          exclude: "/static/**,/favicon.ico"
+          #exclude: "/**"
+        #转发头
+        forwarded-header:
+          enable: true
+      async:
+        enable: true
+        #线程
+        executor:
+          corePoolSize: 8                         # 核心线程数，默认1
+          maxPoolSize: 20                         # 最大线程数，默认20
+          keepAliveSeconds: 600                   # 线程最大空闲时间，秒，默认600秒（即10分钟）
+          queueCapacity: 1000                     # 队列大小，默认1000
+          allowCoreThreadTimeOut: false           # 是否允许核心线程超时，默认false
+          prestartAllCoreThreads: true            # 是否启动所有核心线程并让它们空闲等待，默认true
+          waitForTasksToCompleteOnShutdown: true  # 关机时等待任务完成，默认true
+          awaitTerminationSeconds: 900            # 关机时等待的时间，默认900秒（即15分钟）
+          threadNamePrefix: "hhao-executor-"      # 线程前缀，默认为"hhao-executor-"
+      #拦截器
+      interceptor:
+        enable: true
+      #开启websocket
+      websocket-server:
+        enable: true
+      #内置服务器特性设置
+      server:
+        tomcat: false
+        jetty: false
+        undertow: false
+      mybatis:
+        enable: false
+        preCachedPage: 0
+        postCachedPage: 3
+        pageSizeLimit: 20
+        pageOverflowToLast: true
+        supportMultiQueries: true
       aop:
         pointcut: "execution(* com.hhao.common.springboot.web.mvc.test.api.*.*(..))"
-        enable-safe-filter: true
-      #xss安全过滤的配置文件
-      xss:
-        policy: classpath:antisamy.xml
+        safe:
+          enable: true
+          #xss安全过滤的配置文件
+          xss:
+            policy: classpath:config/antisamy.xml
+      event:
+        enable: true
 

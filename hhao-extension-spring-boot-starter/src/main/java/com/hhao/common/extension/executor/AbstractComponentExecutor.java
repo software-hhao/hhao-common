@@ -54,6 +54,7 @@ import java.util.function.Function;
  * 3、调用自定义接口方法
  * 如果是组合式，返回值必须采用MultiValues类型
  * 扩展点实现执行异常，根据onError方法确定下一步操作，
+ * ！！！注意，接口方法的返回值必须是类对象类型，不能是基本类型
  *
  * <p>
  * 如果未发现匹配的扩展实现，由isNotFoundThrowError确定是否抛出异常。

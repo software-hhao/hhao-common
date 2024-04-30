@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,19 +16,19 @@
 
 package com.hhao.common.springboot.web.config.interceptor;
 
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
 import com.hhao.common.springboot.web.config.filter.LoggingFilter;
 import com.hhao.common.utils.xss.XssUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.owasp.validator.html.Policy;
 import org.owasp.validator.html.PolicyException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
@@ -56,33 +56,29 @@ import java.util.Arrays;
 @Deprecated
 public class XssFilterInterceptor implements AsyncHandlerInterceptor {
     /**
-     * The Logger.
-     */
-    protected final Logger logger = LoggerFactory.getLogger(LoggingFilter.class);
-    /**
      * The constant POLICY_DEFAULT_NAME.
      */
-    final static String POLICY_DEFAULT_NAME="default";
+    final static String POLICY_DEFAULT_NAME = "default";
     /**
      * The constant POLICY_FILE_LOCATION.
      */
-    final static String POLICY_FILE_LOCATION="antisamy.xml";
+    final static String POLICY_FILE_LOCATION = "antisamy.xml";
     /**
      * The Default policy.
      */
     static Policy defaultPolicy;
 
-    static{
+    static {
         try {
             try {
-                File file= ResourceUtils.getFile("classpath:" +POLICY_FILE_LOCATION);
-                if (file!=null){
-                    defaultPolicy=Policy.getInstance(file);
+                File file = ResourceUtils.getFile("classpath:" + POLICY_FILE_LOCATION);
+                if (file != null) {
+                    defaultPolicy = Policy.getInstance(file);
                 }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-            if (defaultPolicy==null) {
+            if (defaultPolicy == null) {
                 defaultPolicy = Policy.getInstance(XssUtils.class.getResourceAsStream(POLICY_FILE_LOCATION));
             }
         } catch (PolicyException e) {
@@ -91,13 +87,18 @@ public class XssFilterInterceptor implements AsyncHandlerInterceptor {
     }
 
     /**
+     * The Logger.
+     */
+    protected final Logger logger = LoggerFactory.getLogger(LoggingFilter.class);
+
+    /**
      * Is async dispatch boolean.
      *
      * @param request the request
      * @return the boolean
      */
     protected boolean isAsyncDispatch(HttpServletRequest request) {
-        return javax.servlet.DispatcherType.ASYNC.equals(request.getDispatcherType());
+        return jakarta.servlet.DispatcherType.ASYNC.equals(request.getDispatcherType());
     }
 
     /**
@@ -112,13 +113,13 @@ public class XssFilterInterceptor implements AsyncHandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //判断是否异步二次调用，如果是异步二次调用，则跳过
-        if (isAsyncDispatch(request)){
+        if (isAsyncDispatch(request)) {
             return true;
         }
-        if (!(handler instanceof HandlerMethod)){
+        if (!(handler instanceof HandlerMethod)) {
             return true;
         }
-        HandlerMethod handlerMethod=(HandlerMethod) handler;
+        HandlerMethod handlerMethod = (HandlerMethod) handler;
         Arrays.stream(handlerMethod.getMethodParameters()).forEach(methodParameter -> {
 
         });

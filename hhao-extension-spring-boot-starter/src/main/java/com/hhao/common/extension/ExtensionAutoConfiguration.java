@@ -17,9 +17,10 @@
 package com.hhao.common.extension;
 
 import com.hhao.common.extension.annotation.Extension;
-import com.hhao.common.extension.executor.ExtensionExecutorUtil;
 import com.hhao.common.extension.aspect.ExtensionPointAutowiredAnnotationBeanPostProcessorRegister;
 import com.hhao.common.extension.executor.ExtensionExecutor;
+import com.hhao.common.extension.executor.ExtensionExecutorUtil;
+import com.hhao.common.extension.model.CombinedReturnBuilder;
 import com.hhao.common.extension.model.ExtensionPoint;
 import com.hhao.common.extension.register.ExtensionRegister;
 import com.hhao.common.extension.register.ExtensionRepository;
@@ -49,8 +50,8 @@ public class ExtensionAutoConfiguration implements ApplicationContextAware, Appl
     private ApplicationContext applicationContext;
     private ExtensionRegister extensionRegister;
 
-    @Value("${com.hhao.config.extension.isNotFoundThrowError:true}")
-    private boolean isNotFoundThrowError=true;
+    @Value("${com.hhao.config.extension.isNotFoundThrowError:false}")
+    private boolean isNotFoundThrowError=false;
 
     /**
      * Repository extension repository.
@@ -90,6 +91,12 @@ public class ExtensionAutoConfiguration implements ApplicationContextAware, Appl
         return extensionRegister;
     }
 
+    @Bean
+    @ConditionalOnMissingBean
+    public CombinedReturnBuilder combinedReturnBuilder(){
+        return new CombinedReturnBuilder.DefaultCombinedReturnBuilder().builder();
+    }
+
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext=applicationContext;
@@ -108,8 +115,6 @@ public class ExtensionAutoConfiguration implements ApplicationContextAware, Appl
                 extension -> extensionRegister.doRegistration((ExtensionPoint) extension)
         );
     }
-
-
 
     @Override
     public int getOrder() {

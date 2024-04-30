@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,8 @@
 
 package com.hhao.common.springboot.web.config.component;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
@@ -29,7 +29,7 @@ import java.lang.reflect.Method;
  * @author Wang
  * @since 1.0.0
  */
-public class CustomRequestMappingHandlerMapping  extends RequestMappingHandlerMapping {
+public class CustomRequestMappingHandlerMapping extends RequestMappingHandlerMapping {
     /**
      * The Logger.
      */
@@ -44,7 +44,7 @@ public class CustomRequestMappingHandlerMapping  extends RequestMappingHandlerMa
      */
     @Override
     protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
-        logger.info("{}:{}",method.toString(),handlerType.toString());
+        logger.info("{}:{}", method.toString(), handlerType.toString());
 
         RequestMappingInfo mappinginfo = super.getMappingForMethod(method, handlerType);
         return mappinginfo;

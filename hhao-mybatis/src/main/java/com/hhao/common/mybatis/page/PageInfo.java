@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,12 +16,12 @@
 
 package com.hhao.common.mybatis.page;
 
-import com.hhao.common.dto.Page;
-import com.hhao.common.dto.PageResponse;
+import com.hhao.common.ddd.dto.response.PageResponse;
 import com.hhao.common.mybatis.page.executor.MultiQueriesDynamicPageExecutor;
 import com.hhao.common.mybatis.page.executor.MultiQueriesStaticPageExecutor;
 import com.hhao.common.mybatis.page.executor.PageExecutor;
 import com.hhao.common.mybatis.page.executor.SingleQueryDynamicPageExecutor;
+import com.hhao.common.page.Page;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SqlColumn;
 
@@ -311,7 +311,7 @@ public class PageInfo<T> implements Page {
      * @return the page result
      */
     public PageResponse<T> of(){
-        return PageResponse.of(data,pageNum,pageSize,preCachedPage,postCachedPage,totalRow,includeTotalRows,orderDirection,orderColumns);
+        return PageResponse.ok(data,pageNum,pageSize,preCachedPage,postCachedPage,totalRow,includeTotalRows,orderDirection,orderColumns);
     }
 
     /**
@@ -603,7 +603,6 @@ public class PageInfo<T> implements Page {
             pageInfo.setPageExecutor(new SingleQueryDynamicPageExecutor());
             return this;
         }
-
 
         /**
          * Build page info.

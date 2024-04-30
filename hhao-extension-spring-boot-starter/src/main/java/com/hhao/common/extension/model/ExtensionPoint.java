@@ -16,6 +16,7 @@
 
 package com.hhao.common.extension.model;
 
+import com.hhao.common.exception.error.server.ServerRuntimeException;
 import org.springframework.core.Ordered;
 
 /**
@@ -36,6 +37,19 @@ public interface ExtensionPoint<R, C> extends Ordered {
      * @return the boolean
      */
     default boolean support(C context){
+        if (context instanceof Object[]){
+            return support((Object [])context);
+        }
+        return true;
+    }
+
+    /**
+     * Support boolean.
+     *
+     * @param args the args
+     * @return the boolean
+     */
+    default boolean support(Object [] args){
         return true;
     }
 
@@ -50,7 +64,7 @@ public interface ExtensionPoint<R, C> extends Ordered {
     }
 
     /**
-     *  扩展点代理执行器调用，不带参数返回
+     * 扩展点代理执行器调用，不带参数返回
      *
      * @param context the context
      */
@@ -59,14 +73,14 @@ public interface ExtensionPoint<R, C> extends Ordered {
     }
 
     /**
-     *  扩展点代理执行器执行异常时调用
+     * 扩展点代理执行器执行异常时调用
      *
      * @param exception the exception
      * @param context   the context
      * @return the boolean
      */
     default void onError(Throwable exception,C context){
-        throw new RuntimeException("An error occurred during execution!",exception);
+        throw new ServerRuntimeException(exception.getMessage(),exception);
     }
 
     /**

@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,12 +41,12 @@ import java.util.List;
  */
 @Configuration
 @ConditionalOnMissingBean(SafeConfig.class)
-@ConditionalOnProperty(prefix = "com.hhao.config.safe",name = "enable",havingValue = "true",matchIfMissing = true)
+@ConditionalOnProperty(prefix = "com.hhao.config.aop.safe",name = "enable",havingValue = "true",matchIfMissing = true)
 public class SafeConfig extends AbstractBaseConfig {
     /**
      * Xss过滤的规则文件
      */
-    @Value("${com.hhao.xss.policy:classpath:config/antisamy.xml}")
+    @Value("${com.hhao.config.aop.safe.xss.policy:classpath:config/antisamy.xml}")
     public String policyUri;
 
     /**

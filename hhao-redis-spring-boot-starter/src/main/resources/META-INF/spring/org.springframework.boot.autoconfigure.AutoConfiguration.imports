@@ -1,0 +1,4 @@
+com.hhao.common.springboot.config.redis.RedisConfig
+com.hhao.common.springboot.config.redis.session.SessionConfig
+com.hhao.common.springboot.config.redis.cache.CacheConfig
+com.hhao.common.springboot.config.redis.RedisReactiveConfig

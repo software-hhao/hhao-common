@@ -1,12 +1,12 @@
 
 /*
- * Copyright 2018-2022 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,8 +38,9 @@ public class RedisCacheManagerEx  extends RedisCacheManager {
     private RedisCacheWriter cacheWriter;
     private  RedisCacheConfiguration defaultCacheConfig;
 
-    public RedisCacheManagerEx(RedisCacheWriter cacheWriter, RedisCacheConfiguration defaultCacheConfiguration, Map<String, RedisCacheConfiguration> initialCacheConfigurations, boolean allowInFlightCacheCreation) {
-        super(cacheWriter, defaultCacheConfiguration, initialCacheConfigurations, allowInFlightCacheCreation);
+    public RedisCacheManagerEx(RedisCacheWriter cacheWriter, RedisCacheConfiguration defaultCacheConfiguration,
+                               boolean allowRuntimeCacheCreation, Map<String, RedisCacheConfiguration> initialCacheConfigurations) {
+        super(cacheWriter, defaultCacheConfiguration, allowRuntimeCacheCreation, initialCacheConfigurations);
 
         Assert.notNull(cacheWriter, "CacheWriter must not be null!");
         Assert.notNull(defaultCacheConfiguration, "DefaultCacheConfiguration must not be null!");
@@ -49,7 +50,7 @@ public class RedisCacheManagerEx  extends RedisCacheManager {
     }
 
     @Override
-    protected RedisCache createRedisCache(String name, @Nullable RedisCacheConfiguration cacheConfig) {
+    protected RedisCache createRedisCache(String name,  RedisCacheConfiguration cacheConfig) {
         String [] array= StringUtils.delimitedListToStringArray(name,"#");
         name=array[0];
         if (array.length>1){

@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,14 +18,15 @@ package com.hhao.common.springboot.web.config.filter;
 
 
 import com.hhao.common.jackson.JacksonUtilFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
+import com.hhao.common.springboot.jackson.SpringJacksonKeyType;
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.context.request.async.WebAsyncUtils;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +42,7 @@ public class LoggingFilter implements Filter {
      * The Logger.
      */
     protected final Logger logger = LoggerFactory.getLogger(LoggingFilter.class);
-    private final String RUNTIME_ATTRIBUTE="RUNTIME_ATTRIBUTE";
+    private final String RUNTIME_ATTRIBUTE = "RUNTIME_ATTRIBUTE";
     private MatchProperties matchProperties;
 
     /**
@@ -49,8 +50,8 @@ public class LoggingFilter implements Filter {
      *
      * @param matchProperties the match properties
      */
-    public LoggingFilter(MatchProperties matchProperties){
-        this.matchProperties=matchProperties;
+    public LoggingFilter(MatchProperties matchProperties) {
+        this.matchProperties = matchProperties;
     }
 
     /**
@@ -91,9 +92,9 @@ public class LoggingFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         //路径过滤
-        if (!matchProperties.match(httpRequest.getRequestURI())){
+        if (!matchProperties.match(httpRequest.getRequestURI())) {
             chain.doFilter(httpRequest, httpResponse);
-        }else {
+        } else {
             if (!isAsyncDispatch(httpRequest)) {
                 beforeRequest(httpRequest, httpResponse);
             }
@@ -114,7 +115,7 @@ public class LoggingFilter implements Filter {
      * @param response the response
      * @throws IOException the io exception
      */
-    protected void beforeRequest(HttpServletRequest request,HttpServletResponse response) throws IOException{
+    protected void beforeRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setAttribute(RUNTIME_ATTRIBUTE, Long.valueOf(System.currentTimeMillis()));
     }
 
@@ -125,42 +126,42 @@ public class LoggingFilter implements Filter {
      * @param response the response
      * @throws IOException the io exception
      */
-    protected void afterRequest(HttpServletRequest request,HttpServletResponse response) throws IOException{
-        Map<String,Object> infoMap=new HashMap<>(16);
-        infoMap.put("RequestURL",request.getRequestURL());
-        infoMap.put("RequestURI",request.getRequestURI());
-        infoMap.put("Method",request.getMethod());
-        infoMap.put("DispatcherType",request.getDispatcherType());
+    protected void afterRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Map<String, Object> infoMap = new HashMap<>(16);
+        infoMap.put("RequestURL", request.getRequestURL());
+        infoMap.put("RequestURI", request.getRequestURI());
+        infoMap.put("Method", request.getMethod());
+        infoMap.put("DispatcherType", request.getDispatcherType());
 
-        infoMap.put("RemoteAddr",request.getRemoteAddr());
-        infoMap.put("RemoteHost",request.getRemoteHost());
-        infoMap.put("RemotePort",request.getRemotePort());
-        infoMap.put("RemoteUser",request.getRemoteUser());
+        infoMap.put("RemoteAddr", request.getRemoteAddr());
+        infoMap.put("RemoteHost", request.getRemoteHost());
+        infoMap.put("RemotePort", request.getRemotePort());
+        infoMap.put("RemoteUser", request.getRemoteUser());
 
-        infoMap.put("Locale",request.getLocale().getDisplayName());
-        infoMap.put("QueryString",request.getQueryString());
-        infoMap.put("ContentLength",request.getContentLength());
+        infoMap.put("Locale", request.getLocale().getDisplayName());
+        infoMap.put("QueryString", request.getQueryString());
+        infoMap.put("ContentLength", request.getContentLength());
 
-        Map<String,String> headMap=new HashMap<>(32);
-        request.getHeaderNames().asIterator().forEachRemaining((name)-> {
-            headMap.put(name,request.getHeader(name));
+        Map<String, String> headMap = new HashMap<>(32);
+        request.getHeaderNames().asIterator().forEachRemaining((name) -> {
+            headMap.put(name, request.getHeader(name));
         });
-        infoMap.put("Heads",headMap);
+        infoMap.put("Heads", headMap);
 
-        if(request instanceof CachingAfterRequestWrapper){
+        if (request instanceof CachingAfterRequestWrapper) {
             infoMap.put("PayLoad", new String(((CachingAfterRequestWrapper) request).getContentAsByteArray(), request.getCharacterEncoding()));
         } else if (request instanceof CachingBeforeRequestWrapper) {
             infoMap.put("PayLoad", new String(((CachingBeforeRequestWrapper) request).getContentAsByteArray(), request.getCharacterEncoding()));
         }
 
-        Long startTime=(Long)request.getAttribute(RUNTIME_ATTRIBUTE);
+        Long startTime = (Long) request.getAttribute(RUNTIME_ATTRIBUTE);
         infoMap.put("Status", response.getStatus());
-        infoMap.put("Time", String.valueOf(System.currentTimeMillis()-startTime.longValue()));
+        infoMap.put("Time", String.valueOf(System.currentTimeMillis() - startTime.longValue()));
 
         if (response instanceof ContentCachingResponseWrapper) {
             infoMap.put("Response", new String(((ContentCachingResponseWrapper) response).getContentAsByteArray(), request.getCharacterEncoding()));
         }
 
-        logger.debug(JacksonUtilFactory.getJsonUtil().map2String(infoMap));
+        logger.debug(JacksonUtilFactory.getJsonUtil(SpringJacksonKeyType.SPRING_DEFAULT).map2String(infoMap));
     }
 }

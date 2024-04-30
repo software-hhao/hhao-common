@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,15 +16,14 @@
 
 package com.hhao.common.springboot.convert;
 
-import com.hhao.common.metadata.Mdm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
+import com.hhao.common.metadata.SystemMetadata;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.ConditionalGenericConverter;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -71,7 +70,7 @@ public class LocalTimeAndStringConverter implements ConditionalGenericConverter 
             String str = (String) source;
             if (StringUtils.hasLength(str)) {
                 try {
-                    return LocalTime.parse(str, Mdm.TIME_FORMATTER.value(DateTimeFormatter.class));
+                    return LocalTime.parse(str, SystemMetadata.getInstance().getTimeFormatter());
                 }catch (Exception e){
                     if (dataTimeErrorThrow){
                         throw new RuntimeException(e);
@@ -81,7 +80,7 @@ public class LocalTimeAndStringConverter implements ConditionalGenericConverter 
             }
         } else {
             LocalTime date = (LocalTime) source;
-            return date.format(Mdm.TIME_FORMATTER.value(DateTimeFormatter.class));
+            return date.format(SystemMetadata.getInstance().getTimeFormatter());
         }
 
         return null;

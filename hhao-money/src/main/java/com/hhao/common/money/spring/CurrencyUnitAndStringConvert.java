@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,9 @@
 
 package com.hhao.common.money.spring;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.ConditionalGenericConverter;
 import org.springframework.util.StringUtils;
@@ -37,7 +38,7 @@ public class CurrencyUnitAndStringConvert  implements ConditionalGenericConverte
     protected final Logger logger = LoggerFactory.getLogger(CurrencyUnitAndStringConvert.class);
 
     @Override
-    public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+    public boolean matches(TypeDescriptor sourceType, @NotNull TypeDescriptor targetType) {
         if ((String.class.isAssignableFrom(sourceType.getType()) && CurrencyUnit.class.isAssignableFrom(targetType.getType()))
         || (String.class.isAssignableFrom(targetType.getType()) && CurrencyUnit.class.isAssignableFrom(sourceType.getType()))){
             return true;
@@ -57,11 +58,10 @@ public class CurrencyUnitAndStringConvert  implements ConditionalGenericConverte
     }
 
     @Override
-    public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+    public Object convert(Object source, @NotNull TypeDescriptor sourceType, @NotNull TypeDescriptor targetType) {
         if (source==null){
             return null;
         }
-
         if (sourceType.getType().equals(String.class) && targetType.getType().equals(CurrencyUnit.class)) {
             //字符串转CurrencyUnit
             String str = ((String) source).trim();
@@ -77,7 +77,6 @@ public class CurrencyUnitAndStringConvert  implements ConditionalGenericConverte
             CurrencyUnit currencyUnit=(CurrencyUnit)source;
             return currencyUnit.getCurrencyCode();
         }
-
         return null;
     }
 

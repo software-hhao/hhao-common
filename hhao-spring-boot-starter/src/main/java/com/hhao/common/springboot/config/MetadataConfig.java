@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,14 +16,15 @@
 
 package com.hhao.common.springboot.config;
 
-import com.hhao.common.metadata.Mdm;
+import com.hhao.common.metadata.CurrencyConfig;
+import com.hhao.common.metadata.SystemMetadata;
+import com.hhao.common.springboot.metadata.SpringMetadataProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Currency;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,23 +37,25 @@ import java.util.Map;
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnMissingBean(MetadataConfig.class)
 @ConditionalOnProperty(prefix = "com.hhao.config.metadata",name = "enable",havingValue = "true",matchIfMissing = true)
-@EnableConfigurationProperties({MetadataConfig.MetadataProperties.class})
+@EnableConfigurationProperties({SpringMetadataProperties.class})
 public class MetadataConfig extends AbstractBaseConfig {
 
     /**
      * Instantiates a new Metadata config.
      *
-     * @param metadataProperties the metadata properties
+     * @param springMetadataProperties the metadata properties
      */
-    public MetadataConfig(MetadataProperties metadataProperties){
-        Map<String,String> values=metadataProperties.getValues();
-        values.entrySet().forEach(entry->{
-            for(Mdm mdm:Mdm.values()){
-                if (mdm.metadata().support(entry.getKey())){
-                    mdm.metadata().update(entry.getValue());
-                }
-            }
+    public MetadataConfig(SpringMetadataProperties springMetadataProperties){
+        // 对monetaryConfig进行处理
+        Map<String, CurrencyConfig> exCurrencyConfigs=new HashMap<>();
+        Map<String, CurrencyConfig> currencyConfigs=springMetadataProperties.getMonetaryConfig().getCurrencyConfigurations();
+        currencyConfigs.forEach((currencyCode,config)->{
+            exCurrencyConfigs.put(Currency.getInstance(currencyCode).getSymbol(config.getCurrencyLocale()),config);
         });
+        exCurrencyConfigs.forEach((symbol,config)->{
+            currencyConfigs.put(symbol,config);
+        });
+        SystemMetadata.getInstance().setMetadataProperties(springMetadataProperties);
     }
 
     /**
@@ -60,35 +63,10 @@ public class MetadataConfig extends AbstractBaseConfig {
      *
      * @return the metadata properties
      */
-    @Bean
-    @ConditionalOnMissingBean(MetadataProperties.class)
-    public MetadataProperties metadataProperties(){
-        return new MetadataProperties();
-    }
+//    @Bean
+//    @ConditionalOnMissingBean(SpringMetadataProperties.class)
+//    public SpringMetadataProperties springMetadataProperties(){
+//        return new SpringMetadataProperties();
+//    }
 
-    /**
-     * The type Metadata properties.
-     */
-    @ConfigurationProperties("com.hhao.metadata")
-    public static class MetadataProperties{
-        private Map<String,String> values=new HashMap<>();
-
-        /**
-         * Gets values.
-         *
-         * @return the values
-         */
-        public Map<String, String> getValues() {
-            return values;
-        }
-
-        /**
-         * Sets values.
-         *
-         * @param values the values
-         */
-        public void setValues(Map<String, String> values) {
-            this.values = values;
-        }
-    }
 }

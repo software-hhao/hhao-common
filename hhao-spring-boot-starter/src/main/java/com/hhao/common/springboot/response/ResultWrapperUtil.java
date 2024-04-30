@@ -19,8 +19,9 @@ package com.hhao.common.springboot.response;
 
 import com.hhao.common.jackson.JacksonUtilFactory;
 import com.hhao.common.jackson.view.Views;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
+import com.hhao.common.springboot.jackson.SpringJacksonKeyType;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -47,7 +48,7 @@ public class ResultWrapperUtil {
      */
     public static <T> ResultWrapper<T> jsonToResultWrapper(Class<T> target,String json){
         //对结果进行转换
-        return (ResultWrapper) JacksonUtilFactory.getJsonUtil().string2Pojo(json,ResultWrapper.class,target, Views.Default.class);
+        return (ResultWrapper) JacksonUtilFactory.getJsonUtil(SpringJacksonKeyType.SPRING_RETURN).string2Pojo(json,ResultWrapper.class,target, Views.Default.class);
     }
 
     /**

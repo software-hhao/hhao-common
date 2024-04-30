@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,17 +18,18 @@ package com.hhao.common.springboot.web.config.websocket.stomp.server;
 
 import com.hhao.common.springboot.web.config.websocket.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.task.ThreadPoolTaskSchedulerBuilder;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -41,9 +42,9 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
  * AbstractMessageBrokerConfiguration
  * WebSocketAnnotationMethodMessageHandler
  * WebSocketMessageBrokerConfigurationSupport
- *
- *  配置多地址
- *  <pre>{@code
+ * <p>
+ * 配置多地址
+ * <pre>{@code
  *
  * @Override
  * public void configureMessageBroker(MessageBrokerRegistry registry) {
@@ -79,10 +80,10 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
 @Order(Ordered.HIGHEST_PRECEDENCE + 99)
 @ConditionalOnMissingBean(StompServerConfig.class)
 @ConditionalOnClass({WebSocketMessageBrokerConfigurer.class})
-@EnableConfigurationProperties({StompProperties.class,StompProperties.SimpleBrokerProperties.class,StompProperties.StompBrokerRelayProperties.class})
-@ConditionalOnProperty(prefix = "com.hhao.config.stomp",name = "enable",havingValue = "true",matchIfMissing = false)
+@EnableConfigurationProperties({StompProperties.class, StompProperties.SimpleBrokerProperties.class, StompProperties.StompBrokerRelayProperties.class})
+@ConditionalOnProperty(prefix = "com.hhao.config.stomp", name = "enable", havingValue = "true", matchIfMissing = false)
 public class StompServerConfig implements WebSocketMessageBrokerConfigurer {
-//public class StompServerConfig implements WebSocketMessageBrokerConfigurer {
+    //public class StompServerConfig implements WebSocketMessageBrokerConfigurer {
     //属性
     private StompProperties stompProperties;
     //任务调度器，用于心跳
@@ -91,13 +92,16 @@ public class StompServerConfig implements WebSocketMessageBrokerConfigurer {
     /**
      * Instantiates a new Stomp server config.
      *
-     * @param taskScheduler   the task scheduler
-     * @param stompProperties the stomp properties
+     * @param taskSchedulerBuilder the task scheduler
+     * @param stompProperties      the stomp properties
      */
     @Autowired
-    public StompServerConfig(@Qualifier("defaultSockJsTaskScheduler") TaskScheduler taskScheduler,StompProperties stompProperties) {
-        this.messageBrokerTaskScheduler = taskScheduler;
-        this.stompProperties=stompProperties;
+    public StompServerConfig(ThreadPoolTaskSchedulerBuilder taskSchedulerBuilder, StompProperties stompProperties) {
+        ThreadPoolTaskScheduler threadPoolTaskScheduler = taskSchedulerBuilder.build();
+        threadPoolTaskScheduler.initialize();
+
+        this.messageBrokerTaskScheduler = threadPoolTaskScheduler;
+        this.stompProperties = stompProperties;
     }
 
     /**
@@ -158,7 +162,7 @@ public class StompServerConfig implements WebSocketMessageBrokerConfigurer {
         //您还可以使用virtualHost属性配置STOMP代理中继。此属性的值被设置为每个CONNECT帧的主机报头，并且可能很有用(例如，在云环境中，建立TCP连接的实际主机与提供基于云的STOMP服务的主机不同)。
 
         if (stompProperties.getEnableStompBrokerRelay()) {
-            for(StompProperties.StompBrokerRelayProperties brokerRelayPropertie: stompProperties.getStompBrokerRelays()){
+            for (StompProperties.StompBrokerRelayProperties brokerRelayPropertie : stompProperties.getStompBrokerRelays()) {
                 config.enableStompBrokerRelay(brokerRelayPropertie.getDestinationPrefixes())
                         .setRelayHost(brokerRelayPropertie.getRelayHost())
                         .setRelayPort(brokerRelayPropertie.getRelayPort())
@@ -202,7 +206,7 @@ public class StompServerConfig implements WebSocketMessageBrokerConfigurer {
      *
      * @return the authorization
      */
-    protected Authorization authorization(){
+    protected Authorization authorization() {
         return new DefaultAuthorization();
     }
 }

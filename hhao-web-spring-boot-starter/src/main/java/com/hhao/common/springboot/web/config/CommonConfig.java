@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,12 +19,9 @@ package com.hhao.common.springboot.web.config;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.i18n.LocaleContext;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.support.RequestContext;
 
 /**
  * The type Common config.
@@ -34,7 +31,7 @@ import org.springframework.web.servlet.support.RequestContext;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnMissingBean(CommonConfig.class)
-@ConditionalOnProperty(prefix = "com.hhao.config.common",name = "enable",havingValue = "true",matchIfMissing = true)
+@ConditionalOnProperty(prefix = "com.hhao.config.common", name = "enable", havingValue = "true", matchIfMissing = true)
 public class CommonConfig extends AbstractBaseMvcConfig {
 
     /***
@@ -46,9 +43,9 @@ public class CommonConfig extends AbstractBaseMvcConfig {
     }
 
     @RestController
-    public class Hello{
+    public static class Hello {
         @GetMapping("/hello")
-        public String hello(){
+        public String hello() {
             return "Nice to use hhao software, more information can visit https://github.com/software-hhao/hhao-common.";
         }
     }

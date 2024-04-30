@@ -3,9 +3,8 @@
     <parent>
         <groupId>io.github.software-hhao</groupId>
         <artifactId>hhao-common</artifactId>
-        <version>1.1.1-SNAPSHOT</version>
+        <version>3.0.2-SNAPSHOT</version>
     </parent>
-    
     <modelVersion>4.0.0</modelVersion>
     <artifactId>hhao-money</artifactId>
     <packaging>jar</packaging>
@@ -15,19 +14,12 @@
             <groupId>io.github.software-hhao</groupId>
             <artifactId>hhao-common-core</artifactId>
         </dependency>
-        
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-                
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <optional>true</optional>
             <scope>compile</scope>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>

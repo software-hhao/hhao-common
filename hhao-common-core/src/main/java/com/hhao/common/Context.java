@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,13 @@
 
 package com.hhao.common;
 
-import com.hhao.common.lang.Nullable;
-import com.hhao.common.metadata.Mdm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.hhao.common.local.LocaleBuilder;
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
+import com.hhao.common.metadata.SystemMetadata;
+import com.hhao.common.support.Version;
 
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -37,7 +37,7 @@ public interface Context {
     /**
      * The constant logger.
      */
-    static final Logger logger = LoggerFactory.getLogger(Context.class);
+    Logger logger = LoggerFactory.getLogger(Context.class);
 
     /**
      * Gets locale.
@@ -59,7 +59,7 @@ public interface Context {
      * @return the version
      */
     default Version getVersion(){
-        return Mdm.VERSION.value(Version.class);
+        return SystemMetadata.getInstance().getVersion();
     }
 
     /**
@@ -75,66 +75,9 @@ public interface Context {
      * @param value 指定locale的字符串
      * @return Locale locale
      */
-    @Nullable
+    
     static Locale findLocale(String value){
-        Locale resultLocale=null;
-        //走元数据定义的locale
-        if ("default".equals(value)){
-            resultLocale=Mdm.LOCALE.value(Locale.class);
-        }
-        //走系统定义
-        if ("system".equals(value)){
-            resultLocale= Locale.getDefault();
-        }
-        //先走context，再走元数据
-        if (resultLocale==null && "context".equals(value)){
-            resultLocale=Context.getInstance().getLocale();
-        }
-
-        if (resultLocale!=null){
-            return resultLocale;
-        }
-        //语言-国家解析
-        String [] values=value.split("-|_");
-        if (values==null) {
-            logger.debug("The locale format is language-country, for example, zh-CN");
-            return null;
-        }
-        if (values.length!=1 && values.length!=2){
-            logger.debug("The locale format is language-country, for example, zh-CN");
-            return null;
-        }
-        //只指定语言或国家
-        //先按语言优先找，再按国家找
-        if (values.length==1){
-            if (resultLocale==null){
-                resultLocale=Arrays.stream(Locale.getAvailableLocales()).filter(locale -> {
-                    if (locale.getLanguage().equals(values[0])){
-                        return true;
-                    }
-                    return false;
-                }).findFirst().orElse(null);
-            }
-            resultLocale=Arrays.stream(Locale.getAvailableLocales()).filter(locale -> {
-                if (locale.getCountry().equals(values[0])){
-                    return true;
-                }
-                return false;
-            }).findFirst().orElse(null);
-        }else{
-            resultLocale=Arrays.stream(Locale.getAvailableLocales()).filter(locale -> {
-                if (locale.getLanguage().equals(values[0])){
-                    return true;
-                }
-                return false;
-            }).filter(locale -> {
-                if (locale.getCountry().equals(values[1])){
-                    return true;
-                }
-                return false;
-            }).findFirst().orElse(null);
-        }
-        return resultLocale;
+        return LocaleBuilder.getINSTANCE().findLocale(value);
     }
 
     /**
@@ -145,13 +88,34 @@ public interface Context {
      * @param locale the locale
      * @return message
      */
-    String getMessage(String code, @Nullable Object[] args, Locale locale);
+    String getMessage(String code, Object[] args, Locale locale);
 
     /***
      * Context工厂类
      */
     class ContextFactory {
-        private static Context instance;
+        private static volatile Context instance;
+
+        static{
+            Context defaultContext = new Context() {
+                @Override
+                public Locale getLocale() {
+                    return SystemMetadata.getInstance().getLocale();
+                }
+
+                @Override
+                public ZoneId getZoneId() {
+                    return SystemMetadata.getInstance().getZoneId();
+                }
+
+                @Override
+                public String getMessage(String code, Object[] args, Locale locale) {
+                    // 实际应用中应有具体实现
+                    return null;
+                }
+            };
+            instance = defaultContext;
+        }
 
         /**
          * Create context.
@@ -159,8 +123,10 @@ public interface Context {
          * @param context the context
          * @return the context
          */
-        public synchronized static Context create(Context context) {
-            instance = context;
+        public static Context setContext(Context context) {
+            synchronized (ContextFactory.class) {
+                instance = context;
+            }
             return instance;
         }
 
@@ -170,8 +136,10 @@ public interface Context {
          * @param supplier the supplier
          * @return the context
          */
-        public synchronized static Context create(Supplier<Context> supplier) {
-            instance = supplier.get();
+        public static Context setContext(Supplier<Context> supplier) {
+            synchronized (ContextFactory.class) {
+                instance = supplier.get();
+            }
             return instance;
         }
     }

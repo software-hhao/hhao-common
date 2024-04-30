@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,31 +29,10 @@ import java.io.Serializable;
  * @since 1.0.0
  */
 public interface BaseException extends Serializable {
-    String MESSAGE_ID_BEGIN_MARK="${";
-    String MESSAGE_ID_END_MARK="}";
-
-    long serialVersionUID = 1L;
-
     /**
      * 获取异常描述
      *
      * @return ErrorInfo error info
      */
-    ErrorInfo getErrorInfo();
-
-    /**
-     * 将${}包含的message解析为messageId
-     * @param message
-     * @return
-     */
-    default String getMessageIdFromMessage(String message){
-        if (message==null || message.trim().length()<=3){
-            return null;
-        }
-        String messageId=message.trim();
-        if (messageId.startsWith(MESSAGE_ID_BEGIN_MARK) && messageId.endsWith(MESSAGE_ID_END_MARK)){
-            return messageId.substring(2,messageId.length()-1);
-        }
-        return null;
-    }
+    ErrorCode getErrorCode();
 }

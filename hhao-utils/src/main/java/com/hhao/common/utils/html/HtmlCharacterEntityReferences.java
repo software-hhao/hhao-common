@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,6 @@
 
 package com.hhao.common.utils.html;
 
-import com.hhao.common.lang.Nullable;
 import com.hhao.common.utils.Assert;
 
 import java.io.IOException;
@@ -142,7 +141,7 @@ public class HtmlCharacterEntityReferences {
      * @param character the character
      * @return the string
      */
-    @Nullable
+    
     public String convertToReference(char character) {
         return convertToReference(character, HtmlUtils.DEFAULT_CHARACTER_ENCODING);
     }
@@ -155,7 +154,7 @@ public class HtmlCharacterEntityReferences {
      * @return the string
      * @since 4.1.2
      */
-    @Nullable
+    
     public String convertToReference(char character, String encoding) {
         if (encoding.startsWith("UTF-")){
             switch (character){

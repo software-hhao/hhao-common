@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package com.hhao.common.springboot.web.config.exception;
 
 import com.hhao.common.springboot.response.ResponseAutoWrapper;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.boot.autoconfigure.web.ErrorProperties;
 import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorViewResolver;
@@ -24,7 +25,6 @@ import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -68,7 +68,7 @@ public class CustomErrorController extends BasicErrorController {
     @RequestMapping
     @ResponseAutoWrapper
     public ResponseEntity<Map<String, Object>> error(HttpServletRequest request) {
-        ResponseEntity<Map<String, Object>> result=super.error(request);
+        ResponseEntity<Map<String, Object>> result = super.error(request);
         return result;
     }
 }

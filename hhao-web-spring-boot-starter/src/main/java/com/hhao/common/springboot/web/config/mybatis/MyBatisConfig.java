@@ -1,12 +1,12 @@
 
 /*
- * Copyright 2018-2021 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,12 +17,12 @@
 
 package com.hhao.common.springboot.web.config.mybatis;
 
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
 import com.hhao.common.mybatis.config.MyBatisAutoConfig;
 import com.hhao.common.springboot.web.config.AbstractBaseMvcConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -37,7 +37,7 @@ import org.springframework.context.support.AbstractResourceBasedMessageSource;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnMissingBean(MyBatisConfig.class)
-@ConditionalOnBean(MyBatisAutoConfig.class)
+@ConditionalOnClass(MyBatisAutoConfig.class)
 public class MyBatisConfig extends AbstractBaseMvcConfig {
     /**
      * The Logger.
@@ -53,7 +53,7 @@ public class MyBatisConfig extends AbstractBaseMvcConfig {
     @Autowired
     public MyBatisConfig(MessageSource messageSource) {
         //加载错误信息资源文件
-        addMessageSource(messageSource,errorMessageSource);
+        addMessageSource(messageSource, errorMessageSource);
     }
 
     /**
@@ -62,7 +62,7 @@ public class MyBatisConfig extends AbstractBaseMvcConfig {
      * @return the my batis exception transfer
      */
     @Bean
-    public MyBatisExceptionTransfer myBatisExceptionTransfer(){
+    public MyBatisExceptionTransfer myBatisExceptionTransfer() {
         return new MyBatisExceptionTransfer();
     }
 
@@ -71,7 +71,7 @@ public class MyBatisConfig extends AbstractBaseMvcConfig {
      * @param messageSource the message source
      * @param message the message
      */
-    public void addMessageSource(MessageSource messageSource,String message) {
+    public void addMessageSource(MessageSource messageSource, String message) {
         try {
             if (messageSource instanceof AbstractResourceBasedMessageSource) {
                 ((AbstractResourceBasedMessageSource) messageSource).addBasenames(message);

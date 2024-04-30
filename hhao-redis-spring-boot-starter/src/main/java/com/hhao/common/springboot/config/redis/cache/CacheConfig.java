@@ -1,12 +1,12 @@
 
 /*
- * Copyright 2018-2022 WangSheng.
+ * Copyright 2008-2024 wangsheng
  *
- * Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       https://www.gnu.org/licenses/gpl-3.0.html
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,9 +17,9 @@
 
 package com.hhao.common.springboot.config.redis.cache;
 
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
 import com.hhao.common.springboot.config.redis.RedisConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -73,7 +73,6 @@ import java.util.Map;
 @EnableConfigurationProperties(CacheProperties.class)
 @ConditionalOnProperty(prefix = "com.hhao.config.redis.cache",name = "enable",havingValue = "true",matchIfMissing = true)
 public class CacheConfig {
-
     /**
      * 作为动态生成RedisCache配置模板的RedisCacheConfiguration名称
      */
@@ -90,7 +89,6 @@ public class CacheConfig {
     @SuppressWarnings("all")
     public RedisCacheConfiguration defaultRedisCacheConfiguration(@Qualifier("genericJackson2JsonRedisSerializer") RedisSerializer<Object> redisSerializer){
         RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig();
-
         defaultCacheConfig=defaultCacheConfig
                 //设置缓存管理器管理的缓存的默认过期时间
                 //Duration.ZERO表示不过期
@@ -101,7 +99,6 @@ public class CacheConfig {
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(redisSerializer))
                 //自定义前缀
                 .computePrefixWith(cacheName -> "spring:cache:" + cacheName + "-");
-
         return defaultCacheConfig;
     }
 
@@ -194,8 +191,8 @@ public class CacheConfig {
 
         RedisCacheManager redisCacheManager= new RedisCacheManagerEx(cacheWriter
                 ,defaultCacheConfig
-                ,cacheConfigurations
                 ,cacheProperties.getAllowInFlightCacheCreation()
+                ,cacheConfigurations
         );
         redisCacheManager.setTransactionAware(cacheProperties.getEnableTransactions());
         return redisCacheManager;
@@ -325,6 +322,7 @@ public class CacheConfig {
      *                     </aspectLibraries>
      *                     <source>11</source>
      *                     <target>11</target>
+     *                     <parameters>true</parameters>
      *                 </configuration>
      *             </plugin>
      *         </plugins>
