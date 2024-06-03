@@ -25,10 +25,10 @@
                <dependency>
                    <groupId>io.github.software-hhao</groupId>
                    <artifactId>hhao-common</artifactId>
-                   <version>3.0.3-SNAPSHOT</version>
+                   <version>3.0.3</version>
                    <type>pom</type>
                    <scope>import</scope>
                </dependency>
            </dependencies>
-       </dependencyManagement>
+   </dependencyManagement>
    ```
