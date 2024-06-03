@@ -15,3 +15,4 @@ com.hhao.common.springboot.web.config.jackson.JacksonConfig
 com.hhao.common.springboot.web.config.ResourceConfig
 com.hhao.common.springboot.web.config.exception.ErrorConfig
 com.hhao.common.springboot.web.config.mybatis.MyBatisConfig
+com.hhao.common.springboot.web.config.duplicate.DuplicatePreventConfig

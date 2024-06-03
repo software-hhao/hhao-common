@@ -78,6 +78,14 @@ public class ServiceUnavailableException extends ServerRuntimeException {
         super(code,message,cause,args);
     }
 
+    public ServiceUnavailableException(String code,String message,Object [] args) {
+        super(code,message,args);
+    }
+
+    public ServiceUnavailableException(String code,String message) {
+        super(code,message);
+    }
+
     /**
      * Instantiates a new System busy runtime exception.
      *

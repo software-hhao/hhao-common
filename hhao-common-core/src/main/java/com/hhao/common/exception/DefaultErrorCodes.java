@@ -113,6 +113,7 @@ public class DefaultErrorCodes {
      */
     public static final ErrorCode ERROR_5XX = new ErrorCode("5XX","${error.code.5XX}");
 
+    public static final ErrorCode ERROR_997 = new ErrorCode("997","${error.code.997}");
     /**
      * The constant ERROR_998.
      */

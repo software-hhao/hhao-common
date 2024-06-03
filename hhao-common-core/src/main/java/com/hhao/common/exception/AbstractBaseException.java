@@ -70,6 +70,14 @@ public abstract class AbstractBaseException extends Exception implements BaseExc
         this(String.valueOf(CoreConstant.DEFAULT_EXCEPTION_STATUS),message,cause,args);
     }
 
+    public AbstractBaseException(String code,String message,Object [] args) {
+        this(code,message,null,args);
+    }
+
+    public AbstractBaseException(String code,String message) {
+        this(code,message,null,null);
+    }
+
     /**
      * Instantiates a new Abstract base exception.
      *

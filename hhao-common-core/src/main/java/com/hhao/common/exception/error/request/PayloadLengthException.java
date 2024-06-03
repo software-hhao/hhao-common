@@ -78,6 +78,14 @@ public class PayloadLengthException extends RequestRuntimeException {
         super(code,message,cause,args);
     }
 
+    public PayloadLengthException(String code,String message,Object [] args) {
+        super(code,message,args);
+    }
+
+    public PayloadLengthException(String code,String message) {
+        super(code,message);
+    }
+
     /**
      * Instantiates a new Payload length exception.
      *

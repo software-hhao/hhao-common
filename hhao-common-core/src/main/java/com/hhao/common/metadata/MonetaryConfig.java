@@ -51,5 +51,4 @@ public class MonetaryConfig {
     public void setPatternPlaceSymbol(String patternPlaceSymbol) {
         this.patternPlaceSymbol = patternPlaceSymbol;
     }
-
 }

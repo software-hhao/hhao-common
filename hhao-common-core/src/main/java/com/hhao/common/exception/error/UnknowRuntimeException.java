@@ -17,6 +17,7 @@
 package com.hhao.common.exception.error;
 
 import com.hhao.common.exception.AbstractBaseRuntimeException;
+import com.hhao.common.exception.DefaultErrorCodes;
 import com.hhao.common.exception.ErrorCode;
 
 /**
@@ -79,6 +80,14 @@ public class UnknowRuntimeException extends AbstractBaseRuntimeException {
         super(code,message,cause,args);
     }
 
+    public UnknowRuntimeException(String code,String message,Object [] args) {
+        super(code,message,args);
+    }
+
+    public UnknowRuntimeException(String code,String message) {
+        super(code,message);
+    }
+
     /**
      * Instantiates a new Abstract unknow runtime exception.
      *
@@ -96,5 +105,9 @@ public class UnknowRuntimeException extends AbstractBaseRuntimeException {
      */
     public UnknowRuntimeException(ErrorCode errorCode) {
         super(errorCode);
+    }
+
+    public UnknowRuntimeException(Throwable cause) {
+        super(DefaultErrorCodes.ERROR_999,cause);
     }
 }

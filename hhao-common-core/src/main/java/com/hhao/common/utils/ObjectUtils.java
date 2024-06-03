@@ -104,7 +104,6 @@ public  class ObjectUtils {
         if (obj == null) {
             return true;
         }
-
         if (obj instanceof Optional) {
             return !((Optional<?>) obj).isPresent();
         }
@@ -120,8 +119,6 @@ public  class ObjectUtils {
         if (obj instanceof Map) {
             return ((Map<?, ?>) obj).isEmpty();
         }
-
-        // else
         return false;
     }
 

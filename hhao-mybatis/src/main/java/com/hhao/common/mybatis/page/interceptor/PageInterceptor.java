@@ -35,6 +35,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Properties;
 
@@ -76,7 +77,9 @@ public class PageInterceptor implements Interceptor {
                 }
             }
             log.debug("Use PageExecutor:" + pageInfo.getPageExecutor());
-            return pageInfo.getPageExecutor().execute(invocation,pageInfo);
+
+            Object result =pageInfo.getPageExecutor().execute(invocation,pageInfo);
+            return result;
         }
         return invocation.proceed();
     }
@@ -148,5 +151,25 @@ public class PageInterceptor implements Interceptor {
             }
         }
         return pageInfo;
+    }
+
+    /**
+     * 判断返回值是否是PageInfo
+     *
+     * @param invocation
+     * @return
+     */
+    private boolean hasPageInfoReturnType(Invocation invocation) {
+        Class<?> returnType=getReturnType(invocation);
+        return PageInfo.class.isAssignableFrom(returnType);
+    }
+
+    private Class<?> getReturnType(Invocation invocation) {
+        try {
+            Method method = invocation.getMethod();
+            return method.getReturnType();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get return type", e);
+        }
     }
 }

@@ -26,11 +26,17 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties(prefix = "com.hhao.config.mybatis")
 public class MyBatisProperties {
+    // 向前缓存页数
     private Long preCachedPage=0L;
+    // 向后缓存页数
     private Long postCachedPage=0L;
+    // 页面大小限制
     private Long pageSizeLimit=20L;
+    // 页面溢出是否跳转到最后一页
     private Boolean pageOverflowToLast=true;
-    private Boolean supportMultiQueries=false;
+    // 是否支持多语句
+    private Boolean supportMultiQueries=true;
+    // 支持的数据库方言
     private String [] sqlDialects;
 
 

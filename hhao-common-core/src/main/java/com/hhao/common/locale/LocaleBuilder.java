@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hhao.common.local;
+package com.hhao.common.locale;
 
 import com.hhao.common.Context;
 import com.hhao.common.log.Logger;

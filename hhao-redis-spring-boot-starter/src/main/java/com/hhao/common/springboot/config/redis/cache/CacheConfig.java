@@ -17,34 +17,44 @@
 
 package com.hhao.common.springboot.config.redis.cache;
 
+import com.hhao.common.exception.error.server.ServerRuntimeException;
+import com.hhao.common.jackson.JacksonUtil;
+import com.hhao.common.jackson.JacksonUtilFactory;
 import com.hhao.common.log.Logger;
 import com.hhao.common.log.LoggerFactory;
 import com.hhao.common.springboot.config.redis.RedisConfig;
+import com.hhao.common.utils.MD5Util;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizer;
+import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizers;
+import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CachingConfigurationSelector;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.cache.CacheStatisticsCollector;
-import org.springframework.data.redis.cache.RedisCacheConfiguration;
-import org.springframework.data.redis.cache.RedisCacheManager;
-import org.springframework.data.redis.cache.RedisCacheWriter;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.data.redis.cache.*;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.util.StringUtils;
 
-import java.time.Duration;
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,52 +64,200 @@ import java.util.Map;
  * org.springframework.boot.autoconfigure.cache.CacheConfigurations
  * org.springframework.boot.autoconfigure.cache.RedisCacheConfiguration
  * org.springframework.data.redis.cache.RedisCacheConfiguration
- *
+ * ProxyCachingConfiguration
+ * AbstractCachingConfiguration
+ * CompositeCacheManager
+ * <p>
  * AspectJCachingConfiguration
  * CachingConfigurationSelector
  * RedisCacheManager
  * RedisCache
- *
- * 目前缓存只适用于web，不适用于webflux，需要改造
+ * CacheAspectSupport
+ * <p>
+ * 如果要创建二级缓存，可以定义CompositeCacheManager将多个CacheManager组合起来
+ * new CompositeCacheManager(createCacheManager(cacheManagerCustomizers,cacheConfigurations,cacheWriter));
+ * <p>
+ * 目前缓存只适用于web，不适用于webflux
  *
  * @author Wang
- * @since 2022/2/3 10:52
+ * @since 2022 /2/3 10:52
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(CacheManager.class)
 @AutoConfigureAfter(RedisConfig.class)
 @AutoConfigureBefore(RedisCacheConfiguration.class)
 @ConditionalOnWebApplication(type=ConditionalOnWebApplication.Type.SERVLET)
-@EnableConfigurationProperties(CacheProperties.class)
+@EnableConfigurationProperties({ExCacheProperties.class, CacheProperties.class})
 @ConditionalOnProperty(prefix = "com.hhao.config.redis.cache",name = "enable",havingValue = "true",matchIfMissing = true)
 public class CacheConfig {
     /**
      * 作为动态生成RedisCache配置模板的RedisCacheConfiguration名称
      */
     private final String DEFAULT_REDIS_CACHE_CONFIG_NAME="default";
-    private CacheProperties cacheProperties;
+    private final String DEFAULT_KEY_PREFIX="spring:cache:";
+    /**
+     * RedisCacheConfiguration Bean的固定后缀名
+     * 启动时会注入全部的RedisCacheConfiguration Bean到RedisCacheManager中，生成不同配置的RedisCache
+     * 生成的RedisCache的name默认情况就是Bean的名称去除这个固定的后缀
+     * 其中default定义的RedisCacheConfiguration Bean将会作为动态生成RedisCache的模板
+     */
+    private final String DEFAULT_SUFFIX_CONFIG_NAME= "RedisCacheConfiguration";
 
+    private ExCacheProperties exCacheProperties;
+    private CacheProperties cacheProperties;
+    private RedisSerializer<Object> jackson2JsonRedisSerializer;
+
+    /**
+     * Instantiates a new Cache config.
+     *
+     * @param exCacheProperties           the ex cache properties
+     * @param cacheProperties             the cache properties
+     * @param jackson2JsonRedisSerializer the jackson 2 json redis serializer
+     */
     @Autowired
-    public CacheConfig(CacheProperties cacheProperties){
-        new CachingConfigurationSelector();
+    public CacheConfig(ExCacheProperties exCacheProperties,CacheProperties cacheProperties,@Qualifier("genericJackson2JsonRedisSerializer") RedisSerializer<Object> jackson2JsonRedisSerializer){
+        this.exCacheProperties = exCacheProperties;
         this.cacheProperties=cacheProperties;
+        this.jackson2JsonRedisSerializer=jackson2JsonRedisSerializer;
     }
 
+    /**
+     * Cache manager customizers cache manager customizers.
+     *
+     * @param customizers the customizers
+     * @return the cache manager customizers
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public CacheManagerCustomizers cacheManagerCustomizers(ObjectProvider<CacheManagerCustomizer<?>> customizers) {
+        return new CacheManagerCustomizers(customizers.orderedStream().toList());
+    }
+
+    /**
+     * 作为缓存默认的配置文件
+     * 缓存key采用StringRedisSerializer，value采用genericJackson2JsonRedisSerializer
+     *
+     * @param redisSerializer
+     * @return redis cache configuration
+     */
+    @Bean
+    @Primary
+    @SuppressWarnings("all")
+    public RedisCacheConfiguration defaultRedisCacheConfiguration(){
+        return createJsonRedisSerializerConfiguration(cacheProperties.getRedis(),exCacheProperties);
+    }
+
+    /**
+     * Jdk serializer redis cache configuration redis cache configuration.
+     *
+     * @param resourceLoader the resource loader
+     * @return the redis cache configuration
+     */
     @Bean
     @SuppressWarnings("all")
-    public RedisCacheConfiguration defaultRedisCacheConfiguration(@Qualifier("genericJackson2JsonRedisSerializer") RedisSerializer<Object> redisSerializer){
-        RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig();
-        defaultCacheConfig=defaultCacheConfig
-                //设置缓存管理器管理的缓存的默认过期时间
-                //Duration.ZERO表示不过期
-                .entryTtl(Duration.ofMinutes(cacheProperties.getDefaultTtl()))
-                //设置 key为string序列化
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-                //设置value为json序列化
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(redisSerializer))
-                //自定义前缀
-                .computePrefixWith(cacheName -> "spring:cache:" + cacheName + "-");
-        return defaultCacheConfig;
+    public RedisCacheConfiguration jdkSerializerRedisCacheConfiguration(ResourceLoader resourceLoader){
+        return createJdkRedisSerializerConfiguration(cacheProperties.getRedis(),exCacheProperties,resourceLoader.getClassLoader());
+    }
+
+    /**
+     * RedisCacheManager默认使用无锁RedisCacheWriter来读取和写入二进制值。 无锁缓存提高了吞吐量。
+     *
+     * @param cacheManagerCustomizers the cache manager customizers
+     * @param redisConnectionFactory  the redis connection factory
+     * @param cacheConfigurations     the cache configurations
+     * @return the cache manager
+     */
+    @Bean
+    @Primary
+    public CacheManager cacheManager(CacheManagerCustomizers cacheManagerCustomizers,
+                                   RedisConnectionFactory redisConnectionFactory,
+                                   Map<String, RedisCacheConfiguration> cacheConfigurations) {
+        // 采用非锁定的CacheWrite
+        RedisCacheWriter cacheWriter=RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory, BatchStrategies.scan(exCacheProperties.getBatchSize()));
+        return createCacheManager(cacheManagerCustomizers,cacheConfigurations,cacheWriter);
+    }
+
+    /**
+     * 有锁RedisCacheWriter来读取和写入二进制值。
+     *
+     * @param cacheManagerCustomizers the cache manager customizers
+     * @param redisConnectionFactory  the redis connection factory
+     * @param cacheConfigurations     the cache configurations
+     * @return the redis cache manager
+     */
+    @Bean
+    public RedisCacheManager cacheManagerWithLockCacheWrite(CacheManagerCustomizers cacheManagerCustomizers,
+                                          RedisConnectionFactory redisConnectionFactory,
+                                          Map<String, RedisCacheConfiguration> cacheConfigurations) {
+        // 采用非锁定的CacheWrite
+        RedisCacheWriter cacheWriter=RedisCacheWriter.lockingRedisCacheWriter(redisConnectionFactory, BatchStrategies.scan(exCacheProperties.getBatchSize()));
+        return createCacheManager(cacheManagerCustomizers,cacheConfigurations,cacheWriter);
+    }
+
+    private RedisCacheManager createCacheManager(CacheManagerCustomizers cacheManagerCustomizers,
+                                   Map<String, RedisCacheConfiguration> cacheConfigurations,
+                                   RedisCacheWriter cacheWriter) {
+        // 预处理配置对象
+        cacheConfigurations=preProcessCacheConfigurations(cacheConfigurations);
+
+        if (cacheProperties.getRedis().isEnableStatistics()) {
+            CacheStatisticsCollector statisticsCollector = CacheStatisticsCollector.create();
+            cacheWriter = cacheWriter.withStatisticsCollector(statisticsCollector);
+        }
+
+        // 默认的配置文件
+        RedisCacheConfiguration defaultCacheConfiguration=determineConfiguration(cacheProperties.getRedis(),exCacheProperties,cacheConfigurations);
+
+        RedisCacheManager cacheManager=new RedisCacheManagerEx(exCacheProperties,cacheWriter,
+                defaultCacheConfiguration,
+                exCacheProperties.getAllowRuntimeCacheCreation(),
+                cacheConfigurations);
+        cacheManager.setTransactionAware(exCacheProperties.getEnableTransactions());
+
+        return cacheManagerCustomizers.customize(cacheManager);
+    }
+
+    private RedisCacheConfiguration determineConfiguration(CacheProperties.Redis redisProperties,ExCacheProperties exCacheProperties,Map<String, RedisCacheConfiguration> cacheConfigurations) {
+        return cacheConfigurations.getOrDefault(DEFAULT_REDIS_CACHE_CONFIG_NAME,createJsonRedisSerializerConfiguration(redisProperties,exCacheProperties));
+    }
+
+    private RedisCacheConfiguration createJsonRedisSerializerConfiguration(CacheProperties.Redis redisProperties,ExCacheProperties exCacheProperties) {
+        return createConfiguration(redisProperties,exCacheProperties,RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer(StandardCharsets.UTF_8)),RedisSerializationContext.SerializationPair.fromSerializer(jackson2JsonRedisSerializer));
+    }
+
+    private RedisCacheConfiguration createJdkRedisSerializerConfiguration(CacheProperties.Redis redisProperties,ExCacheProperties exCacheProperties,ClassLoader classLoader) {
+        return createConfiguration(redisProperties,exCacheProperties,RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer(StandardCharsets.UTF_8)),RedisSerializationContext.SerializationPair.fromSerializer(new JdkSerializationRedisSerializer(classLoader)));
+    }
+
+    private RedisCacheConfiguration createConfiguration(CacheProperties.Redis redisProperties,ExCacheProperties exCacheProperties,RedisSerializationContext.SerializationPair<String> keySerializationPair,RedisSerializationContext.SerializationPair<?> valueSerializationPair) {
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig();
+
+        if (redisProperties.getTimeToLive() != null) {
+            config = config.entryTtl(redisProperties.getTimeToLive());
+        }
+        if (redisProperties.getKeyPrefix() != null) {
+            config = config.prefixCacheNameWith(redisProperties.getKeyPrefix());
+        }else{
+            //自定义前缀
+            config = config.computePrefixWith(cacheName -> DEFAULT_KEY_PREFIX + cacheName + ":");
+        }
+        if (!redisProperties.isCacheNullValues()) {
+            config = config.disableCachingNullValues();
+        }
+        if (!redisProperties.isUseKeyPrefix()) {
+            config = config.disableKeyPrefix();
+        }
+        if (!redisProperties.isUseKeyPrefix()) {
+            config = config.disableKeyPrefix();
+        }
+        if (exCacheProperties.getEnableTimeToIdle()){
+            config=config.enableTimeToIdle();
+        }
+        //设置value为json序列化
+        config = config.serializeValuesWith(valueSerializationPair);
+        //设置 key为string序列化
+        config = config.serializeKeysWith(keySerializationPair);
+        return config;
     }
 
     /**
@@ -122,219 +280,81 @@ public class CacheConfig {
      * @param name
      * @return
      */
-    protected String preProcessCacheName(String name){
-        String suffix=cacheProperties.getSuffixConfigName();
-        if (StringUtils.endsWithIgnoreCase(name,suffix)){
-            return name.substring(0,name.lastIndexOf(suffix));
+    private String preProcessCacheName(String name){
+        if (StringUtils.endsWithIgnoreCase(name,DEFAULT_SUFFIX_CONFIG_NAME)){
+            return name.substring(0,name.lastIndexOf(DEFAULT_SUFFIX_CONFIG_NAME));
         }
         return name;
     }
 
     /**
-     * 构建默认的CacheManager
-     * 注入系统注册的RedisCacheConfiguration Bean，根据这些Bean生成对应配置的RedisCache
-     * 生成的RedisCache名称(name)=RedisCacheConfiguration Bean的名称去掉后缀，后缀由CacheProperties中定义
-     * 默认的后缀名为RedisCacheConfiguration
-     * 如：defaultRedisCacheConfiguration Bean，则它对应的RedisCache名称为default
+     * 按method+调用函数的参数JSON序列化生成md5值做key
      *
-     *
-     * defaultCacheConfig=defaultCacheConfig
-     *       //设置缓存管理器管理的缓存的默认过期时间
-     *       //Duration.ZERO表示不过期
-     *       .entryTtl(Duration.ofMinutes(30))
-     *       //设置 key为string序列化
-     *       .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-     *       //设置value为json序列化
-     *       .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(redisSerializer))
-     *       //自定义前缀
-     *       .computePrefixWith(cacheName -> "spring:" + cacheName + "-");
-     *       //强制前缀，底层还是调用computePrefixWith()
-     *       //.prefixCacheNameWith("spring:")
-     *       //禁用Key的前缀
-     *       //.disableKeyPrefix()
-     *       //不缓存空值
-     *       //.disableCachingNullValues();
-     *
-     *       return  RedisCacheManager.builder(factory)
-     *                 .cacheDefaults(defaultCacheConfig)
-     *                 //可以提供一个Map，针对每个Cache进行个性化配置，否则采用默认的设置
-     *                 //.withInitialCacheConfigurations()
-     *                 //关闭动态创建cache
-     *                 //.disableCreateOnMissingCache()
-     *                 //初始化时就放进去的cache name，如关闭了动态创建，这个就是必须的
-     *                 //.initialCacheNames( )
-     *                 //支持事务
-     *                 .transactionAware()
-     *                 .build();
-     *
-     * @return
+     * @return key generator
      */
     @Bean
-    @SuppressWarnings("all")
-    public CacheManager cacheManager(RedisConnectionFactory connectionFactory, Map<String, RedisCacheConfiguration> cacheConfigurations) {
-        //RedisCacheConfiguration预处理
-        RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig();
-        cacheConfigurations=preProcessCacheConfigurations(cacheConfigurations);
-        //获取模板RedisCacheConfiguration
-        if (cacheConfigurations.get(DEFAULT_REDIS_CACHE_CONFIG_NAME)!=null){
-            defaultCacheConfig=cacheConfigurations.get("default");
-        }
-
-        //以下代码由于采用了自定义的RedisCacheManagerEx
-        //相关代码参照RedisCacheManager.RedisCacheManagerBuilder
-        RedisCacheWriter cacheWriter=RedisCacheWriter.nonLockingRedisCacheWriter(connectionFactory);
-        CacheStatisticsCollector statisticsCollector = CacheStatisticsCollector.none();
-
-        if (!statisticsCollector.equals(CacheStatisticsCollector.none())) {
-            cacheWriter = cacheWriter.withStatisticsCollector(statisticsCollector);
-        }
-
-        RedisCacheManager redisCacheManager= new RedisCacheManagerEx(cacheWriter
-                ,defaultCacheConfig
-                ,cacheProperties.getAllowInFlightCacheCreation()
-                ,cacheConfigurations
-        );
-        redisCacheManager.setTransactionAware(cacheProperties.getEnableTransactions());
-        return redisCacheManager;
+    public KeyGenerator methodKeyGenerator(){
+        return new KeyGenerator() {
+            @Override
+            public Object generate(Object target, Method method, Object... params) {
+                try {
+                    JacksonUtil jacksonUtil=JacksonUtilFactory.getJsonUtil();
+                    // 将方法名与参数组合成字符串
+                    StringBuffer combinedKey = new StringBuffer(method.toGenericString());
+                    for(Object param : params){
+                        combinedKey.append(jacksonUtil.obj2String(param));
+                    }
+                    // 计算JSON字符串的MD5值
+                    return MD5Util.getMD5(combinedKey.toString());
+                } catch (Exception e) {
+                    throw new ServerRuntimeException("Failed to generate key", e);
+                }
+            }
+        };
     }
+
 
     /**
      * 采用Java Proxy模式进行AOP
      * 该模式相同对象的方法间调用不会被缓存
+     * 注意和事务并存时的优先级，应比事务高
      */
     @Configuration
-    @EnableCaching(mode = AdviceMode.PROXY)
-    @ConditionalOnProperty(prefix = "com.hhao.config.redis.cache",name = "mode",havingValue = "PROXY")
+    @EnableCaching(mode = AdviceMode.PROXY,order = 100)
+    @ConditionalOnProperty(prefix = "com.hhao.config.redis.cache",name = "mode",havingValue = "PROXY",matchIfMissing = true)
     public static class EnableCachingWithProxy{
+        /**
+         * The Logger.
+         */
         final Logger logger = LoggerFactory.getLogger(EnableCachingWithProxy.class);
+
+        /**
+         * Instantiates a new Enable caching with proxy.
+         */
         public EnableCachingWithProxy(){
-            logger.debug("EnableCachingWithProxy");
+            logger.info("Enable caching with proxy.");
         }
     }
 
     /**
      * 采用ASPECTJ模式进行AOP
      * 该模式要设置POM，编译时织入代码
-     *
-     * IntelJ中启用ASPECTJ
-     * 1、从官网https://www.eclipse.org/aspectj/downloads.php#install下载aspectj-1.9.6.jar
-     * 执行安装：java -jar aspectj-1.9.6.jar
-     * 2、把路径C:\aspectj1.9\bin加入到path，可能需要重启
-     * 3、IntelJ安装插件：AspectJ
-     *      插件官网：https://www.jetbrains.com/help/idea/2021.1/aspectj-facet.html
-     * 4、设置File->Settings->Build,Execution,Deployment->Compiler->Java Compiler
-     *      User compiler:Ajc
-     *      Path to aspectjtools.jar:aspectjtools-1.9.8.RC3.jar的安装路径
-     *      Command line parameters:-showWeaveInfo
-     *      钩选：Delegate to Javac，这样可以省时间，即能不用ajc就不用它编译
-     * 5、pom.xml添加以下依赖：
-     *         <dependency>
-     *             <groupId>org.springframework</groupId>
-     *             <artifactId>spring-aspects</artifactId>
-     *         </dependency>
-     *
-     *         <dependency>
-     *             <groupId>org.aspectj</groupId>
-     *             <artifactId>aspectjrt</artifactId>
-     *         </dependency>
-     *
-     *         <dependency>
-     *             <groupId>org.aspectj</groupId>
-     *             <artifactId>aspectjtools</artifactId>
-     *         </dependency>
-     *
-     *         <dependency>
-     *             <groupId>org.springframework</groupId>
-     *             <artifactId>spring-instrument</artifactId>
-     *         </dependency>
-     * 6、工程项设置：
-     *      File->Project Structure->Modules，选需要采用AspectJ编译的module，加入AspectJ Facets
-     *      Post-compile weave mode：如果钩选，会尽可能避免使用ajc
-     *      Aspect path：org.springframework:spring-aspects:.3.15
-     * 7、META-INF下建aop.xml文件，添加要ajc处理包路径
-     * <aspectj>
-     *     <weaver options="-verbose -showWeaveInfo">
-     *         <include within="com.hhao.common.springboot.web.mvc.test.server..*"/>
-     *     </weaver>
-     * </aspectj>
-     * 经过以上步骤，IntelJ就可以编译带aspectj的文件了；
-     *
-     * 如果要在Maven打包时处理aspectj，则在pom.xml中加入以下：
-     *    <build>
-     *         <plugins>
-     *             <plugin>
-     *                 <groupId>org.springframework.boot</groupId>
-     *                 <artifactId>spring-boot-maven-plugin</artifactId>
-     *                 <version>2.6.3</version>
-     *                 <configuration>
-     *                     <mainClass>com.hhao.common.springboot.web.mvc.test.SpringBootMvcApp</mainClass>
-     *                     <fork>true</fork>
-     *                 </configuration>
-     *                 <executions>
-     *                     <execution>
-     *                         <goals>
-     *                             <goal>repackage</goal>
-     *                         </goals>
-     *                     </execution>
-     *                 </executions>
-     *             </plugin>
-     *             <plugin>
-     *                 <artifactId>maven-compiler-plugin</artifactId>
-     *                 <version>3.8.1</version>
-     *                 <configuration>
-     *                     <release>11</release>
-     *                     <useIncrementalCompilation>false</useIncrementalCompilation>
-     *                 </configuration>
-     *             </plugin>
-     *             <plugin>
-     *                 <groupId>org.codehaus.mojo</groupId>
-     *                 <artifactId>aspectj-maven-plugin</artifactId>
-     *                 <version>1.4</version>
-     *                 <dependencies>
-     *                     <dependency>
-     *                         <groupId>org.aspectj</groupId>
-     *                         <artifactId>aspectjrt</artifactId>
-     *                         <version>1.9.8.RC3</version>
-     *                     </dependency>
-     *                     <dependency>
-     *                         <groupId>org.aspectj</groupId>
-     *                         <artifactId>aspectjtools</artifactId>
-     *                         <version>1.9.8.RC3</version>
-     *                     </dependency>
-     *                 </dependencies>
-     *                 <executions>
-     *                     <execution>
-     *                         <goals>
-     *                             <goal>compile</goal>
-     *                             <goal>test-compile</goal>
-     *                         </goals>
-     *                     </execution>
-     *                 </executions>
-     *                 <configuration>
-     *                     <outxml>true</outxml>
-     *                     <showWeaveInfo>true</showWeaveInfo>
-     *                     <verbose>true</verbose>
-     *                     <aspectLibraries>
-     *                         <aspectLibrary>
-     *                             <groupId>org.springframework</groupId>
-     *                             <artifactId>spring-aspects</artifactId>
-     *                         </aspectLibrary>
-     *                     </aspectLibraries>
-     *                     <source>11</source>
-     *                     <target>11</target>
-     *                     <parameters>true</parameters>
-     *                 </configuration>
-     *             </plugin>
-     *         </plugins>
-     *     </build>
+     * 注意和事务并存时的优先级，应比事务高
      */
     @Configuration
-    @EnableCaching(mode = AdviceMode.ASPECTJ)
+    @EnableCaching(mode = AdviceMode.ASPECTJ,order = 100)
     @ConditionalOnProperty(prefix = "com.hhao.config.redis.cache",name = "mode",havingValue = "ASPECTJ")
     public static class EnableCachingWithAspectj{
+        /**
+         * The Logger.
+         */
         final Logger logger = LoggerFactory.getLogger(EnableCachingWithAspectj.class);
+
+        /**
+         * Instantiates a new Enable caching with aspectj.
+         */
         public EnableCachingWithAspectj(){
-            logger.debug("EnableCachingWithAspectj");
+            logger.info("Enable caching with aspectj.");
         }
     }
 }

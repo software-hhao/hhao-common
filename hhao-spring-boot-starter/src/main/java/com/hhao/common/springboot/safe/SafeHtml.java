@@ -18,7 +18,6 @@ package com.hhao.common.springboot.safe;
 
 import com.hhao.common.springboot.aop.Aop;
 import org.springframework.core.annotation.AliasFor;
-import org.springframework.stereotype.Controller;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -31,6 +30,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * Html安全过滤注解
  * 可以开启Xss过滤、解码过滤
  * 用在api接口的方法、方法参数、参数类、参数类的字段上
+ * 如果要使用在方法参数上，需要在方法上也要标注@SafeHtml注解，但是这样的话，方法上所有的参数都会被过滤（因为单独的参数不会被拦截到）
+ * 或者自定义配置参数pointcutApi,使用AspectJ拦截，如：@Args({@annotation(com.hhao.common.springboot.safe.SafeHtml)})
  * 开启过滤的条件：
  * 1、开启api接口的aop;
  * 2、显式的标注SafeHtml注解
@@ -78,9 +79,16 @@ public @interface SafeHtml{
      * 过滤前解码器
      * 目前支持"base64"
      *
-     * @return string
+     * @return string string
      */
     String decode() default "";
+
+    /**
+     * 是否深度遍历，默认开启
+     *
+     * @return boolean
+     */
+    boolean depthTraversal() default true;
 
     /**
      * 过滤模式

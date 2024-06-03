@@ -1,5 +1,3 @@
-package com.hhao.common.jackson.datatype;
-
 /*
  * Copyright 2008-2024 wangsheng
  *
@@ -16,6 +14,7 @@ package com.hhao.common.jackson.datatype;
  * limitations under the License.
  */
 
+package com.hhao.common.jackson.datatype;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;

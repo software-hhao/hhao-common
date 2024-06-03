@@ -53,7 +53,6 @@ public class MultiQueriesDynamicPageExecutor extends AbstractPageExecutor {
      * The Logger.
      */
     protected final Log logger = LogFactory.getLog(this.getClass());
-
     /**
      * 拦截处理过程
      */
@@ -61,26 +60,19 @@ public class MultiQueriesDynamicPageExecutor extends AbstractPageExecutor {
     public Object execute(Invocation invocation,PageInfo pageInfo) throws Throwable{
         MappedStatement mappedStatement=this.getMappedStatement(invocation);
         SqlExecutor sqlExecutor=this.getSqlExecutor(pageInfo,this.getDatabaseId(mappedStatement));
-
         Object parameter=this.getParameter(invocation);
-
         //构建新的SqlSource
         SqlSource newSqlSource=this.newSqlSource(pageInfo,mappedStatement,parameter,sqlExecutor);
-
         //用新的SqlSource构建MappedStatement
         MappedStatement newMappedStatement=buildMappedStatement(mappedStatement,newSqlSource,this.buildResultMap(pageInfo,mappedStatement));
-
         //用新的MappedStatement替换原来的MappedStatement
         resetMappedStatement(invocation,newMappedStatement);
-
         //继续向下执行,返回查询结果集和行数结果集
         Object result = invocation.proceed();
-
         //对结果集进行处理
         result=this.doResult(pageInfo, result);
-
         //分页溢出处理
-        if (PageMetaData.PAGE_OVERFLOW_TO_LAST){
+        if (pageInfo.isIncludeTotalRows()){
             BoundSql boundSql=newSqlSource.getBoundSql(parameter);
             //调整分页参数
             if (pageOverflowToLast(pageInfo,newMappedStatement,parameter,boundSql)){
@@ -94,7 +86,6 @@ public class MultiQueriesDynamicPageExecutor extends AbstractPageExecutor {
                 result=this.doResult(pageInfo, result);
             }
         }
-
         return result;
     }
 
@@ -110,11 +101,9 @@ public class MultiQueriesDynamicPageExecutor extends AbstractPageExecutor {
         String dbName=this.getDatabaseId(mappedStatement);
         //原来select的BoundSql
         BoundSql selectBoundSql=mappedStatement.getBoundSql(parameter);
-        //原来select的参数
+        //原来select的参
         List<Object> selectParameterMappings= Collections.unmodifiableList(selectBoundSql.getParameterMappings());
-
         SqlPageModel sqlPageModel=sqlExecutor.generalSqlPageModel(pageInfo,selectBoundSql.getSql(),selectParameterMappings,dbName);
-
         //生成sql语句
         StringBuffer sql=new StringBuffer();
         sql.append(sqlPageModel.getSelect().getSql());
@@ -122,7 +111,6 @@ public class MultiQueriesDynamicPageExecutor extends AbstractPageExecutor {
             sql.append(";");
             sql.append(sqlPageModel.getCount().getSql());
         }
-
         //参数处理
         List<ParameterMapping> parameterMappings=new ArrayList<>();
         for(Object param :sqlPageModel.getSelect().getParams()){
@@ -145,19 +133,16 @@ public class MultiQueriesDynamicPageExecutor extends AbstractPageExecutor {
                 }
             }
         }
-
         //生成新的BoundSql
         BoundSql newBoundSql=new BoundSql(mappedStatement.getConfiguration(),
                 sql.toString(), parameterMappings,
                 selectBoundSql.getParameterObject());
-
         //设置在修改select、count时新添加带值的参数
         for(Object param :parameterMappings){
             if(param instanceof ParamMapping){
                 newBoundSql.setAdditionalParameter(((ParamMapping) param).getProperty(),((ParamMapping) param).getValue());
            }
         }
-
         //生成新的SqlSource
         return new SqlSource() {
             @Override

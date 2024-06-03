@@ -35,12 +35,12 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
+import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * 通过ResponseAutoWrapper注解，执行Rest统一返回
@@ -83,11 +83,13 @@ public class GlobalReturnConfig {
     @ConditionalOnMissingBean(name = "responseWrapper")
     public ResponseBodyAdvice<Object> responseWrapper() {
         return new ResponseBodyAdvice<Object>() {
-            private final ConcurrentMap<Method, Boolean> supportsCache = new ConcurrentHashMap<>();
+            private final ConcurrentHashMap<String, Boolean> supportsCache = new ConcurrentHashMap<>();
 
             @Override
             public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-                return supportsCache.computeIfAbsent(returnType.getMethod(), k -> {
+                String key=returnType.getMethod().toGenericString();
+
+                return supportsCache.computeIfAbsent(key, k -> {
                     if (returnType == null) {
                         return false;
                     }
@@ -116,23 +118,31 @@ public class GlobalReturnConfig {
                 logger.info("MediaType:{}", selectedContentType.toString());
                 //对json或xml返回进行包装
                 if (selectedContentType.includes(MediaType.APPLICATION_JSON) || selectedContentType.includes(MediaType.APPLICATION_XML)) {
+                    Integer status=null;
                     //如果已经是ResultWrapper,则直接返回
                     if (body instanceof ResultWrapper) {
                         return body;
                     } else if ((((ServletServerHttpRequest) request).getServletRequest().getDispatcherType().ordinal() == DispatcherType.ERROR.ordinal()) || body instanceof Exception) {
-                        Integer status = getStatue((ServletServerHttpRequest) request);
+                        status = getStatue((ServletServerHttpRequest) request);
                         String msg = HttpStatus.valueOf(status).getReasonPhrase();
                         return ResultWrapperBuilder.error(body, status, msg != null ? msg : "Http Status " + status);
                     }
-                    return ResultWrapperBuilder.ok(body);
+                    status=getStatue(response);
+                    return status!=null?ResultWrapperBuilder.ok(body,status):ResultWrapperBuilder.ok(body);
                 }
                 logger.warn("Return not wrapper");
                 return body;
             }
         };
-    }
+    };
 
-    ;
+    private Integer getStatue(ServerHttpResponse response) {
+        if (response instanceof ServletServerHttpResponse){
+            ServletServerHttpResponse servletServerHttpResponse = (ServletServerHttpResponse) response;
+            return servletServerHttpResponse.getServletResponse().getStatus();
+        }
+        return null;
+    }
 
     private Integer getStatue(ServletServerHttpRequest request) {
         Integer status = (Integer) request.getServletRequest().getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
@@ -141,7 +151,6 @@ public class GlobalReturnConfig {
         }
         return status;
     }
-
 
     /**
      * The type Response wrapper advice.

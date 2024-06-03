@@ -1,4 +1,4 @@
-package com.hhao.common.extension.executor;/*
+/*
  * Copyright 2008-2024 wangsheng
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,8 @@ package com.hhao.common.extension.executor;/*
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package com.hhao.common.extension.executor;
 
 /**
  * @author Wang

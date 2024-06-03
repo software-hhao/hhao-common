@@ -21,7 +21,6 @@ import org.springframework.data.redis.cache.RedisCache;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.cache.RedisCacheWriter;
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -32,13 +31,23 @@ import java.util.Map;
  * 重写RedisCacheManager
  *
  * @author Wang
- * @since 2022/2/4 18:43
+ * @since 2022 /2/4 18:43
  */
 public class RedisCacheManagerEx  extends RedisCacheManager {
     private RedisCacheWriter cacheWriter;
-    private  RedisCacheConfiguration defaultCacheConfig;
+    private RedisCacheConfiguration defaultCacheConfig;
+    private ExCacheProperties exCacheProperties;
 
-    public RedisCacheManagerEx(RedisCacheWriter cacheWriter, RedisCacheConfiguration defaultCacheConfiguration,
+    /**
+     * Instantiates a new Redis cache manager ex.
+     *
+     * @param exCacheProperties          the ex cache properties
+     * @param cacheWriter                the cache writer
+     * @param defaultCacheConfiguration  the default cache configuration
+     * @param allowRuntimeCacheCreation  the allow runtime cache creation
+     * @param initialCacheConfigurations the initial cache configurations
+     */
+    public RedisCacheManagerEx(ExCacheProperties exCacheProperties,RedisCacheWriter cacheWriter, RedisCacheConfiguration defaultCacheConfiguration,
                                boolean allowRuntimeCacheCreation, Map<String, RedisCacheConfiguration> initialCacheConfigurations) {
         super(cacheWriter, defaultCacheConfiguration, allowRuntimeCacheCreation, initialCacheConfigurations);
 
@@ -47,16 +56,32 @@ public class RedisCacheManagerEx  extends RedisCacheManager {
 
         this.cacheWriter = cacheWriter;
         this.defaultCacheConfig = defaultCacheConfiguration;
+        this.exCacheProperties=exCacheProperties;
     }
 
     @Override
     protected RedisCache createRedisCache(String name,  RedisCacheConfiguration cacheConfig) {
+        cacheConfig=determineConfiguration(name,cacheConfig);
+        return super.createRedisCache(name, cacheConfig);
+    }
+
+    private RedisCacheConfiguration determineConfiguration(String name,RedisCacheConfiguration cacheConfig){
+        RedisCacheConfiguration redisCacheConfiguration=cacheConfig;
+        // 从配置文件中查找是否带有ttl
+        ExCacheConfig exCacheConfig=exCacheProperties.getCacheConfigs().get(name);
+        if (exCacheConfig!=null){
+            redisCacheConfiguration=redisCacheConfiguration.entryTtl(Duration.ofSeconds(exCacheConfig.getTimeToLive()));
+            if (exCacheConfig.getEnableTimeToIdle()){
+                redisCacheConfiguration = redisCacheConfiguration.enableTimeToIdle();
+            }
+        }
+        // 从cache name中查找是否带有ttl
         String [] array= StringUtils.delimitedListToStringArray(name,"#");
-        name=array[0];
+        // 优先检查cache name是否带有ttl
         if (array.length>1){
             long ttl=Long.parseLong(array[1]);
-            cacheConfig=cacheConfig.entryTtl(Duration.ofSeconds(ttl));
+            redisCacheConfiguration=redisCacheConfiguration.entryTtl(Duration.ofSeconds(ttl));
         }
-        return new RedisCacheEx(name, cacheWriter, cacheConfig != null ? cacheConfig : defaultCacheConfig);
+        return redisCacheConfiguration;
     }
 }

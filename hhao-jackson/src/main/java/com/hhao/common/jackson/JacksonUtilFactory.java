@@ -83,6 +83,7 @@ public class JacksonUtilFactory {
         }
         return util;
     }
+
     /**
      * Gets json util.
      *
@@ -116,12 +117,21 @@ public class JacksonUtilFactory {
         return xmlUtilMap.get(JacksonKeyType.DEFAULT);
     }
 
+    /**
+     * The interface Jackson key.
+     */
     public interface JacksonKey {
 
     }
 
+    /**
+     * The enum Jackson key type.
+     */
     public enum JacksonKeyType implements JacksonKey{
-        // 默认
+        /**
+         * Default jackson key type.
+         */
+// 默认
         DEFAULT
     }
 }

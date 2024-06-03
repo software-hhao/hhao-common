@@ -28,6 +28,13 @@ import org.apache.ibatis.plugin.Invocation;
  */
 public interface PageExecutor {
 
+    /**
+     * Gets sql executor.
+     *
+     * @param pageInfo the page info
+     * @param dbName   the db name
+     * @return the sql executor
+     */
     SqlExecutor getSqlExecutor(PageInfo pageInfo,String dbName);
 
     /**

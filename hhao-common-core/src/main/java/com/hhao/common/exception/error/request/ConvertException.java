@@ -78,6 +78,14 @@ public class ConvertException extends RequestRuntimeException {
         super(code,message,cause,args);
     }
 
+    public ConvertException(String code,String message,Object [] args) {
+        super(code,message,args);
+    }
+
+    public ConvertException(String code,String message) {
+        super(code,message);
+    }
+
     /**
      * Instantiates a new Date time convert exception.
      *

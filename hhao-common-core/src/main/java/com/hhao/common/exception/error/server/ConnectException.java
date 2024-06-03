@@ -78,6 +78,14 @@ public class ConnectException  extends ServerRuntimeException {
         super(code,message,cause,args);
     }
 
+    public ConnectException(String code,String message,Object [] args) {
+        super(code,message,args);
+    }
+
+    public ConnectException(String code,String message) {
+        super(code,message);
+    }
+
     /**
      * Instantiates a new Connect exception.
      *

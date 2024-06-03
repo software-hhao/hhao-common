@@ -26,13 +26,19 @@ import com.hhao.common.page.Page;
  */
 public class PageQuery extends Query implements Page {
     private static final long serialVersionUID = 1371078197560489285L;
-
+    // 请求页数
     private long pageNum;
+    // 页的大小
     private long pageSize;
+    // 前置缓存页数
     private long preCachedPage;
+    // 后置缓存页数
     private long postCachedPage;
+    // 是否包含总记录数
     private boolean includeTotalRows=true;
+    // 排序方向
     private OrderDirection orderDirection=OrderDirection.ASC;
+    // 排序列
     private String [] orderColumns;
 
     @Override

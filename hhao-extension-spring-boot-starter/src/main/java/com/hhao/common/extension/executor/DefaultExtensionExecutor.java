@@ -38,8 +38,8 @@ import java.util.List;
  * @author Wang
  * @since 1.0.0
  */
-public class ExtensionExecutor extends AbstractComponentExecutor{
-    private Logger logger = LoggerFactory.getLogger(ExtensionExecutor.class);
+public class DefaultExtensionExecutor extends AbstractComponentExecutor{
+    private Logger logger = LoggerFactory.getLogger(DefaultExtensionExecutor.class);
 
     private ExtensionRepository extensionRepository;
 
@@ -48,7 +48,7 @@ public class ExtensionExecutor extends AbstractComponentExecutor{
      *
      * @param extensionRepository the extension repository
      */
-    public ExtensionExecutor(ExtensionRepository extensionRepository,boolean isNotFoundThrowError){
+    public DefaultExtensionExecutor(ExtensionRepository extensionRepository, boolean isNotFoundThrowError){
         this.extensionRepository=extensionRepository;
         this.setNotFoundThrowError(isNotFoundThrowError);
     }
@@ -141,6 +141,15 @@ public class ExtensionExecutor extends AbstractComponentExecutor{
         }
     }
 
+    /**
+     * 加载扩展实现
+     *
+     * @param targetClz   the target clz
+     * @param bizScenario the biz scenario
+     * @param context     the context
+     * @return
+     * @param <C>
+     */
     @Override
     public <C> ExtensionPoint locateComponent(Class<? extends ExtensionPoint> targetClz, BizScenario bizScenario, C context) {
         checkNull(bizScenario);
@@ -173,6 +182,15 @@ public class ExtensionExecutor extends AbstractComponentExecutor{
         return null;
     }
 
+    /**
+     * 加载多个扩展点实现
+     *
+     * @param targetClz   the target clz
+     * @param bizScenario the biz scenario
+     * @param context     the context
+     * @return
+     * @param <C>
+     */
     @Override
     public <C> List<ExtensionPoint> locateComponents(Class<? extends ExtensionPoint> targetClz, BizScenario bizScenario, C context) {
         checkNull(bizScenario);

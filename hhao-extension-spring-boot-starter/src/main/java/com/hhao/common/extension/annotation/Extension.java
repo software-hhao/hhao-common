@@ -17,15 +17,14 @@
 package com.hhao.common.extension.annotation;
 
 
+import com.hhao.common.extension.BizScenario;
 import org.springframework.stereotype.Component;
 
 import java.lang.annotation.*;
 
-import static com.hhao.common.CoreConstant.*;
-
 
 /**
- * The interface Extension.
+ * 用于注解扩展类
  *
  * @author Wang
  * @since 1.0.0
@@ -49,19 +48,19 @@ public @interface Extension {
      *
      * @return the string
      */
-    String bizId()  default DEFAULT_BIZ_ID;
+    String bizId()  default BizScenario.DEFAULT_BIZ_ID;
 
     /**
      * Use case string.
      *
      * @return the string
      */
-    String useCase() default DEFAULT_USE_CASE;
+    String useCase() default BizScenario.DEFAULT_USE_CASE;
 
     /**
      * Scenario string.
      *
      * @return the string
      */
-    String scenario() default DEFAULT_SCENARIO;
+    String scenario() default BizScenario.DEFAULT_SCENARIO;
 }

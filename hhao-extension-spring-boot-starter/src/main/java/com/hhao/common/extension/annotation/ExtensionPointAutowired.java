@@ -23,7 +23,8 @@ import java.lang.annotation.*;
 
 
 /**
- * The interface Extension point autowired.
+ * 专用于SpringBoot，相当于Autowired，但有扩展点功能
+ * 目前只支持字段导入
  *
  * @author Wang
  * @since 1.0.0

@@ -17,19 +17,21 @@
 package com.hhao.common.springboot.config;
 
 import com.hhao.common.springboot.safe.SafeHtmlInterceptorHandler;
-import com.hhao.common.springboot.safe.executor.DefaultSafeHtmlExecutor;
-import com.hhao.common.springboot.safe.executor.SafeHtmlExecutor;
 import com.hhao.common.springboot.safe.decode.Base64DecodeHandler;
 import com.hhao.common.springboot.safe.decode.DecodeHandler;
+import com.hhao.common.springboot.safe.executor.DefaultSafeHtmlExecutor;
+import com.hhao.common.springboot.safe.executor.SafeHtmlExecutor;
 import com.hhao.common.springboot.safe.filter.DefaultSafeFilter;
 import com.hhao.common.springboot.safe.filter.SafeFilter;
 import com.hhao.common.springboot.safe.xss.DefaultXssPolicyHandler;
 import com.hhao.common.springboot.safe.xss.XssPolicyHandler;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Role;
 
 import java.util.List;
 
@@ -41,6 +43,7 @@ import java.util.List;
  */
 @Configuration
 @ConditionalOnMissingBean(SafeConfig.class)
+@Role(RootBeanDefinition.ROLE_INFRASTRUCTURE)
 @ConditionalOnProperty(prefix = "com.hhao.config.aop.safe",name = "enable",havingValue = "true",matchIfMissing = true)
 public class SafeConfig extends AbstractBaseConfig {
     /**
@@ -57,6 +60,7 @@ public class SafeConfig extends AbstractBaseConfig {
      * @return safe html executor
      */
     @Bean
+    @Role(RootBeanDefinition.ROLE_INFRASTRUCTURE)
     @ConditionalOnMissingBean
     public SafeHtmlExecutor safeHtmlExecutor(List<XssPolicyHandler> xssPolicyHandlers, List<DecodeHandler> decodeHandlers){
         return new DefaultSafeHtmlExecutor(xssPolicyHandlers,decodeHandlers);
@@ -70,6 +74,7 @@ public class SafeConfig extends AbstractBaseConfig {
      */
     @Bean
     @ConditionalOnMissingBean
+    @Role(RootBeanDefinition.ROLE_INFRASTRUCTURE)
     public XssPolicyHandler xssPolicyHandler(){
        return new DefaultXssPolicyHandler(policyUri);
     }
@@ -82,6 +87,7 @@ public class SafeConfig extends AbstractBaseConfig {
      */
     @Bean
     @ConditionalOnMissingBean
+    @Role(RootBeanDefinition.ROLE_INFRASTRUCTURE)
     public DecodeHandler base64DecodeHandler(){
         return new Base64DecodeHandler();
     }
@@ -94,6 +100,7 @@ public class SafeConfig extends AbstractBaseConfig {
      */
     @Bean
     @ConditionalOnMissingBean
+    @Role(RootBeanDefinition.ROLE_INFRASTRUCTURE)
     public SafeFilter safeFilter(SafeHtmlExecutor safeHtmlExecutor){
         return new DefaultSafeFilter(safeHtmlExecutor);
     }
@@ -107,6 +114,7 @@ public class SafeConfig extends AbstractBaseConfig {
      */
     @Bean
     @ConditionalOnMissingBean
+    @Role(RootBeanDefinition.ROLE_INFRASTRUCTURE)
     public SafeHtmlInterceptorHandler safeHtmlInterceptorHandler(SafeFilter safeFilter){
         return new SafeHtmlInterceptorHandler(safeFilter);
     }

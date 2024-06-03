@@ -15,13 +15,15 @@
  */
 package com.hhao.common.springboot.config.redis;
 
-import com.hhao.common.springboot.config.redis.utils.RedisReactiveUtil;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
@@ -34,14 +36,44 @@ import reactor.core.publisher.Flux;
  * RedisReactiveAutoConfiguration
  *
  * @author Wang
- * @since 2022/2/5 20:17
+ * @since 2022 /2/5 20:17
  */
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnClass({ ReactiveRedisConnectionFactory.class, ReactiveRedisTemplate.class, Flux.class })
+@ConditionalOnWebApplication(type= ConditionalOnWebApplication.Type.REACTIVE)
 @ConditionalOnProperty(prefix = "com.hhao.config.redis",name = "enable",havingValue = "true",matchIfMissing = true)
 public class RedisReactiveConfig {
 
+    /**
+     * Jdk serializer reactive redis template reactive redis template.
+     *
+     * @param reactiveRedisConnectionFactory the reactive redis connection factory
+     * @param resourceLoader                 the resource loader
+     * @return the reactive redis template
+     */
+    @Bean
+    public ReactiveRedisTemplate<Object, Object> jdkSerializerReactiveRedisTemplate(
+            ReactiveRedisConnectionFactory reactiveRedisConnectionFactory, ResourceLoader resourceLoader) {
+        RedisSerializer<Object> javaSerializer = RedisSerializer.java(resourceLoader.getClassLoader());
+        RedisSerializationContext<Object, Object> serializationContext = RedisSerializationContext
+                .newSerializationContext()
+                .key(javaSerializer)
+                .value(javaSerializer)
+                .hashKey(javaSerializer)
+                .hashValue(javaSerializer)
+                .build();
+        return new ReactiveRedisTemplate<>(reactiveRedisConnectionFactory, serializationContext);
+    }
+
+
+    /**
+     * Reactive redis template reactive redis template.
+     *
+     * @param reactiveRedisConnectionFactory the reactive redis connection factory
+     * @param redisSerializer                the redis serializer
+     * @return the reactive redis template
+     */
     @Bean("reactiveRedisTemplate")
+    @Primary
     @SuppressWarnings("all")
     public ReactiveRedisTemplate<String, Object> reactiveRedisTemplate(ReactiveRedisConnectionFactory reactiveRedisConnectionFactory, @Qualifier("genericJackson2JsonRedisSerializer") RedisSerializer<Object> redisSerializer) {
         StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
@@ -55,21 +87,16 @@ public class RedisReactiveConfig {
         return new ReactiveRedisTemplate<>(reactiveRedisConnectionFactory, serializationContext);
     }
 
+    /**
+     * Reactive string redis template reactive string redis template.
+     *
+     * @param reactiveRedisConnectionFactory the reactive redis connection factory
+     * @return the reactive string redis template
+     */
     @Bean
-    @ConditionalOnMissingBean(name = "reactiveStringRedisTemplate")
+    @Primary
     @SuppressWarnings("all")
     public ReactiveStringRedisTemplate reactiveStringRedisTemplate(ReactiveRedisConnectionFactory reactiveRedisConnectionFactory) {
         return new ReactiveStringRedisTemplate(reactiveRedisConnectionFactory);
-    }
-
-    /**
-     * 生成Redis工具类Bean
-     * @param redisTemplate
-     * @return
-     */
-    @Bean
-    @ConditionalOnMissingBean
-    public RedisReactiveUtil redisReactiveUtil(@Qualifier("reactiveRedisTemplate") ReactiveRedisTemplate<String, Object> redisTemplate){
-        return new RedisReactiveUtil(redisTemplate);
     }
 }

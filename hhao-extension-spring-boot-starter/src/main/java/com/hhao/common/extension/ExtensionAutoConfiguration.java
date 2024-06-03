@@ -18,7 +18,7 @@ package com.hhao.common.extension;
 
 import com.hhao.common.extension.annotation.Extension;
 import com.hhao.common.extension.aspect.ExtensionPointAutowiredAnnotationBeanPostProcessorRegister;
-import com.hhao.common.extension.executor.ExtensionExecutor;
+import com.hhao.common.extension.executor.DefaultExtensionExecutor;
 import com.hhao.common.extension.executor.ExtensionExecutorUtil;
 import com.hhao.common.extension.model.CombinedReturnBuilder;
 import com.hhao.common.extension.model.ExtensionPoint;
@@ -71,9 +71,9 @@ public class ExtensionAutoConfiguration implements ApplicationContextAware, Appl
      * @return the extension executor
      */
     @Bean
-    @ConditionalOnMissingBean(ExtensionExecutor.class)
-    public ExtensionExecutor executor(ExtensionRepository repository) {
-        ExtensionExecutor executor=new ExtensionExecutor(repository,isNotFoundThrowError);
+    @ConditionalOnMissingBean(DefaultExtensionExecutor.class)
+    public DefaultExtensionExecutor executor(ExtensionRepository repository) {
+        DefaultExtensionExecutor executor=new DefaultExtensionExecutor(repository,isNotFoundThrowError);
         ExtensionExecutorUtil.setExecutor(executor);
         return executor;
     }

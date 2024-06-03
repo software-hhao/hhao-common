@@ -16,6 +16,7 @@
 
 package com.hhao.common.mybatis.page;
 
+import com.hhao.common.ddd.dto.request.PageQuery;
 import com.hhao.common.ddd.dto.response.PageResponse;
 import com.hhao.common.mybatis.page.executor.MultiQueriesDynamicPageExecutor;
 import com.hhao.common.mybatis.page.executor.MultiQueriesStaticPageExecutor;
@@ -32,26 +33,39 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 分页信息
+ * 分页查询信息
  *
  * @param <T> the type parameter
  * @author Wang
  * @since 1.0.0
  */
 public class PageInfo<T> implements Page {
+    // 分页执行器
     private PageExecutor pageExecutor;
+    // 结果数据
     private Map<Integer, List<T>> data;
 
+    // 请求页面
     private long pageNum = 1L;
+    // 页面大小
     private long pageSize = PageMetaData.PAGE_SIZE;
+    // 向前缓存页数
     private long preCachedPage = PageMetaData.PRE_CACHED_PAGE;
+    // 向后缓存页数
     private long postCachedPage = PageMetaData.POST_CACHED_PAGE;
+    // 总行数
     private long totalRow=-1L;
+    // 是否包含总行数
     private boolean includeTotalRows=true;
+    // 排序方向
     private OrderDirection orderDirection=OrderDirection.ASC;
+    // 排序列
     private String [] orderColumns;
+    // 排序sql
     private String orderBySql;
+    // select语句中的limit参数的名称
     private String limitParamName=PageMetaData.LIMIT_PARAM_NAME;
+    // select语句中的offset参数的名称
     private String offsetParamName=PageMetaData.OFFSET_PARAM_NAME;
 
     @Override
@@ -132,6 +146,11 @@ public class PageInfo<T> implements Page {
         return this.pageSize;
     }
 
+    /**
+     * Gets total row.
+     *
+     * @return the total row
+     */
     public long getTotalRow() {
         return this.totalRow;
     }
@@ -146,6 +165,11 @@ public class PageInfo<T> implements Page {
         return this.postCachedPage;
     }
 
+    /**
+     * Gets data.
+     *
+     * @return the data
+     */
     public Map<Integer, List<T>> getData() {
         return this.data;
     }
@@ -258,6 +282,11 @@ public class PageInfo<T> implements Page {
         this.totalRow = totalRow;
     }
 
+    /**
+     * Gets total page.
+     *
+     * @return the total page
+     */
     public long getTotalPage() {
         if (getPageSize() == 0) {
             return 0L;
@@ -423,13 +452,37 @@ public class PageInfo<T> implements Page {
          * @param pageNum the page num
          */
         public Builder(long pageNum){
-            this(PageInfo.class,pageNum);
+            this(PageInfo.class,null);
+            this.setPageNum(pageNum);
         }
 
         /**
          * Instantiates a new Builder.
+         *
+         * @param pageQuery the page query
+         */
+        public Builder(PageQuery pageQuery){
+            this(PageInfo.class,pageQuery);
+        }
+
+        /**
+         * Instantiates a new Builder.
+         *
+         * @param tClass  the t class
+         * @param pageNum the page num
          */
         public <M extends PageInfo> Builder(Class<M> tClass,long pageNum){
+            this(tClass,null);
+            this.setPageNum(pageNum);
+        }
+
+        /**
+         * Instantiates a new Builder.
+         *
+         * @param tClass    the t class
+         * @param pageQuery the page query
+         */
+        public <M extends PageInfo> Builder(Class<M> tClass,PageQuery pageQuery){
             try {
                 pageInfo=tClass.getDeclaredConstructor().newInstance();
             } catch (InstantiationException e) {
@@ -444,7 +497,9 @@ public class PageInfo<T> implements Page {
             if (pageInfo==null){
                 throw new RuntimeException("PageInfo new instance wrong");
             }
-            pageInfo.setPageNum(pageNum);
+            if (pageQuery!=null){
+                this.withPageQuery(pageQuery);
+            }
         }
 
         /**
@@ -601,6 +656,23 @@ public class PageInfo<T> implements Page {
          */
         public Builder withSingleQueryDynamicPageExecutor(){
             pageInfo.setPageExecutor(new SingleQueryDynamicPageExecutor());
+            return this;
+        }
+
+        /**
+         * With page query builder.
+         *
+         * @param pageQuery the page query
+         * @return the builder
+         */
+        public Builder withPageQuery(PageQuery pageQuery){
+            this.setPageSize(pageQuery.getPageSize());
+            this.setPageNum(pageQuery.getPageNum());
+            this.setIncludeTotalRows(pageQuery.isIncludeTotalRows());
+            this.setOrderColumns(pageQuery.getOrderColumns());
+            this.setOrderDirection(pageQuery.getOrderDirection());
+            this.setPreCachedPage(pageQuery.getPreCachedPage());
+            this.setPostCachedPage(pageQuery.getPostCachedPage());
             return this;
         }
 

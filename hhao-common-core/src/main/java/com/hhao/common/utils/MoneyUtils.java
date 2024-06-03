@@ -51,6 +51,14 @@ public class MoneyUtils {
     private static final Pattern NUMBER_PATTERN = Pattern.compile("^-?(\\d+(\\.\\d*)?|\\.\\d+)$");
     private static final Pattern SCIENTIFIC_NOTATION_PATTERN = Pattern.compile("^-?\\d+(\\.\\d+)?[eE][-+]?\\d+$");
 
+    /**
+     * New money money.
+     *
+     * @param amount       the amount
+     * @param currencyCode the currency code
+     * @param mathContext  the math context
+     * @return the money
+     */
     public static Money newMoney(BigDecimal amount, String currencyCode, MathContext mathContext) {
         if (amount == null) {
             return null;
@@ -58,6 +66,13 @@ public class MoneyUtils {
         return bigDecimalToMoney(amount, currencyCode, mathContext);
     }
 
+    /**
+     * New money money.
+     *
+     * @param amount       the amount
+     * @param currencyCode the currency code
+     * @return the money
+     */
     public static Money newMoney(BigDecimal amount, String currencyCode) {
         return newMoney(amount, currencyCode, null);
     }
@@ -65,10 +80,10 @@ public class MoneyUtils {
     /**
      * 通过数值字符串生成Money,不任何裁剪
      *
-     * @param amount
-     * @param currencyCode
-     * @param mathContext
-     * @return
+     * @param amount       the amount
+     * @param currencyCode the currency code
+     * @param mathContext  the math context
+     * @return money
      */
     public static Money newMoney(String amount, String currencyCode, MathContext mathContext) {
         if (amount == null || amount.isBlank()) {
@@ -77,10 +92,25 @@ public class MoneyUtils {
         return bigDecimalToMoney(new BigDecimal(amount), currencyCode, mathContext);
     }
 
+    /**
+     * New money money.
+     *
+     * @param amount       the amount
+     * @param currencyCode the currency code
+     * @return the money
+     */
     public static Money newMoney(String amount, String currencyCode) {
         return newMoney(amount, currencyCode, null);
     }
 
+    /**
+     * Big decimal to money money.
+     *
+     * @param number       the number
+     * @param currencyCode the currency code
+     * @param mathContext  the math context
+     * @return the money
+     */
     public static Money bigDecimalToMoney(BigDecimal number, String currencyCode, MathContext mathContext) {
         if (currencyCode == null) {
             throw new IllegalArgumentException("currencyCode is null");
@@ -98,10 +128,23 @@ public class MoneyUtils {
                 .create();
     }
 
+    /**
+     * Big decimal to money money.
+     *
+     * @param number       the number
+     * @param currencyCode the currency code
+     * @return the money
+     */
     public static Money bigDecimalToMoney(BigDecimal number, String currencyCode) {
         return bigDecimalToMoney(number, currencyCode, null);
     }
 
+    /**
+     * Money to big decimal big decimal.
+     *
+     * @param money the money
+     * @return the big decimal
+     */
     public static BigDecimal moneyToBigDecimal(Money money) {
         if (money == null) {
             return null;
@@ -114,9 +157,11 @@ public class MoneyUtils {
      * money到字符串的转换
      * pattern会影响输出的精度与样式，pattern的写法参考：https://docs.oracle.com/javase/8/docs/api/java/text/DecimalFormat.html
      *
-     * @param amount  the money
-     * @param pattern the pattern
-     * @return string
+     * @param amount        the money
+     * @param locale        the locale
+     * @param currencyStyle the currency style
+     * @param pattern       the pattern
+     * @return string string
      */
     public static String moneyToString(MonetaryAmount amount,Locale locale,CurrencyStyle currencyStyle, String pattern) {
         MonetaryAmountFormat format = MonetaryFormats.getAmountFormat(
@@ -151,8 +196,8 @@ public class MoneyUtils {
      * 将字符串转换为MonetaryAmount
      * 从amount读取货币占位符，如果存在，则从amount中分离出货币占位符和货币值，否则使用系统默认的货币
      *
-     * @param amount
-     * @return
+     * @param amount the amount
+     * @return monetary amount
      */
     public static MonetaryAmount stringToMoney(String amount)  {
         // 根据amount分离出货币占位符,货币值
@@ -196,9 +241,10 @@ public class MoneyUtils {
     /**
      * 将字符串转换为MonetaryAmount
      *
-     * @param amount: 可以带有货币符号,也可以不带货币符号，不带的话用系统默认货币
-     * @param pattern: 货币格式，货币格式如果不带货币占位符，则认为amount没有货币符号，使用系统默认的货币
-     * @return
+     * @param amount          : 可以带有货币符号,也可以不带货币符号，不带的话用系统默认货币
+     * @param pattern         : 货币格式，货币格式如果不带货币占位符，则认为amount没有货币符号，使用系统默认的货币
+     * @param defaultCurrency the default currency
+     * @return monetary amount
      * @throws ParseException
      */
     public static MonetaryAmount stringToMoney(String amount, String pattern,Currency defaultCurrency)  {
@@ -248,10 +294,10 @@ public class MoneyUtils {
     /**
      * 将字符串转换为MonetaryAmount
      *
-     * @param amountWithoutCurrency: 货币值，不带货币符号
-     * @param currencyCodeOrSymbol: 货币符号
-     * @param patternWithoutPlaceSymbol: 货币格式,不带货币占位符
-     * @return
+     * @param amountWithoutCurrency     : 货币值，不带货币符号
+     * @param currencyCodeOrSymbol      : 货币符号
+     * @param patternWithoutPlaceSymbol : 货币格式,不带货币占位符
+     * @return monetary amount
      */
     public static MonetaryAmount stringToMoney(String amountWithoutCurrency, String currencyCodeOrSymbol, String patternWithoutPlaceSymbol)  {
         amountWithoutCurrency=amountWithoutCurrency.trim();
@@ -301,10 +347,10 @@ public class MoneyUtils {
     /**
      * 判断是否是合法的货币符号或代码
      *
-     * @param currencyCodeOrSymbol
-     * @param currency
-     * @param currencyStyle
-     * @return
+     * @param currencyCodeOrSymbol the currency code or symbol
+     * @param currency             the currency
+     * @param currencyStyle        the currency style
+     * @return boolean
      */
     public static boolean isValidCurrencyOrSymbol(String currencyCodeOrSymbol, Currency currency, CurrencyStyle currencyStyle) {
         switch (currencyStyle) {
@@ -319,6 +365,13 @@ public class MoneyUtils {
         }
     }
 
+    /**
+     * Is valid currency or symbol boolean.
+     *
+     * @param currencyCodeOrSymbol the currency code or symbol
+     * @param currency             the currency
+     * @return the boolean
+     */
     public static boolean isValidCurrencyOrSymbol(String currencyCodeOrSymbol, Currency currency) {
         if (isValidCurrencyOrSymbol(currencyCodeOrSymbol, currency, CurrencyStyle.SYMBOL) || isValidCurrencyOrSymbol(currencyCodeOrSymbol, currency, CurrencyStyle.CODE)) {
             return true;
@@ -329,8 +382,8 @@ public class MoneyUtils {
     /**
      * 判断是否是合法的数字
      *
-     * @param str
-     * @return
+     * @param str the str
+     * @return boolean
      */
     public static boolean isValidNumber(String str) {
         Matcher matcher = NUMBER_PATTERN.matcher(str);
@@ -351,7 +404,7 @@ public class MoneyUtils {
      *
      * @param locale        the locale
      * @param currencyStyle the currency style
-     * @return string
+     * @return string currency
      */
     public static String getCurrency(Locale locale, CurrencyStyle currencyStyle) {
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(locale);
@@ -375,7 +428,7 @@ public class MoneyUtils {
      * @param amount        the money text
      * @param locale        the locale
      * @param currencyStyle the currency style
-     * @return boolean
+     * @return boolean boolean
      */
     public static boolean startOrEndWithCurrency(String amount, Locale locale, CurrencyStyle currencyStyle) {
         if (amount == null || amount.trim().isEmpty()) {
@@ -393,6 +446,13 @@ public class MoneyUtils {
         return false;
     }
 
+    /**
+     * Start or end with currency boolean.
+     *
+     * @param moneyText the money text
+     * @param locale    the locale
+     * @return the boolean
+     */
     public static boolean startOrEndWithCurrency(String moneyText, Locale locale) {
         return startOrEndWithCurrency(moneyText, locale, CurrencyStyle.SYMBOL) ||
                 startOrEndWithCurrency(moneyText, locale, CurrencyStyle.CODE);
@@ -404,7 +464,7 @@ public class MoneyUtils {
      * @param amount        the money text
      * @param locale        the locale
      * @param currencyStyle the currency style
-     * @return string
+     * @return string string
      */
     public static String formatPrefixCurrencyWithSymbol(String amount, Locale locale, CurrencyStyle currencyStyle) {
         // 输入验证
@@ -435,7 +495,7 @@ public class MoneyUtils {
      * @param amount        the money text
      * @param locale        the locale
      * @param currencyStyle the currency style
-     * @return string
+     * @return string string
      */
     public static String formatSuffixCurrencyWithSymbol(String amount, Locale locale, CurrencyStyle currencyStyle) {
         // 输入验证
@@ -466,7 +526,7 @@ public class MoneyUtils {
      * 货币符号在数值的前后方，且为非数字字符。
      *
      * @param amount 金额字符串，例如 "$-23.4", "23.4USD", "23.4 USD", "-23.4 USD"
-     * @return 货币符号，如果未找到则返回空字符串
+     * @return 货币符号 ，如果未找到则返回空字符串
      */
     public static String extractCurrencySymbol(String amount) {
         // 先尝试从字符串前面提取货币符号
@@ -480,6 +540,12 @@ public class MoneyUtils {
         return symbol;
     }
 
+    /**
+     * Extract from front string.
+     *
+     * @param amount the amount
+     * @return the string
+     */
     public static String extractFromFront(String amount) {
         // 使用正则表达式匹配字符串开头的非数字、非正负号字符
         Pattern pattern = Pattern.compile("^[^\\d.\\-+]+");
@@ -492,6 +558,12 @@ public class MoneyUtils {
         }
     }
 
+    /**
+     * Extract from end string.
+     *
+     * @param amount the amount
+     * @return the string
+     */
     public static String extractFromEnd(String amount) {
         // 使用正则表达式匹配字符串末尾的非数字、非正负号字符
         Pattern pattern = Pattern.compile("[^\\d.\\-+]+$");
@@ -504,6 +576,12 @@ public class MoneyUtils {
         }
     }
 
+    /**
+     * The entry point of application.
+     *
+     * @param args the input arguments
+     * @throws ParseException the parse exception
+     */
     public static void main(String[] args) throws ParseException {
         String str = "-.123";
         //BigDecimal value=(BigDecimal)decimalFormat.parse(str);

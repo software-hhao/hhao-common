@@ -47,21 +47,16 @@ public class MultiQueriesStaticPageExecutor extends AbstractPageExecutor {
     @Override
     public Object execute(Invocation invocation,PageInfo pageInfo) throws Throwable {
         MappedStatement mappedStatement=this.getMappedStatement(invocation);
-
         //用新的SqlSource构建MappedStatement
         MappedStatement newMappedStatement=buildMappedStatement(mappedStatement,mappedStatement.getSqlSource(),this.buildResultMap(pageInfo,mappedStatement));
-
         //用新的MappedStatement替换原来的MappedStatement
         resetMappedStatement(invocation,newMappedStatement);
-
         //继续向下执行,返回查询结果集和行数结果集
         Object result = invocation.proceed();
-
         //对结果集进行处理
         result=this.doResult(pageInfo, result);
-
         //分页溢出处理
-        if (PageMetaData.PAGE_OVERFLOW_TO_LAST){
+        if (pageInfo.isIncludeTotalRows()){
             Object parameter=this.getParameter(invocation);
             BoundSql boundSql=mappedStatement.getBoundSql(parameter);
             //调整分页参数
@@ -76,7 +71,6 @@ public class MultiQueriesStaticPageExecutor extends AbstractPageExecutor {
                 result=this.doResult(pageInfo, result);
             }
         }
-
         return result;
     }
 }

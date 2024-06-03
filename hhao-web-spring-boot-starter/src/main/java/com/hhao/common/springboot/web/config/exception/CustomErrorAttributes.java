@@ -111,7 +111,6 @@ public class CustomErrorAttributes extends DefaultErrorAttributes {
         if (!options.isIncluded(Include.BINDING_ERRORS)) {
             errorAttributes.remove(ErrorAttributeConstant.ERRORS);
         }
-
         // 添加错误详情字段
         if (options.isIncluded(Include.MESSAGE)) {
             errorAttributes.put(ErrorAttributeConstant.DETAILS, getDetails(webRequest));

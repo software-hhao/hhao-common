@@ -16,15 +16,6 @@
 
 package com.hhao.common.mybatis.page.executor;
 
-import org.apache.ibatis.mapping.ParameterMapping;
-import org.apache.ibatis.mapping.ParameterMode;
-import org.apache.ibatis.reflection.MetaObject;
-import org.apache.ibatis.type.JdbcType;
-import org.apache.ibatis.type.TypeException;
-import org.apache.ibatis.type.TypeHandler;
-
-import java.sql.SQLException;
-
 /**
  * 封装处理Sql语句过程中添加的参数
  *

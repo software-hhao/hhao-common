@@ -51,8 +51,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultSafeFilter implements SafeFilter{
     protected final Logger logger = LoggerFactory.getLogger(DefaultSafeFilter.class);
     // 将方法每个参数的SafeHtml注解缓存，如果该方法参数不包含SafeHtml注解，则返回null
-    private final ConcurrentHashMap<Method, List<SafeHtml>> methodAnnotationCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Class, List<SafeHtml>> classAnnotationCache = new ConcurrentHashMap<>();
+    // List<SafeHtml>存放方法参数SafeHtml的注解，顺序和方法参数顺序一致
+    // key为方法对象的字符串
+    private final ConcurrentHashMap<String, List<SafeHtml>> methodAnnotationCache = new ConcurrentHashMap<>();
+    // 将类每个字段的SafeHtml注解缓存，如果该字段不包含SafeHtml注解，则返回null
+    // key,string,为类字符串
+    // value,List<SafeHtml>为类字段对应的SafeHtml注解，顺序与类字段顺序一致
+    private final ConcurrentHashMap<String, List<SafeHtml>> classAnnotationCache = new ConcurrentHashMap<>();
 
     private SafeHtmlExecutor safeHtmlExecutor;
     /**
@@ -90,7 +95,10 @@ public class DefaultSafeFilter implements SafeFilter{
      */
     @Override
     public void filter(MethodInvocation mi) {
-        List<SafeHtml> methodParamSafeHtmlList=methodAnnotationCache.computeIfAbsent(mi.getMethod(), method -> {
+        String key=mi.getMethod().toGenericString();
+        Method method=mi.getMethod();
+
+        List<SafeHtml> methodParamSafeHtmlList=methodAnnotationCache.computeIfAbsent(key, k -> {
             // 添加方法参数的@SafeHtml注解
             List<SafeHtml> safeHtmlList = new ArrayList<>();
 
@@ -120,6 +128,7 @@ public class DefaultSafeFilter implements SafeFilter{
                     safeHtmlList.add(i, null);
                 }
             };
+
             return safeHtmlList;
         });
 
@@ -156,32 +165,49 @@ public class DefaultSafeFilter implements SafeFilter{
         }
 
         if (obj instanceof List) {
-            //List集合的处理
-            List<Object> list = (List<Object>) obj;
-            for (int index = 0; index < list.size(); index++) {
-                list.set(index, filterObject(list.get(index), safeHtml));
+            // 开启深度处理
+            if (safeHtml.depthTraversal()) {
+                //List集合的处理
+                List<Object> list = (List<Object>) obj;
+                for (int index = 0; index < list.size(); index++) {
+                    // 把过滤后的结果设置回去
+                    list.set(index, filterObject(list.get(index), safeHtml));
+                }
             }
             return obj;
-        }else if (obj instanceof Set) {
-            //Set集合的处理
-            Set<Object> set = (Set<Object>) obj;
-            List<Object> list = new ArrayList<>();
-            set.stream().forEach(item -> {
-                list.add(filterObject(item, safeHtml));
-            });
-            set.clear();
-            set.addAll(list);
+        } else if (obj instanceof Set) {
+            // 开启深度处理
+            if (safeHtml.depthTraversal()) {
+                // Set集合的处理
+                // 过滤结果先放到list中，再放到原Set中
+                Set<Object> set = (Set<Object>) obj;
+                List<Object> list = new ArrayList<>();
+                set.stream().forEach(item -> {
+                    list.add(filterObject(item, safeHtml));
+                });
+                set.clear();
+                set.addAll(list);
+            }
             return obj;
-        }else if (obj instanceof Map) {
-            //Map集合的处理
-            Map<Object, Object> map = (Map<Object, Object>) obj;
-            map.forEach((key, item) -> {
-                map.put(key, filterObject(item, safeHtml));
-            });
+        } else if (obj instanceof Map) {
+            // 开启深度处理
+            if (safeHtml.depthTraversal()) {
+                // Map集合的处理
+                Map<Object, Object> map = (Map<Object, Object>) obj;
+                map.forEach((key, item) -> {
+                    // 把过滤结果放回去
+                    map.put(key, filterObject(item, safeHtml));
+                });
+            }
             return obj;
         }
 
-        List<SafeHtml> classFieldSafeHtmlList=classAnnotationCache.computeIfAbsent(obj.getClass(), clazz -> {
+        // 非集合对象和字符串对象的处理
+        // classAnnotationCache
+        // key,string,为类字符串
+        // value,List<SafeHtml>为类字段对应的SafeHtml注解，顺序与类字段顺序一致
+        String key=obj.getClass().getName();
+        List<SafeHtml> classFieldSafeHtmlList=classAnnotationCache.computeIfAbsent(key, k -> {
             List<SafeHtml> safeHtmlList = new ArrayList<>();
 
             //获取类的@SafeHtml注解
@@ -218,31 +244,34 @@ public class DefaultSafeFilter implements SafeFilter{
         SafeHtml fieldSafeHtml = null;
 
         for (int j = 0; j < fields.length; j++) {
+            // 从缓存中获取字段的SafeHtml注解
             fieldSafeHtml=classFieldSafeHtmlList.get(j);
+            // 如果没有SafeHtml注解，则直接返回对象
             if (fieldSafeHtml==null){
                 return obj;
             }
-            //以下部份useSafeHtml!=null，说明一定有注解的存在，可能是字段注解，也可能是类注解
-            //2种情况的处理
-            //1、字段没有注解，只有类有注解，则只处理该类下String类型的字段
-            //2、字段有注解，非字符串，则级联进入该类处理
+            // 以下部份说明该字段有注解的存在
+            // 对字段过滤处理
             field=fields[j];
-            if (field.getType().equals(String.class)) {
-                try {
+            try {
+                //如果是字符串或深度遍历开启，则进一步处理
+                if (field.getType().equals(String.class) || fieldSafeHtml.depthTraversal()) {
+                    // 这个是对代理对象可访问性的处理
                     if (!field.canAccess(obj)) {
                         field.setAccessible(true);
                     }
+                    // 对字符串进行处理后设置回去
                     field.set(obj, filterObject(field.get(obj), fieldSafeHtml));
-                } catch (Exception e) {
-                    //如果是解码错误，则抛出异常
-                    if (e instanceof DecodeException){
-                        throw (DecodeException)e;
-                    }
-                    logger.debug("decode error:" + e.getMessage());
-                    continue;
                 }
+            } catch (Exception e) {
+                //如果是解码错误，则抛出异常
+                if (e instanceof DecodeException){
+                    throw (DecodeException)e;
+                }
+                logger.debug("decode error:" + e.getMessage());
             }
         }
+        // 返回对象
         return obj;
     }
 }

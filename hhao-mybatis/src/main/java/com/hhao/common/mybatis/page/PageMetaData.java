@@ -63,5 +63,5 @@ public class PageMetaData {
     /**
      * The constant SUPPORT_MULTI_QUERIES.
      */
-    public static Boolean SUPPORT_MULTI_QUERIES=false;
+    public static Boolean SUPPORT_MULTI_QUERIES=true;
 }

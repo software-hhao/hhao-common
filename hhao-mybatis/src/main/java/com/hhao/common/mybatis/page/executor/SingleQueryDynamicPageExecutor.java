@@ -41,13 +41,16 @@ import java.util.List;
  * 执行器对以下内容进行处理
  * 1、对select语句进行分析，如果未分页，则加入分页，并对查询参数进行检查、补齐
  * 2、对count语句进行分析，如果不存在，则自动生成，并对参数进行检查、删除或补齐
- * 如果同时定义select与count语句，以多语句的方式，定义在同一个查询块中
+ * 构建一个新的MappedStatement执行count语句
  * 该执行器比较灵活，但受到不同数据库语言差异的影响，效率次于SingleQueryStaticPageExecutor
  *
  * @author Wang
  * @since 1.0.0
  */
 public class SingleQueryDynamicPageExecutor extends AbstractPageExecutor {
+    /**
+     * The Logger.
+     */
     protected final Log logger = LogFactory.getLog(this.getClass());
 
 
@@ -65,31 +68,26 @@ public class SingleQueryDynamicPageExecutor extends AbstractPageExecutor {
         Object parameter=this.getParameter(invocation);
         BoundSql boundSql=mappedStatement.getBoundSql(parameter);
         List<Object> parameterMappings= Collections.unmodifiableList(boundSql.getParameterMappings());
-
         //获取SqlExecutor
         SqlExecutor sqlExecutor = this.getSqlExecutor(pageInfo, this.getDatabaseId(mappedStatement));
         //解析SQL语句
         //生成的SqlPageModel包含select语句、select语句的入参;count语句、count语句的入参
         String dbName=this.getDatabaseId(mappedStatement);
         SqlPageModel sqlPageModel=sqlExecutor.generalSqlPageModel(pageInfo,boundSql.getSql(),parameterMappings,dbName);
-
         //select分页处理
         SqlSource pageSqlSource=buildPageSqlSource(pageInfo,sqlPageModel,mappedStatement,parameter);
         //用新的SqlSource构建MappedStatement
         MappedStatement pageMappedStatement=buildMappedStatement(mappedStatement,pageSqlSource,mappedStatement.getResultMaps());
         //用新的MappedStatement替换原来的MappedStatement
         resetMappedStatement(invocation,pageMappedStatement);
-
         //count处理
         if (pageInfo.isIncludeTotalRows()) {
             SqlSource countSqlSource = buildCountSqlSource(pageInfo, sqlPageModel, mappedStatement, parameter);
             MappedStatement countMappedStatement = buildMappedStatement(mappedStatement, countSqlSource, addCountResultMap(new ArrayList<>()));
             BoundSql countSql=countMappedStatement.getBoundSql(parameter);
-
             CacheKey cacheKey = executor.createCacheKey(countMappedStatement, parameter, rowBounds, countSql);
             List<Object> result = executor.query(countMappedStatement, parameter, rowBounds, resultHandler, cacheKey, countSql);
             setCountResult(pageInfo, result);
-
             //分页溢出处理
             pageOverflowToLast(pageInfo,pageMappedStatement,parameter,pageSqlSource.getBoundSql(parameter));
         }
@@ -100,7 +98,6 @@ public class SingleQueryDynamicPageExecutor extends AbstractPageExecutor {
     private SqlSource buildPageSqlSource(PageInfo pageInfo,SqlPageModel sqlPageModel,MappedStatement mappedStatement, Object parameter){
         //原来select的BoundSql
         BoundSql boundSql=mappedStatement.getBoundSql(parameter);
-
         //将ParamMapping转成ParameterMapping
         List<ParameterMapping> parameterMappings=new ArrayList<>();
         for(Object param :sqlPageModel.getSelect().getParams()){
@@ -112,19 +109,16 @@ public class SingleQueryDynamicPageExecutor extends AbstractPageExecutor {
                 throw new RuntimeException("only support ParameterMapping or ParamMapping");
             }
         }
-
         //生成新的BoundSql
         BoundSql pageBoundSql=new BoundSql(mappedStatement.getConfiguration(),
                 sqlPageModel.getSelect().getSql(), parameterMappings,
                 boundSql.getParameterObject());
-
         //设置在修改select、count时新添加带值的参数
         for(Object param :parameterMappings){
             if(param instanceof ParamMapping){
                 pageBoundSql.setAdditionalParameter(((ParamMapping) param).getProperty(),((ParamMapping) param).getValue());
             }
         }
-
         //生成新的SqlSource
         return new SqlSource() {
             @Override
@@ -139,9 +133,7 @@ public class SingleQueryDynamicPageExecutor extends AbstractPageExecutor {
         if (sqlPageModel.getCount()==null){
             return null;
         }
-
         BoundSql boundSql=mappedStatement.getBoundSql(parameter);
-
         //将ParamMapping转成ParameterMapping
         List<ParameterMapping> parameterMappings=new ArrayList<>();
         for(Object param :sqlPageModel.getCount().getParams()){
@@ -153,19 +145,16 @@ public class SingleQueryDynamicPageExecutor extends AbstractPageExecutor {
                 throw new RuntimeException("only support ParameterMapping or ParamMapping");
             }
         }
-
         //生成新的BoundSql
         BoundSql countBoundSql=new BoundSql(mappedStatement.getConfiguration(),
                 sqlPageModel.getCount().getSql(), parameterMappings,
                 boundSql.getParameterObject());
-
         //设置在修改select、count时新添加带值的参数
         for(Object param :parameterMappings){
             if(param instanceof ParamMapping){
                 countBoundSql.setAdditionalParameter(((ParamMapping) param).getProperty(),((ParamMapping) param).getValue());
             }
         }
-
         //生成新的SqlSource
         return new SqlSource() {
             @Override

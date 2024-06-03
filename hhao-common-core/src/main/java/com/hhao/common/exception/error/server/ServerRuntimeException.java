@@ -80,6 +80,14 @@ public class ServerRuntimeException extends BusinessRuntimeException {
         super(code,message,cause,args);
     }
 
+    public ServerRuntimeException(String code,String message,Object [] args) {
+        super(code,message,args);
+    }
+
+    public ServerRuntimeException(String code,String message) {
+        super(code,message);
+    }
+
     /**
      * Instantiates a new Server exception.
      *

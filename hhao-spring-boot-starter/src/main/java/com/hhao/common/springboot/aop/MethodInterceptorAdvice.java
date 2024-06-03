@@ -16,7 +16,8 @@
 
 package com.hhao.common.springboot.aop;
 
-import jakarta.annotation.Nonnull;
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.core.OrderComparator;
@@ -24,11 +25,14 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -39,8 +43,11 @@ import java.util.stream.Collectors;
  * @since 1.0.0
  */
 public class MethodInterceptorAdvice implements Ordered, MethodInterceptor, Serializable {
+    private static final Logger logger = LoggerFactory.getLogger(MethodInterceptorAdvice.class);
     private int order = Ordered.HIGHEST_PRECEDENCE;
     private InterceptorHandlerChain interceptorHandlerChain;
+    // 缓存拦截器
+    private final ConcurrentHashMap<String, List<InterceptorHandler>> cachedInterceptorChains = new ConcurrentHashMap<>();
 
     /**
      * Instantiates a new Method interceptor advice.
@@ -64,31 +71,35 @@ public class MethodInterceptorAdvice implements Ordered, MethodInterceptor, Seri
 
         //获取拦截器
         List<InterceptorHandler> interceptorHandlers= getInterceptorHandlers(invocation);
-
         //执行结果
         Object result=null;
         //异常结果
         Throwable error=null;
-
         try{
             //前置执行
-            for(InterceptorHandler handler:interceptorHandlers){
-                if (!handler.onBegin(invocation)){
-                    throw new RuntimeException("The conditions for continued execution are not met");
+            if (interceptorHandlers!=null) {
+                for (InterceptorHandler handler : interceptorHandlers) {
+                    if (!handler.onBegin(invocation)) {
+                        throw new RuntimeException("The conditions for continued execution are not met");
+                    }
                 }
             }
             //调用处理
             result=invocation.proceed();
         }catch(Throwable e0){
+            logger.error("Method Invocation error", e0);
             error=e0;
             throw e0;
         }finally{
             //后置处理
-            for(InterceptorHandler handler:interceptorHandlers){
-                try {
-                    result=handler.onComplete(result,error,invocation);
-                }catch(Throwable e1){
-                    throw new RuntimeException("An error occurred during processing");
+            if (interceptorHandlers!=null) {
+                for (InterceptorHandler handler : interceptorHandlers) {
+                    try {
+                        result = handler.onComplete(result, error, invocation);
+                    } catch (Throwable e1) {
+                        logger.error("Error during processing onComplete method", e1); //
+                        throw new RuntimeException("An error occurred during processing");
+                    }
                 }
             }
         }
@@ -101,15 +112,28 @@ public class MethodInterceptorAdvice implements Ordered, MethodInterceptor, Seri
      * @param invocation the invocation
      * @return the list
      */
+    @Nullable
     protected List<InterceptorHandler> getInterceptorHandlers(MethodInvocation invocation){
+        Method method=invocation.getMethod();
+        String key=method.toGenericString();
+        return cachedInterceptorChains.computeIfAbsent(
+                key,
+                k -> {
+                    List<InterceptorHandler> temp= buildInterceptorChainForMethod(method);
+                    return CollectionUtils.isEmpty(temp) ? null : temp;
+                }
+        );
+    }
+
+    private List<InterceptorHandler> buildInterceptorChainForMethod(Method method) {
         String [] ids=null;
 
         //获取方法的@Aop，可能为null
-        List<Aop> aopAnnotations=this.getMethodAopAnnotation(invocation);
+        List<Aop> aopAnnotations=this.getMethodAopAnnotation(method);
 
         //获取类的@Aop
         if (CollectionUtils.isEmpty(aopAnnotations)){
-            aopAnnotations=this.geClassAopAnnotation(invocation);
+            aopAnnotations=this.geClassAopAnnotation(method);
         }
 
         if (CollectionUtils.isEmpty(aopAnnotations)){
@@ -129,8 +153,8 @@ public class MethodInterceptorAdvice implements Ordered, MethodInterceptor, Seri
         return interceptorHandlers;
     }
 
-    private List<Aop> getMethodAopAnnotation(MethodInvocation invocation){
-        List<Aop> annotations=Arrays.stream(invocation.getMethod().getAnnotations()).map(
+    private List<Aop> getMethodAopAnnotation(Method method){
+        List<Aop> annotations=Arrays.stream(method.getAnnotations()).map(
                 annotation -> {
                     if (annotation.annotationType().equals(Aop.class)){
                         return (Aop)annotation;
@@ -146,8 +170,8 @@ public class MethodInterceptorAdvice implements Ordered, MethodInterceptor, Seri
         return annotations;
     }
 
-    private List<Aop> geClassAopAnnotation(MethodInvocation invocation){
-        List<Aop> annotations=Arrays.stream(invocation.getMethod().getDeclaringClass().getAnnotations()).map(
+    private List<Aop> geClassAopAnnotation(Method method){
+        List<Aop> annotations=Arrays.stream(method.getDeclaringClass().getAnnotations()).map(
                 annotation -> {
                     if (annotation.annotationType().equals(Aop.class)){
                         return (Aop)annotation;

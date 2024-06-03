@@ -46,7 +46,7 @@ import java.util.List;
  * The type My batis auto config.
  *
  * @author Wang
- * @since  1.0.0
+ * @since 1.0.0
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnBean(SqlSessionFactory.class)
@@ -80,7 +80,7 @@ public class MyBatisAutoConfig implements ApplicationContextAware {
         this.sqlSessionFactoryList=sqlSessionFactoryList;
         addInterceptor();
         //初始化注册分页执行器和SQL执行器
-        init(myBatisProperties);
+        init(this.myBatisProperties);
 
     }
 

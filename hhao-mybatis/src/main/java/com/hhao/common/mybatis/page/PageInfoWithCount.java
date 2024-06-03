@@ -15,15 +15,17 @@
  */
 
 package com.hhao.common.mybatis.page;
+import com.hhao.common.ddd.dto.request.PageQuery;
 import com.hhao.common.mybatis.page.executor.SingleQueryStaticPageExecutor;
 
 /**
- * The type Page info with count.
+ * 带获取count的MappedStatement的查询分页信息
  *
  * @author Wang
  * @since 2021 /11/18 11:13
  */
 public class PageInfoWithCount extends PageInfo{
+    // 用于获取总记录数的MappedStatement的id
     private String countMappedStatementId;
 
     /**
@@ -55,8 +57,20 @@ public class PageInfoWithCount extends PageInfo{
          * @param countMappedStatementId the count mapped statement id
          */
         public Builder(long pageNum,String countMappedStatementId) {
-            super(PageInfoWithCount.class,pageNum);
-            ((PageInfoWithCount)pageInfo).setCountMappedStatementId(countMappedStatementId);
+            super(PageInfoWithCount.class,null);
+            this.pageInfo.setPageNum(pageNum);
+            ((PageInfoWithCount)this.pageInfo).setCountMappedStatementId(countMappedStatementId);
+        }
+
+        /**
+         * Instantiates a new Builder.
+         *
+         * @param pageQuery              the page query
+         * @param countMappedStatementId the count mapped statement id
+         */
+        public Builder(PageQuery pageQuery, String countMappedStatementId) {
+            super(PageInfoWithCount.class,pageQuery);
+            ((PageInfoWithCount)this.pageInfo).setCountMappedStatementId(countMappedStatementId);
         }
 
         /**

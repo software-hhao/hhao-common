@@ -79,6 +79,14 @@ public class RequestRuntimeException extends BusinessRuntimeException {
         super(code,message,cause,args);
     }
 
+    public RequestRuntimeException(String code,String message,Object [] args) {
+        super(code,message,args);
+    }
+
+    public RequestRuntimeException(String code,String message) {
+        super(code,message);
+    }
+
     /**
      * Instantiates a new Request exception.
      *

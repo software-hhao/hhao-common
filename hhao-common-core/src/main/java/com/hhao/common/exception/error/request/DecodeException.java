@@ -78,6 +78,14 @@ public class DecodeException extends RequestRuntimeException {
         super(code,message,cause,args);
     }
 
+    public DecodeException(String code,String message,Object [] args) {
+        super(code,message,args);
+    }
+
+    public DecodeException(String code,String message) {
+        super(code,message);
+    }
+
     /**
      * Instantiates a new Decode exception.
      *

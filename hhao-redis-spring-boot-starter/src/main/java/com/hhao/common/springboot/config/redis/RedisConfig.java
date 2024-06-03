@@ -25,14 +25,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.hhao.common.jackson.DefaultJacksonUtil;
 import com.hhao.common.jackson.JacksonUtilFactory;
-import com.hhao.common.springboot.config.redis.utils.RedisUtil;
 import com.hhao.common.springboot.jackson.SpringJacksonKeyType;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -43,74 +42,94 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 /**
  * 相关类：
  * RedisAutoConfiguration
+ * <p>
+ * 注意：RedisConnection类不是线程安全的。
+ * LettuceConnectionFactory默认情况下创建的是共享的连接，不可用于阻塞的、事务性的操作。
+ * 如果要用于阻塞的、事务性的操作，要改成每次操作生成一个连接。
  *
  * @author Wang
- * @since 2022/2/4 18:28
+ * @Bean public      LettuceConnectionFactory lettuceConnectionFactory() {         LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()                 //启用ssl                 .useSsl().and()                 .commandTimeout(Duration.ofSeconds(2))                 .shutdownTimeout(Duration.ZERO)                 .build();         LettuceConnectionFactory lettuceConnectionFactory=new LettuceConnectionFactory(new RedisStandaloneConfiguration("localhost", 6379), clientConfig);         // 不共享         lettuceConnectionFactory.setShareNativeConnection(false);         return lettuceConnectionFactory;     }
+ * @since 2022 /2/4 18:28
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnProperty(prefix = "com.hhao.config.redis",name = "enable",havingValue = "true",matchIfMissing = true)
 public class RedisConfig {
+    // RedisTemplate是否开启事务支持
+    // 开启事务支持，如果当前线程在事务中，则使用事务管理器管理事务
+    @Value("${com.hhao.config.redis.redis-template.enable-transaction-support:false}")
+    private Boolean enableTransactionSupport;
+
+    /**
+     * 采用JdkSerializationRedisSerializer
+     *
+     * @param redisConnectionFactory the redis connection factory
+     * @return redis template
+     */
+    @Bean
+    public RedisTemplate<Object, Object> jdkSerializerRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<Object, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+        return template;
+    }
+
     /**
      * 自定义redisTemplate Bean,覆盖RedisAutoConfiguration中的定义
-     * 采用JSON序列化
+     * key采用String,value采用JSON序列化
      *
-     * @param factory
-     * @param redisSerializer
-     * @return
+     * @param factory         the factory
+     * @param redisSerializer the redis serializer
+     * @return redis template
      */
     @Bean("redisTemplate")
     @SuppressWarnings("all")
+    @Primary
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory, @Qualifier("genericJackson2JsonRedisSerializer") RedisSerializer<Object> redisSerializer) {
         RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();
         template.setConnectionFactory(factory);
-
         StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
-        // key采用String的序列化方式
-        template.setKeySerializer(stringRedisSerializer);
-        // hash的key也采用String的序列化方式
-        template.setHashKeySerializer(stringRedisSerializer);
-
+        // 是否开启事务支持
+        template.setEnableTransactionSupport(enableTransactionSupport);
         // 设置默认的值解析方式
         template.setDefaultSerializer(redisSerializer);
+
+        // key采用String的序列化方式
+        template.setKeySerializer(stringRedisSerializer);
         // value序列化方式采用jackson
-        // template.setValueSerializer(redisSerializer);
+        template.setValueSerializer(redisSerializer);
+
+        // hash的key也采用String的序列化方式
+        template.setHashKeySerializer(stringRedisSerializer);
         // hash的value序列化方式采用jackson
-        // template.setHashValueSerializer(redisSerializer);
+        template.setHashValueSerializer(redisSerializer);
+
         template.afterPropertiesSet();
         return template;
     }
 
     /**
      * 自定义stringRedisTemplate Bean,覆盖RedisAutoConfiguration中的定义
+     * key采用String,value采用String
      *
-     * @param redisConnectionFactory
-     * @return
+     * @param redisConnectionFactory the redis connection factory
+     * @return string redis template
      */
     @Bean("stringRedisTemplate")
-    @ConditionalOnWebApplication
     @SuppressWarnings("all")
+    @Primary
     public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        return new StringRedisTemplate(redisConnectionFactory);
+        StringRedisTemplate stringRedisTemplate = new StringRedisTemplate(redisConnectionFactory);
+        stringRedisTemplate.setEnableTransactionSupport(enableTransactionSupport);
+        return stringRedisTemplate;
     }
 
-    /**
-     * 生成Redis工具类Bean
-     * @param redisTemplate
-     * @return
-     */
-    @Bean
-    @ConditionalOnMissingBean
-    public RedisUtil redisUtil(@Qualifier("redisTemplate") RedisTemplate<String, Object> redisTemplate){
-        return new RedisUtil(redisTemplate);
-    }
 
     /**
      * 定义JSON序列化器
      * 如果有加载session，那么该bean为session默认的序列化解析器
      * bean的命名不能改变
      *
-     * @param objectMapper
-     * @return
+     * @param objectMapper the object mapper
+     * @return redis serializer
      */
     @Bean("genericJackson2JsonRedisSerializer")
     @SuppressWarnings("all")
@@ -126,8 +145,8 @@ public class RedisConfig {
     /**
      * 配置Jackson2JsonRedisSerializer，并保存到JacksonUtilFactory,key为REDIS_SERIALIZER
      *
-     * @param objectMapper
-     * @return
+     * @param objectMapper the object mapper
+     * @return object mapper
      */
     protected ObjectMapper configJackson2JsonRedisSerializer(ObjectMapper objectMapper){
         //ObjectMapper的配置
@@ -138,6 +157,4 @@ public class RedisConfig {
         JacksonUtilFactory.addJsonUtil(SpringJacksonKeyType.REDIS_SERIALIZER,new DefaultJacksonUtil(objectMapper));
         return objectMapper;
     }
-
-
 }

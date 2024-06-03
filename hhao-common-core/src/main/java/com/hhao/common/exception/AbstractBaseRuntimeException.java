@@ -79,6 +79,14 @@ public abstract class AbstractBaseRuntimeException extends RuntimeException impl
         this(String.valueOf(CoreConstant.DEFAULT_EXCEPTION_STATUS),message,cause,args);
     }
 
+    public AbstractBaseRuntimeException(String code,String message,Object [] args) {
+        this(code,message,null,args);
+    }
+
+    public AbstractBaseRuntimeException(String code,String message) {
+        this(code,message,null,null);
+    }
+
     /**
      * message:如果是${}包围的，解析为messageId，否则解析为message
      *
@@ -101,7 +109,7 @@ public abstract class AbstractBaseRuntimeException extends RuntimeException impl
      * @param errorCode the error info
      * @param cause     the cause
      */
-    public AbstractBaseRuntimeException( ErrorCode errorCode, Throwable cause) {
+    public AbstractBaseRuntimeException(ErrorCode errorCode, Throwable cause) {
         super(cause);
         if (errorCode == null) {
             throw new IllegalArgumentException("ErrorCode cannot be null");

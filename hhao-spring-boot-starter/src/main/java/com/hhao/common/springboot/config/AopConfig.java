@@ -23,10 +23,12 @@ import com.hhao.common.springboot.aop.MethodInterceptorAdvice;
 import org.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.Role;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -35,7 +37,13 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 /**
- * The type Aop config.
+ * 用@AOP注解实现拦截，@AOP注解类或方法，如果要使方法参数上的拦截，可定义pointcutApi。
+ * 使用方法：
+ * 直接使用@Aop注解或从@AOP注解派生自定义的注解，可参考@SafeHtml
+ * 定义拦截器，实现InterceptorHandler接口，可生成Bean或采用Spi加载
+ * 将拦截器id与@AOP注解的interceptorIds关联
+ * 优先级如下：方法上的拦截器优先于类上的拦截器
+ * 如果方法或类上定义了多重拦截器，多重拦截器都会执行，执行顺序按order
  *
  * @author Wang
  * @since 1.0.0
@@ -43,17 +51,20 @@ import java.util.ServiceLoader;
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnMissingBean(AopConfig.class)
 @EnableAspectJAutoProxy
+@Role(RootBeanDefinition.ROLE_INFRASTRUCTURE)
 public class AopConfig extends AbstractBaseConfig {
     /**
      * The Logger.
      */
     protected final Logger logger = LoggerFactory.getLogger(AopConfig.class);
     /**
-     * pointcut定义，如未定义或为空，则不会启动接口的aop
+     * pointcut定义，可设置其它路径的拦截
+     * 如果单独使用函数参数上基于@AOP的注解，则需要设置pointcutApi，否则拦截不到，要使用AspectJ的注解
+     * "(execution(public * *(..))) && (@Args({@annotation(com.hhao.common.springboot.safe.SafeHtml)}))"
+     * "execution(* com.hhao.common.springboot.web.mvc.test.api.*.*(..))"
      */
     @Value("${com.hhao.config.aop.pointcut:}")
     private String pointcutApi;
-
 
     /**
      * 默认拦截@Aop与@SafeHtml
@@ -68,7 +79,8 @@ public class AopConfig extends AbstractBaseConfig {
         buf.append("(execution(public * *(..))) && ");
         buf.append("(");
         buf.append("@within(com.hhao.common.springboot.aop.Aop) || @annotation(com.hhao.common.springboot.aop.Aop) || ");
-        buf.append("@within(com.hhao.common.springboot.safe.SafeHtml) || @annotation(com.hhao.common.springboot.safe.SafeHtml) ");
+        buf.append("@within(com.hhao.common.springboot.safe.SafeHtml) || @annotation(com.hhao.common.springboot.safe.SafeHtml) || ");
+        buf.append("@within(com.hhao.common.springboot.duplicate.DuplicatePrevent) || @annotation(com.hhao.common.springboot.duplicate.DuplicatePrevent) ");
         buf.append(")");
         buf.append(")");
         return buf.toString();
@@ -81,6 +93,7 @@ public class AopConfig extends AbstractBaseConfig {
      * @return the aspect j expression pointcut advisor
      */
     @Bean
+    @Role(RootBeanDefinition.ROLE_INFRASTRUCTURE)
     @ConditionalOnMissingBean
     public AspectJExpressionPointcutAdvisor apiAdvisor(MethodInterceptorAdvice methodInterceptorAdvice) {
         AspectJExpressionPointcutAdvisor advisor = new AspectJExpressionPointcutAdvisor();
@@ -97,6 +110,7 @@ public class AopConfig extends AbstractBaseConfig {
      * @return the method interceptor advice
      */
     @Bean
+    @Role(RootBeanDefinition.ROLE_INFRASTRUCTURE)
     @ConditionalOnMissingBean
     public MethodInterceptorAdvice defaultMethodInterceptorAdvice(ObjectProvider<List<InterceptorHandler>> provider){
         InterceptorHandlerChain interceptorHandlerChain = new InterceptorHandlerChain();
@@ -144,4 +158,5 @@ public class AopConfig extends AbstractBaseConfig {
             }
         }
     }
+
 }

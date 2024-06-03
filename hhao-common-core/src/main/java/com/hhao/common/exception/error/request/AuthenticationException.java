@@ -16,10 +16,8 @@
 
 package com.hhao.common.exception.error.request;
 
-import com.hhao.common.exception.AbstractBaseRuntimeException;
-import com.hhao.common.exception.ErrorCode;
 import com.hhao.common.exception.DefaultErrorCodes;
-import com.hhao.common.exception.error.BusinessRuntimeException;
+import com.hhao.common.exception.ErrorCode;
 
 /**
  * 认证异常,帐号或密码错误
@@ -37,6 +35,10 @@ public class AuthenticationException extends RequestRuntimeException {
         super(DefaultErrorCodes.ERROR_401.getCode(),message,null,null);
     }
 
+    public AuthenticationException(String code, String message, Throwable cause, Object [] args) {
+        super(code,message,cause,args);
+    }
+
     /**
      * Instantiates a new Authorize exception.
      *
@@ -45,6 +47,14 @@ public class AuthenticationException extends RequestRuntimeException {
      */
     public AuthenticationException(String message, Object [] args) {
         super(DefaultErrorCodes.ERROR_401.getCode(),message,null,args);
+    }
+
+    public AuthenticationException(String code,String message,Object [] args) {
+        super(code,message,args);
+    }
+
+    public AuthenticationException(String code,String message) {
+        super(code,message);
     }
 
     /**
@@ -59,7 +69,6 @@ public class AuthenticationException extends RequestRuntimeException {
     /**
      * Instantiates a new Authorize exception.
      */
-    public AuthenticationException() {
-        super(DefaultErrorCodes.ERROR_401_1);
+    public AuthenticationException() {super(DefaultErrorCodes.ERROR_401_1);
     }
 }

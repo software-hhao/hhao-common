@@ -17,48 +17,60 @@
 
 package com.hhao.common.extension;
 
-import static com.hhao.common.CoreConstant.*;
-
 /**
  * 扩展点的业务座标
- * 从特殊到一般进行匹配:tenantId.scenario.useCase.bizId
+ * 从特殊到一般进行匹配:scenario.useCase.bizId
  * bizID:领域+[子域]的定义
  * userCase:用例定义
  * scenario:场景
+ * 例如：
+ * hhao.user.vip,hhao系统用户vip业务场景
  *
  * @author Wang
  * @since 1.0.0
  */
 public class BizScenario {
-    private final static String DOT_SEPARATOR = ".";
+    /**
+     * The constant DEFAULT_BIZ_ID.
+     */
+    public static final String DEFAULT_BIZ_ID = "#defaultBizId#";
+    /**
+     * The constant DEFAULT_USE_CASE.
+     */
+    public static final String DEFAULT_USE_CASE = "#defaultUseCase#";
+    /**
+     * The constant DEFAULT_SCENARIO.
+     */
+    public static final String DEFAULT_SCENARIO = "#defaultScenario#";
+    /**
+     * The constant DOT_SEPARATOR.
+     */
+    public static final String DOT_SEPARATOR = ".";
 
     /**
-     * bizId is used to identify a business, such as "tmall", it's nullable if there is only one biz
+     * bizId is used to identify a business, such as "hhao"
      */
     private String bizId = DEFAULT_BIZ_ID;
 
     /**
-     * useCase is used to identify a use case, such as "placeOrder", can not be null
+     * useCase is used to identify a use case, such as "user"
      */
     private String useCase = DEFAULT_USE_CASE;
 
     /**
-     * scenario is used to identify a use case, such as "88vip","normal", can not be null
+     * scenario is used to identify a use case, such as "vip"
      */
     private String scenario = DEFAULT_SCENARIO;
 
-
     /**
-     * For above case, the BizScenario will be "tmall.placeOrder.88vip",
-     * with this code, we can provide extension processing other than "tmall.placeOrder.normal" scenario.
+     * 构建完整的扩展点座标
      *
-     * @return
+     * @param bizId    the biz id
+     * @param useCase  the use case
+     * @param scenario the scenario
+     * @return the biz scenario
      */
-    public String getUniqueIdentity(){
-        return bizId + DOT_SEPARATOR + useCase + DOT_SEPARATOR + scenario;
-    }
-
-    public static BizScenario valueOf(String bizId, String useCase, String scenario){
+    public static BizScenario valueOf(String bizId, String useCase, String scenario) {
         BizScenario bizScenario = new BizScenario();
         bizScenario.bizId = bizId;
         bizScenario.useCase = useCase;
@@ -66,23 +78,62 @@ public class BizScenario {
         return bizScenario;
     }
 
-    public static BizScenario valueOf(String bizId, String useCase){
+    /**
+     * 构建bizId.useCase.DEFAULT_SCENARIO的业务座标
+     *
+     * @param bizId   the biz id
+     * @param useCase the use case
+     * @return the biz scenario
+     */
+    public static BizScenario valueOf(String bizId, String useCase) {
         return BizScenario.valueOf(bizId, useCase, DEFAULT_SCENARIO);
     }
 
-    public static BizScenario valueOf(String bizId){
+    /**
+     * 构建bizId.DEFAULT_USE_CASE.DEFAULT_SCENARIO的业务座标
+     *
+     * @param bizId the biz id
+     * @return the biz scenario
+     */
+    public static BizScenario valueOf(String bizId) {
         return BizScenario.valueOf(bizId, DEFAULT_USE_CASE, DEFAULT_SCENARIO);
     }
 
-    public static BizScenario newDefault(){
+    /**
+     * 构建默认的扩展点座标
+     * DEFAULT_BIZ_ID.DEFAULT_USE_CASE.DEFAULT_SCENARIO
+     *
+     * @return the biz scenario
+     */
+    public static BizScenario newDefault() {
         return BizScenario.valueOf(DEFAULT_BIZ_ID, DEFAULT_USE_CASE, DEFAULT_SCENARIO);
     }
 
-    public String getIdentityWithDefaultScenario(){
+    /**
+     * 完整的扩展点业务座标
+     * bizId.useCase.scenario
+     *
+     * @return unique identity
+     */
+    public String getUniqueIdentity() {
+        return bizId + DOT_SEPARATOR + useCase + DOT_SEPARATOR + scenario;
+    }
+
+    /**
+     * Gets identity with default scenario.
+     *
+     * @return the identity with default scenario
+     */
+    public String getIdentityWithDefaultScenario() {
         return bizId + DOT_SEPARATOR + useCase + DOT_SEPARATOR + DEFAULT_SCENARIO;
     }
 
-    public String getIdentityWithDefaultUseCase(){
+    /**
+     * Gets identity with default use case.
+     *
+     * @return the identity with default use case
+     */
+    public String getIdentityWithDefaultUseCase() {
         return bizId + DOT_SEPARATOR + DEFAULT_USE_CASE + DOT_SEPARATOR + DEFAULT_SCENARIO;
     }
 }

@@ -50,15 +50,30 @@ public class DefaultJacksonUtilBuilder<T extends ObjectMapper> implements Jackso
     private Map<Enum, Boolean> configures = new ConcurrentHashMap<>();
     private Function<BeanProperty, JsonFormat.Value> jsonFormatFilterFunction;
 
+    /**
+     * Instantiates a new Default jackson util builder.
+     *
+     * @param config the config
+     */
     public DefaultJacksonUtilBuilder(JacksonConfigProperties config) {
         this.initWellKnownConfigures();
         this.initWellKnownModules(config);
     }
 
+    /**
+     * Gets modules.
+     *
+     * @return the modules
+     */
     public List<Module> getModules() {
         return modules;
     }
 
+    /**
+     * Gets configures.
+     *
+     * @return the configures
+     */
     public Map<Enum, Boolean> getConfigures() {
         return configures;
     }
@@ -66,8 +81,8 @@ public class DefaultJacksonUtilBuilder<T extends ObjectMapper> implements Jackso
     /**
      * 配置ObjectMapper
      *
-     * @return void
-     **/
+     * @return void default jackson util builder
+     */
     public DefaultJacksonUtilBuilder initWellKnownConfigures() {
         //关闭序列化时日期时间解析成数值型的TIMESTAMPS
         configures.put(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
@@ -76,15 +91,16 @@ public class DefaultJacksonUtilBuilder<T extends ObjectMapper> implements Jackso
         //configures.put(MapperFeature.DEFAULT_VIEW_INCLUSION, true);
         configures.put(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         configures.put(JsonParser.Feature.ALLOW_COMMENTS, false);
-
+        
         return this;
     }
 
     /**
      * 注册、加载Jackson相关模块，需要相关的模块依赖包
      *
-     * @return void
-     **/
+     * @param config the config
+     * @return void default jackson util builder
+     */
     public DefaultJacksonUtilBuilder initWellKnownModules(JacksonConfigProperties config) {
         modules.add(new JavaTimeModule());
         modules.add(new Jdk8Module());
@@ -97,26 +113,57 @@ public class DefaultJacksonUtilBuilder<T extends ObjectMapper> implements Jackso
         return this;
     }
 
+    /**
+     * Add module default jackson util builder.
+     *
+     * @param module the module
+     * @return the default jackson util builder
+     */
     public DefaultJacksonUtilBuilder addModule(Module module) {
         modules.add(module);
         return this;
     }
 
+    /**
+     * Add configure default jackson util builder.
+     *
+     * @param feature the feature
+     * @param value   the value
+     * @return the default jackson util builder
+     */
     public DefaultJacksonUtilBuilder addConfigure(Enum feature, Boolean value) {
         configures.put(feature, value);
         return this;
     }
 
+    /**
+     * Sets json format filter function.
+     *
+     * @param jsonFormatFilterFunction the json format filter function
+     * @return the json format filter function
+     */
     public DefaultJacksonUtilBuilder setJsonFormatFilterFunction(Function<BeanProperty, JsonFormat.Value> jsonFormatFilterFunction) {
         this.jsonFormatFilterFunction = jsonFormatFilterFunction;
         return this;
     }
 
+    /**
+     * Register module object mapper.
+     *
+     * @param objectMapper the object mapper
+     * @return the object mapper
+     */
     public ObjectMapper registerModule(final ObjectMapper objectMapper) {
         modules.forEach(module -> objectMapper.registerModule(module));
         return objectMapper;
     }
 
+    /**
+     * Configure object mapper.
+     *
+     * @param objectMapper the object mapper
+     * @return the object mapper
+     */
     public ObjectMapper configure(final ObjectMapper objectMapper) {
         configures.forEach((feature, value) -> {
             if (feature instanceof SerializationFeature) {

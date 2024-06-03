@@ -50,6 +50,10 @@ public class ResultWrapperBuilder {
         return new ResultWrapper<T>(data,status,message);
     }
 
+    public static <T> ResultWrapper<T> ok(T data, int status) {
+        return ok(data,status,resultWrapperProperties.getMsg().getSucceed());
+    }
+
     /**
      * Ok result wrapper.
      *
@@ -75,6 +79,10 @@ public class ResultWrapperBuilder {
             return (ResultWrapper) data;
         }
         return new ResultWrapper<T>(data,status,message);
+    }
+
+    public static <T> ResultWrapper<T> error(T data, int status) {
+        return error(data,status,resultWrapperProperties.getMsg().getError());
     }
 
     /**

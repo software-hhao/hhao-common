@@ -32,7 +32,6 @@ import org.springframework.context.support.AbstractResourceBasedMessageSource;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 
@@ -62,13 +61,11 @@ public class MessageSourceConfig extends AbstractBaseConfig {
      */
     //private static final String DEFAULT_BASENAME=ResourceUtils.CLASSPATH_URL_PREFIX + BASE_FOLDER + File.separator + BASE_NAME;
     //包含jar包下的资源文件
-    private static final String DEFAULT_BASENAME= ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + BASE_FOLDER + File.separator + BASE_NAME;
+    private static final String DEFAULT_BASENAME=BASE_NAME + "," + ResourceUtils.CLASSPATH_URL_PREFIX + BASE_FOLDER + File.separator + BASE_NAME;
     /**
      * file:应用路径/i18n/messages
      */
     private static final String EXTEND_DEFAULT_BASENAME=ResourceUtils.FILE_URL_PREFIX + System.getProperty("user.dir") + File.separator + BASE_FOLDER + File.separator + BASE_NAME;
-    private static final String PREFIX_CLASSPATH="classpath(/*?):";
-
     private static final Resource[] NO_RESOURCES = {};
 
     /**
@@ -81,6 +78,7 @@ public class MessageSourceConfig extends AbstractBaseConfig {
     public MessageSourceProperties messageSourceProperties() {
         MessageSourceProperties messageSourceProperties=new MessageSourceProperties();
         messageSourceProperties.setBasename(DEFAULT_BASENAME);
+        messageSourceProperties.setFallbackToSystemLocale(false);
 
         return messageSourceProperties;
     }
@@ -117,14 +115,14 @@ public class MessageSourceConfig extends AbstractBaseConfig {
         String [] basename=StringUtils.commaDelimitedListToStringArray(StringUtils.trimAllWhitespace(properties.getBasename()));
         for(int i=0;i<basename.length;i++){
             //如果不是classpath:开头的，则加上
-            if (!StringUtils.startsWithIgnoreCase(basename[i],PREFIX_CLASSPATH)){
-                basename[i]="classpath:" + basename[i];
-                for (Resource resource : getResources(getApplicationContext().getClassLoader(), basename[i])) {
-                    if (resource.exists()) {
-                        logger.info("find propertie files:{}",basename[i]);
-                    }else{
-                        logger.info("not find propertie files:{}",basename[i]);
-                    }
+            if (!StringUtils.startsWithIgnoreCase(basename[i],ResourceUtils.CLASSPATH_URL_PREFIX)){
+                basename[i]=ResourceUtils.CLASSPATH_URL_PREFIX + basename[i];
+            }
+            for (Resource resource : getResources(getApplicationContext().getClassLoader(), basename[i])) {
+                if (resource.exists()) {
+                    logger.info("find propertie files:{}",basename[i]);
+                }else{
+                    logger.info("not find propertie files:{}",basename[i]);
                 }
             }
         }

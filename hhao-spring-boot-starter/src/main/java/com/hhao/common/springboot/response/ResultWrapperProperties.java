@@ -6,8 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "com.hhao.config.global-return.result-wrapper")
 public class ResultWrapperProperties {
-    private ResultStatus status;
-    private ResultMessage msg;
+    private ResultStatus status=new ResultStatus();
+    private ResultMessage msg=new ResultMessage();
 
     // Getter and Setter methods
     public ResultStatus getStatus() {

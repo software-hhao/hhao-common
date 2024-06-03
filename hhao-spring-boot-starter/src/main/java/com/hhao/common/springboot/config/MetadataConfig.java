@@ -24,8 +24,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.math.RoundingMode;
 import java.util.Currency;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -49,24 +51,30 @@ public class MetadataConfig extends AbstractBaseConfig {
         // 对monetaryConfig进行处理
         Map<String, CurrencyConfig> exCurrencyConfigs=new HashMap<>();
         Map<String, CurrencyConfig> currencyConfigs=springMetadataProperties.getMonetaryConfig().getCurrencyConfigurations();
+        // 加入currencyCode为key的情况
         currencyConfigs.forEach((currencyCode,config)->{
             exCurrencyConfigs.put(Currency.getInstance(currencyCode).getSymbol(config.getCurrencyLocale()),config);
         });
+        // 加入symbol为key的情况
         exCurrencyConfigs.forEach((symbol,config)->{
             currencyConfigs.put(symbol,config);
         });
+        if (currencyConfigs.isEmpty()){
+            springMetadataProperties.getMonetaryConfig().setCurrencyConfigurations(getDefaultCurrencyConfig());
+        }
         SystemMetadata.getInstance().setMetadataProperties(springMetadataProperties);
     }
 
     /**
-     * Metadata properties metadata properties.
-     *
-     * @return the metadata properties
+     * 获取默认的CurrencyConfig
+     * @return
      */
-//    @Bean
-//    @ConditionalOnMissingBean(SpringMetadataProperties.class)
-//    public SpringMetadataProperties springMetadataProperties(){
-//        return new SpringMetadataProperties();
-//    }
+    private Map<String, CurrencyConfig> getDefaultCurrencyConfig(){
+        Map<String, CurrencyConfig> currencyConfigs=new HashMap<>();
+        currencyConfigs.put("CNY",new CurrencyConfig("CNY","zh_CN","SYMBOL:¤#,###0.00","CODE:¤#,###0.00",16,2, RoundingMode.HALF_EVEN,true));
+        currencyConfigs.put(Currency.getInstance("CNY").getSymbol(Locale.CHINA),new CurrencyConfig("CNY","zh_CN","SYMBOL:¤#,###0.00","CODE:¤#,###0.00",16,2, RoundingMode.HALF_EVEN,true));
+        return currencyConfigs;
+    }
+
 
 }

@@ -26,7 +26,7 @@ package com.hhao.common.money.jackson;
  */
 public class MoneyJsonSerializationConfig {
     //数额
-    private String moneyAmountFieldName="";
+    private String moneyAmountFieldName="amount";
     //币代码
     private String currencyCodeFieldName="currency";
     //格式化显示字符串

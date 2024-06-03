@@ -17,6 +17,7 @@
 package com.hhao.common.exception.error;
 
 import com.hhao.common.exception.AbstractBaseRuntimeException;
+import com.hhao.common.exception.DefaultErrorCodes;
 import com.hhao.common.exception.ErrorCode;
 
 /**
@@ -80,6 +81,13 @@ public class BusinessRuntimeException extends AbstractBaseRuntimeException {
         super(code,message,cause,args);
     }
 
+    public BusinessRuntimeException(String code,String message,Object [] args) {
+        super(code,message,args);
+    }
+
+    public BusinessRuntimeException(String code,String message) {
+        super(code,message);
+    }
 
     /**
      * Instantiates a new Abstract biz runtime exception.
@@ -98,5 +106,9 @@ public class BusinessRuntimeException extends AbstractBaseRuntimeException {
      */
     public BusinessRuntimeException(ErrorCode errorCode) {
         super(errorCode);
+    }
+
+    public BusinessRuntimeException(Throwable cause) {
+        super(DefaultErrorCodes.ERROR_998,cause);
     }
 }

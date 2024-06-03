@@ -48,7 +48,6 @@ public class SingleQueryStaticPageExecutor extends AbstractPageExecutor {
     protected final Log logger = LogFactory.getLog(this.getClass());
     private final String DOT=".";
 
-
     @Override
     public Object execute(Invocation invocation, PageInfo pageInfo) throws Throwable {
         //取出各种参数
@@ -63,7 +62,6 @@ public class SingleQueryStaticPageExecutor extends AbstractPageExecutor {
         Object parameter=this.getParameter(invocation);
         BoundSql boundSql=mappedStatement.getBoundSql(parameter);
         List<Object> parameterMappings= Collections.unmodifiableList(boundSql.getParameterMappings());
-
         if (pageInfo.isIncludeTotalRows()) {
             //获取count的MappedStatement
             MappedStatement countMs = findCountMappedStatement(mappedStatement, ((PageInfoWithCount) pageInfo).getCountMappedStatementId());
@@ -79,8 +77,6 @@ public class SingleQueryStaticPageExecutor extends AbstractPageExecutor {
         //对结果集进行处理
         return setPageResult(pageInfo, invocation.proceed());
     }
-
-
 
     /**
      * Find count mapped statement mapped statement.
