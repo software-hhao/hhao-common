@@ -3,13 +3,13 @@
     <parent>
         <groupId>io.github.software-hhao</groupId>
         <artifactId>hhao-common-parent</artifactId>
-        <version>3.0.3-SNAPSHOT</version>
+        <version>3.0.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <inceptionYear>2021</inceptionYear>
     <groupId>io.github.software-hhao</groupId>
     <artifactId>hhao-common</artifactId>
-    <version>3.0.3-SNAPSHOT</version>
+    <version>3.0.3</version>
     <packaging>pom</packaging>
     <name>hhao-common</name>
     <description>Top pom.xml file</description>
@@ -25,7 +25,7 @@
         <url>https://github.com/software-hhao/hhao-common</url>
         <connection>scm:git:ssh://git@github.com/software-hhao/hhao-common.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/software-hhao/hhao-common.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>hhao-common-3.0.3</tag>
     </scm>
     <developers>
         <developer>
@@ -34,7 +34,7 @@
         </developer>
     </developers>
     <properties>
-        <hhao-common.version>3.0.3-SNAPSHOT</hhao-common.version>
+        <hhao-common.version>3.0.3</hhao-common.version>
     </properties>
     <modules>
         <module>hhao-log</module>

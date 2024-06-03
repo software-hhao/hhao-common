@@ -3,7 +3,7 @@
     <parent>
         <artifactId>hhao-common</artifactId>
         <groupId>io.github.software-hhao</groupId>
-        <version>3.0.3-SNAPSHOT</version>
+        <version>3.0.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>hhao-extension-spring-boot-starter</artifactId>
