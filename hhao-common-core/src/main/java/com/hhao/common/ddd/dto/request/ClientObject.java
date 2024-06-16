@@ -66,7 +66,9 @@ public abstract class ClientObject extends Dto {
     public void addAttachment(String key, Object value) {
         if (this.attachments == null) {
             synchronized (this) {
-                this.attachments = new HashMap<>();
+                if (this.attachments == null) {
+                    this.attachments = new HashMap<>();
+                }
             }
         }
         this.attachments.put(key, value);

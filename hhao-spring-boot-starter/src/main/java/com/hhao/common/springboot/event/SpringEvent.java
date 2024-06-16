@@ -19,6 +19,7 @@ package com.hhao.common.springboot.event;
 
 
 import com.hhao.common.ddd.even.Event;
+import com.hhao.common.jackson.JacksonUtilFactory;
 import org.springframework.context.ApplicationEvent;
 
 import java.time.Clock;
@@ -31,19 +32,40 @@ import java.time.Clock;
  */
 public class SpringEvent<T> extends ApplicationEvent implements Event<T> {
     private String version;
+    private String eventType;
     private Long eventId;
 
     public SpringEvent(T source) {
         super(source);
     }
 
+    public SpringEvent(T source,String eventType) {
+        super(source);
+        this.eventType=eventType;
+    }
+
     public SpringEvent(T source, Clock clock) {
         super(source, clock);
     }
 
+    public SpringEvent(T source, Clock clock,String eventType) {
+        super(source, clock);
+        this.eventType=eventType;
+    }
 
-    public void setVersion(String version) {
+    public SpringEvent<T> setVersion(String version) {
         this.version = version;
+        return this;
+    }
+
+    @Override
+    public String getVersion() {
+        return this.version;
+    }
+
+    public SpringEvent<T> setEventId(Long eventId) {
+        this.eventId = eventId;
+        return this;
     }
 
     @Override
@@ -57,21 +79,22 @@ public class SpringEvent<T> extends ApplicationEvent implements Event<T> {
     }
 
     @Override
-    public String getVersion() {
-        return this.version;
-    }
-
-    public void setEventId(Long eventId) {
-        this.eventId = eventId;
-    }
-
-    @Override
     public T getSource() {
         return (T) super.getSource();
     }
 
     @Override
-    public String getSourceType() {
-        return null;
+    public String getEventType() {
+        return this.eventType;
+    }
+
+    public SpringEvent<T> setEventType(String eventType) {
+        this.eventType = eventType;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return JacksonUtilFactory.getJsonUtil().obj2String(this);
     }
 }

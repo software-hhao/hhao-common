@@ -1,4 +1,4 @@
-# Mybatis增强模块
+# HHAO Mybatis增强模块
 
 增强Mybatis查询与分页处理。
 
@@ -12,10 +12,10 @@ MultiQueriesDynamicPageExecutor
 
 * 多语句动态分页执行器。
 * 适用于JDBC支持多语句执行的情况。
-* 执行器对以下内容进行处理。
-* 1、对select语句进行分析，如果未分页，则加入分页，并对查询参数进行检查、补齐。
-* 2、对count语句进行分析，如果不存在，则自动生成，并对参数进行检查、删除或补齐。
-* count语句通过多语句方式与查询语句定义在同一块中。
+* 执行器对以下内容进行处理：
+  1、对select语句进行分析，如果未分页，则加入分页，并对查询参数进行检查、补齐。
+  2、对count语句进行分析，如果不存在，则自动生成，并对参数进行检查、删除或补齐。
+* 可以自提供count语句，count语句与查询语句定义在同一块中。（推荐做法）
 * 该执行器比较灵活，但受到不同数据库语言差异的影响，效率次于MultiQueriesStaticPageExecutor。
 
 MultiQueriesStaticPageExecutor（推荐）
@@ -23,7 +23,7 @@ MultiQueriesStaticPageExecutor（推荐）
 * 多语句静态分页执行器。
 * 适用于JDBC支持多语句执行的情况。
 * 由用户自己定义分页查询语句与count语句，执行器完成count语句的入参与织入。
-* count语句通过多语句方式与查询语句定义在同一块中。
+* count语句与查询语句定义在同一块中。
 * 该执行器不受数据库语言差异的影响，分页查询语句及count语句完全由用户提供，执行效率最高。
 
 上述的两种执行器，需要JDBC支持多语名执行，例如，mysql jdbc应开启多语句执行：
@@ -32,22 +32,23 @@ MultiQueriesStaticPageExecutor（推荐）
 jdbc:mysql://${server.mysql.ip}:6447/test?characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&allowMultiQueries=true
 ```
 
-SingleQueryDynamicPageExecutor
+SingleQueryDynamicPageExecutor（推荐）
 
 * 单语句动态分页执行器。
 * 适用于JDBC只支持单语句执行的情况。
 * 执行器对以下内容进行处理。
-* 1、对select语句进行分析，如果未分页，则加入分页，并对查询参数进行检查、补齐。
-* 2、对count语句进行分析，如果不存在，则自动生成，并对参数进行检查、删除或补齐。
-* 构建一个新的MappedStatement执行count语句。
+  1、对select语句进行分析，如果未分页，则加入分页，并对查询参数进行检查、补齐。
+  2、对count语句进行分析，如果不存在，则自动生成，并对参数进行检查、删除或补齐。
+* 可以自提供count语句，count语句与查询语句定义在同一块中。（推荐做法）
+* 执行器构建一个新的MappedStatement执行count语句。
 * 该执行器比较灵活，但受到不同数据库语言差异的影响，效率次于SingleQueryStaticPageExecutor。
 
-SingleQueryStaticPageExecutor（推荐）
+SingleQueryStaticPageExecutor
 
 * 单语句静态分页执行器。
 * 适用于JDBC只支持单语句执行的情况。
-* 由用户自己定义分页查询语句与count语句，执行器完成count语句的入参与织入。
-* count语句通过PageInfoWithCount#countMappedStatementId指定。
+* 由用户自己定义分页查询语句与count语句，分页语句与count语句定义在不同的块中。
+* count语句通过PageInfoWithCountMappedStatement#countMappedStatementId指定。
 * 构建一个新的MappedStatement执行count语句。
 * 该执行器不受数据库语言差异的影响，分页查询语句及count语句完全由用户提供，执行效率较高。
 
@@ -55,9 +56,9 @@ SingleQueryStaticPageExecutor（推荐）
 
 具体实现类：
 
-PageInfo：适用于MultiQueriesDynamicPageExecutor、MultiQueriesStaticPageExecutor（查询与统计定义在同一查询块中）、SingleQueryDynamicPageExecutor、SingleQueryStaticPageExecutor（查询与统计定义在同一查询块中）。
+PageInfo：适用于MultiQueriesDynamicPageExecutor、MultiQueriesStaticPageExecutor（查询与统计定义在同一查询块中）、SingleQueryDynamicPageExecutor（查询与统计定义在同一查询块中）。
 
-PageInfoWithCount：适用于MultiQueriesStaticPageExecutor（查询与统计定义在不同查询块中）、SingleQueryStaticPageExecutor（查询与统计定义在不同查询块中）。
+PageInfoWithCountMappedStatement：适用于SingleQueryStaticPageExecutor（查询与统计定义在不同查询块中）。
 
 ## PageSelectStatementProvider
 
@@ -81,7 +82,7 @@ PageInfoWithCount：适用于MultiQueriesStaticPageExecutor（查询与统计定
 ```
    <select id="findBook" resultMap="BookResult">
         select book1.id,name,price,publicDate,recordDateTime from book as book1 
-        right outer join (
+        inner outer join (
             select id from book 
             ${whereClauseProvider.whereClause} 
             order by id 
@@ -107,7 +108,7 @@ PageInfoWithCount：适用于MultiQueriesStaticPageExecutor（查询与统计定
 public PageResponse<Book> findBook(final BookPageQuery bookPageQuery) {
         // 构建 PageInfo
         PageInfo pageInfo = new PageInfo.Builder(bookPageQuery)
-                .withMultiQueriesStaticPageExecutor()
+                .SingleQueryDynamicPageExecutor()
                 .addOrderTable(new PageInfo.OrderTable(BookDynamicSqlSupport.book.tableNameAtRuntime(),  BookMapper.selectList))
                 .build();
         // 构建where
@@ -139,13 +140,11 @@ public PageResponse<Book> findBook(final BookPageQuery bookPageQuery) {
 4. BookPageQuery
 
 ```
-public class BookPageQuery extends PageQuery {
+public class BookPageQuery extends DynamicParamsPageQuery {
     // 查询条件
     private LocalDateTime start;
     private LocalDateTime end;
     private String name;
-    // where开启的查询参数
-    private List<String> params=new ArrayList<>();
 
     public LocalDateTime getStart() {
         return start;
@@ -171,12 +170,5 @@ public class BookPageQuery extends PageQuery {
         this.name = name;
     }
 
-    public List<String> getParams() {
-        return params;
-    }
-
-    public void setParams(List<String> params) {
-        this.params = params;
-    }
 }
 ```

@@ -216,95 +216,88 @@ public class ExtensionPointAutowiredAnnotationBeanPostProcessor  implements Smar
         if (candidateConstructors == null) {
             // Fully synchronized resolution now...
             synchronized (this.candidateConstructorsCache) {
-                candidateConstructors = this.candidateConstructorsCache.get(beanClass);
                 if (candidateConstructors == null) {
-                    Constructor<?>[] rawCandidates;
-                    try {
-                        rawCandidates = beanClass.getDeclaredConstructors();
-                    }
-                    catch (Throwable ex) {
-                        throw new BeanCreationException(beanName,
-                                "Resolution of declared constructors on bean Class [" + beanClass.getName() +
-                                        "] from ClassLoader [" + beanClass.getClassLoader() + "] failed", ex);
-                    }
-                    List<Constructor<?>> candidates = new ArrayList<>(rawCandidates.length);
-                    Constructor<?> requiredConstructor = null;
-                    Constructor<?> defaultConstructor = null;
-                    Constructor<?> primaryConstructor = BeanUtils.findPrimaryConstructor(beanClass);
-                    int nonSyntheticConstructors = 0;
-                    for (Constructor<?> candidate : rawCandidates) {
-                        if (!candidate.isSynthetic()) {
-                            nonSyntheticConstructors++;
+                    candidateConstructors = this.candidateConstructorsCache.get(beanClass);
+                    if (candidateConstructors == null) {
+                        Constructor<?>[] rawCandidates;
+                        try {
+                            rawCandidates = beanClass.getDeclaredConstructors();
+                        } catch (Throwable ex) {
+                            throw new BeanCreationException(beanName,
+                                    "Resolution of declared constructors on bean Class [" + beanClass.getName() +
+                                            "] from ClassLoader [" + beanClass.getClassLoader() + "] failed", ex);
                         }
-                        else if (primaryConstructor != null) {
-                            continue;
-                        }
-                        MergedAnnotation<?> ann = findAutowiredAnnotation(candidate);
-                        if (ann == null) {
-                            Class<?> userClass = ClassUtils.getUserClass(beanClass);
-                            if (userClass != beanClass) {
-                                try {
-                                    Constructor<?> superCtor =
-                                            userClass.getDeclaredConstructor(candidate.getParameterTypes());
-                                    ann = findAutowiredAnnotation(superCtor);
-                                }
-                                catch (NoSuchMethodException ex) {
-                                    // Simply proceed, no equivalent superclass constructor found...
+                        List<Constructor<?>> candidates = new ArrayList<>(rawCandidates.length);
+                        Constructor<?> requiredConstructor = null;
+                        Constructor<?> defaultConstructor = null;
+                        Constructor<?> primaryConstructor = BeanUtils.findPrimaryConstructor(beanClass);
+                        int nonSyntheticConstructors = 0;
+                        for (Constructor<?> candidate : rawCandidates) {
+                            if (!candidate.isSynthetic()) {
+                                nonSyntheticConstructors++;
+                            } else if (primaryConstructor != null) {
+                                continue;
+                            }
+                            MergedAnnotation<?> ann = findAutowiredAnnotation(candidate);
+                            if (ann == null) {
+                                Class<?> userClass = ClassUtils.getUserClass(beanClass);
+                                if (userClass != beanClass) {
+                                    try {
+                                        Constructor<?> superCtor =
+                                                userClass.getDeclaredConstructor(candidate.getParameterTypes());
+                                        ann = findAutowiredAnnotation(superCtor);
+                                    } catch (NoSuchMethodException ex) {
+                                        // Simply proceed, no equivalent superclass constructor found...
+                                    }
                                 }
                             }
-                        }
-                        if (ann != null) {
-                            if (requiredConstructor != null) {
-                                throw new BeanCreationException(beanName,
-                                        "Invalid autowire-marked constructor: " + candidate +
-                                                ". Found constructor with 'required' Autowired annotation already: " +
-                                                requiredConstructor);
-                            }
-                            boolean required = determineRequiredStatus(ann);
-                            if (required) {
-                                if (!candidates.isEmpty()) {
+                            if (ann != null) {
+                                if (requiredConstructor != null) {
                                     throw new BeanCreationException(beanName,
-                                            "Invalid autowire-marked constructors: " + candidates +
-                                                    ". Found constructor with 'required' Autowired annotation: " +
-                                                    candidate);
+                                            "Invalid autowire-marked constructor: " + candidate +
+                                                    ". Found constructor with 'required' Autowired annotation already: " +
+                                                    requiredConstructor);
                                 }
-                                requiredConstructor = candidate;
-                            }
-                            candidates.add(candidate);
-                        }
-                        else if (candidate.getParameterCount() == 0) {
-                            defaultConstructor = candidate;
-                        }
-                    }
-                    if (!candidates.isEmpty()) {
-                        // Add default constructor to list of optional constructors, as fallback.
-                        if (requiredConstructor == null) {
-                            if (defaultConstructor != null) {
-                                candidates.add(defaultConstructor);
-                            }
-                            else if (candidates.size() == 1 && logger.isInfoEnabled()) {
-                                logger.info("Inconsistent constructor declaration on bean with name '" + beanName +
-                                        "': single autowire-marked constructor flagged as optional - " +
-                                        "this constructor is effectively required since there is no " +
-                                        "default constructor to fall back to: " + candidates.get(0));
+                                boolean required = determineRequiredStatus(ann);
+                                if (required) {
+                                    if (!candidates.isEmpty()) {
+                                        throw new BeanCreationException(beanName,
+                                                "Invalid autowire-marked constructors: " + candidates +
+                                                        ". Found constructor with 'required' Autowired annotation: " +
+                                                        candidate);
+                                    }
+                                    requiredConstructor = candidate;
+                                }
+                                candidates.add(candidate);
+                            } else if (candidate.getParameterCount() == 0) {
+                                defaultConstructor = candidate;
                             }
                         }
-                        candidateConstructors = candidates.toArray(new Constructor<?>[0]);
+                        if (!candidates.isEmpty()) {
+                            // Add default constructor to list of optional constructors, as fallback.
+                            if (requiredConstructor == null) {
+                                if (defaultConstructor != null) {
+                                    candidates.add(defaultConstructor);
+                                } else if (candidates.size() == 1 && logger.isInfoEnabled()) {
+                                    logger.info("Inconsistent constructor declaration on bean with name '" + beanName +
+                                            "': single autowire-marked constructor flagged as optional - " +
+                                            "this constructor is effectively required since there is no " +
+                                            "default constructor to fall back to: " + candidates.get(0));
+                                }
+                            }
+                            candidateConstructors = candidates.toArray(new Constructor<?>[0]);
+                        } else if (rawCandidates.length == 1 && rawCandidates[0].getParameterCount() > 0) {
+                            candidateConstructors = new Constructor<?>[]{rawCandidates[0]};
+                        } else if (nonSyntheticConstructors == 2 && primaryConstructor != null &&
+                                defaultConstructor != null && !primaryConstructor.equals(defaultConstructor)) {
+                            candidateConstructors = new Constructor<?>[]{primaryConstructor, defaultConstructor};
+                        } else if (nonSyntheticConstructors == 1 && primaryConstructor != null) {
+                            candidateConstructors = new Constructor<?>[]{primaryConstructor};
+                        } else {
+                            candidateConstructors = new Constructor<?>[0];
+                        }
+                        this.candidateConstructorsCache.put(beanClass, candidateConstructors);
                     }
-                    else if (rawCandidates.length == 1 && rawCandidates[0].getParameterCount() > 0) {
-                        candidateConstructors = new Constructor<?>[] {rawCandidates[0]};
-                    }
-                    else if (nonSyntheticConstructors == 2 && primaryConstructor != null &&
-                            defaultConstructor != null && !primaryConstructor.equals(defaultConstructor)) {
-                        candidateConstructors = new Constructor<?>[] {primaryConstructor, defaultConstructor};
-                    }
-                    else if (nonSyntheticConstructors == 1 && primaryConstructor != null) {
-                        candidateConstructors = new Constructor<?>[] {primaryConstructor};
-                    }
-                    else {
-                        candidateConstructors = new Constructor<?>[0];
-                    }
-                    this.candidateConstructorsCache.put(beanClass, candidateConstructors);
                 }
             }
         }

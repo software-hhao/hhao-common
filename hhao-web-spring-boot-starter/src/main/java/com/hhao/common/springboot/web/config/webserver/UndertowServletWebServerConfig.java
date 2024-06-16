@@ -27,7 +27,7 @@ import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.xnio.SslClientAuthMode;
-
+import org.springframework.boot.web.server.Shutdown;
 /**
  * 原类：JettyServletWebServerFactory
  * ServletWebServerFactoryAutoConfiguration
@@ -67,6 +67,7 @@ public class UndertowServletWebServerConfig extends AbstractBaseMvcConfig {
          */
         @Override
         public void customize(UndertowServletWebServerFactory factory) {
+            factory.setShutdown(Shutdown.GRACEFUL);
             // customize the factory here
             undertowServletWebServerFactory(factory);
         }

@@ -29,5 +29,5 @@ public @interface DuplicatePrevent {
     /**
      * 防止重复提交的有效时间，单位秒
      */
-    int expirationTime() default 5;
+    int expirationTime() default 10;
 }

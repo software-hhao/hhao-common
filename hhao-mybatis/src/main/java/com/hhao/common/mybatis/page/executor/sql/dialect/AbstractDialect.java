@@ -17,6 +17,8 @@
 
 package com.hhao.common.mybatis.page.executor.sql.dialect;
 
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
 import com.hhao.common.mybatis.page.PageInfo;
 import com.hhao.common.mybatis.page.executor.ParamMapping;
 import com.hhao.common.mybatis.page.executor.sql.parse.SqlParse;
@@ -24,8 +26,6 @@ import com.hhao.common.mybatis.page.executor.sql.parse.SqlParseFactory;
 import com.hhao.common.mybatis.page.executor.sql.parse.TokenInfo;
 import com.hhao.common.mybatis.page.executor.sql.token.ParamToken;
 import com.hhao.common.mybatis.page.executor.sql.token.Token;
-import org.apache.ibatis.logging.Log;
-import org.apache.ibatis.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public abstract class AbstractDialect implements Dialect{
     /**
      * The Logger.
      */
-    protected final Log logger = LogFactory.getLog(this.getClass());
+    private static final Logger log = LoggerFactory.getLogger(AbstractDialect.class);
     /**
      * The Support dbs.
      */
@@ -65,6 +65,7 @@ public abstract class AbstractDialect implements Dialect{
         if (dbSupport(databaseId)) {
             return true;
         }
+        log.info("Unsupported database:"+databaseId);
         return false;
     }
 

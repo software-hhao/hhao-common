@@ -123,11 +123,13 @@ public class CurrencyConfig {
     public MonetaryContext getMonetaryContext() {
         if (monetaryContext == null) {
             synchronized (this) {
-                monetaryContext = MonetaryContextBuilder.of(Money.class)
-                        .setMaxScale(scale)
-                        .setFixedScale(fixedScale)
-                        .setPrecision(precision)
-                        .build();
+                if (monetaryContext == null) {
+                    monetaryContext = MonetaryContextBuilder.of(Money.class)
+                            .setMaxScale(scale)
+                            .setFixedScale(fixedScale)
+                            .setPrecision(precision)
+                            .build();
+                }
             }
         }
         return monetaryContext;
@@ -138,9 +140,11 @@ public class CurrencyConfig {
     public MonetaryRounding getMonetaryRounding() {
         if (monetaryRounding == null) {
             synchronized (this) {
-                monetaryRounding = Monetary.getRounding(
-                        RoundingQueryBuilder.of().setScale(scale).set(roundingMode).build()
-                );
+                if (monetaryRounding == null) {
+                    monetaryRounding = Monetary.getRounding(
+                            RoundingQueryBuilder.of().setScale(scale).set(roundingMode).build()
+                    );
+                }
             }
         }
         return monetaryRounding;
@@ -155,7 +159,9 @@ public class CurrencyConfig {
     public Locale getCurrencyLocale() {
         if (currencyLocale == null) {
             synchronized (this) {
-                currencyLocale = Context.findLocale(this.getLocale());
+                if (currencyLocale == null) {
+                    currencyLocale = Context.findLocale(this.getLocale());
+                }
             }
         }
         return currencyLocale;
@@ -166,7 +172,9 @@ public class CurrencyConfig {
     public CurrencyUnit getCurrencyUnit() {
         if (currencyUnit == null) {
             synchronized (this) {
-                currencyUnit = Monetary.getCurrency(this.getCurrencyCode());
+                if (currencyUnit == null) {
+                    currencyUnit = Monetary.getCurrency(this.getCurrencyCode());
+                }
             }
         }
         return currencyUnit;
@@ -204,9 +212,11 @@ public class CurrencyConfig {
     public String getPatternForDisplay() {
         if (patternForDisplay == null) {
             synchronized (this) {
-                String[] values = this.parsePattern(this.displayPattern);
-                currencyStyleForDisplay = this.getCurrencyStyle(values[0]);
-                patternForDisplay = values[1].trim();
+                if (patternForDisplay == null) {
+                    String[] values = this.parsePattern(this.displayPattern);
+                    currencyStyleForDisplay = this.getCurrencyStyle(values[0]);
+                    patternForDisplay = values[1].trim();
+                }
             }
         }
         return patternForDisplay;
@@ -215,9 +225,11 @@ public class CurrencyConfig {
     public CurrencyStyle getCurrencyStyleForDisplay() {
         if (currencyStyleForDisplay == null) {
             synchronized (this) {
-                String[] values = this.parsePattern(this.displayPattern);
-                currencyStyleForDisplay = this.getCurrencyStyle(values[0]);
-                patternForDisplay = values[1].trim();
+                if (currencyStyleForDisplay == null) {
+                    String[] values = this.parsePattern(this.displayPattern);
+                    currencyStyleForDisplay = this.getCurrencyStyle(values[0]);
+                    patternForDisplay = values[1].trim();
+                }
             }
         }
         return currencyStyleForDisplay;
@@ -229,9 +241,11 @@ public class CurrencyConfig {
     public String getPatternForParse() {
         if (patternForParse == null) {
             synchronized (this) {
-                String[] values = this.parsePattern(this.parsePattern);
-                currencyStyleForParse = this.getCurrencyStyle(values[0]);
-                patternForParse = values[1].trim();
+                if (patternForParse == null) {
+                    String[] values = this.parsePattern(this.parsePattern);
+                    currencyStyleForParse = this.getCurrencyStyle(values[0]);
+                    patternForParse = values[1].trim();
+                }
             }
         }
         return patternForParse;
@@ -240,9 +254,11 @@ public class CurrencyConfig {
     public CurrencyStyle getCurrencyStyleForParse() {
         if (currencyStyleForParse == null) {
             synchronized (this) {
-                String[] values = this.parsePattern(this.parsePattern);
-                currencyStyleForParse = this.getCurrencyStyle(values[0]);
-                patternForParse = values[1].trim();
+                if (currencyStyleForParse == null) {
+                    String[] values = this.parsePattern(this.parsePattern);
+                    currencyStyleForParse = this.getCurrencyStyle(values[0]);
+                    patternForParse = values[1].trim();
+                }
             }
         }
         return currencyStyleForParse;

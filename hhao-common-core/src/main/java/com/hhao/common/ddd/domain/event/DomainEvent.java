@@ -30,7 +30,7 @@ public class DomainEvent<T> extends EventObject implements Event<T> {
     private static final long serialVersionUID = -6154788287192187196L;
     private String version;
     private Long eventId;
-    private String sourceType;
+    private String eventType;
     private Long occurredTime=System.currentTimeMillis();
 
     /**
@@ -121,20 +121,18 @@ public class DomainEvent<T> extends EventObject implements Event<T> {
     }
 
     @Override
-    public String getSourceType() {
-        if (this.sourceType==null && this.getSource()!=null){
-            return this.getSource().getClass().getTypeName();
-        }
-        return this.sourceType;
+    public String getEventType() {
+        return this.eventType;
     }
+
 
     /**
      * Sets source type.
      *
-     * @param sourceType the source type
+     * @param eventType the event type
      */
-    public void setSourceType(String sourceType) {
-        this.sourceType = sourceType;
+    public void setSourceType(String eventType) {
+        this.eventType = eventType;
     }
 
     @Override

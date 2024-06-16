@@ -90,6 +90,7 @@ import java.util.Map;
 @EnableConfigurationProperties({ExCacheProperties.class, CacheProperties.class})
 @ConditionalOnProperty(prefix = "com.hhao.config.redis.cache",name = "enable",havingValue = "true",matchIfMissing = true)
 public class CacheConfig {
+    private static final Logger logger= LoggerFactory.getLogger(CacheConfig.class);
     /**
      * 作为动态生成RedisCache配置模板的RedisCacheConfiguration名称
      */
@@ -305,6 +306,7 @@ public class CacheConfig {
                         combinedKey.append(jacksonUtil.obj2String(param));
                     }
                     // 计算JSON字符串的MD5值
+                    logger.debug("cache key with method key:{}",combinedKey.toString());
                     return MD5Util.getMD5(combinedKey.toString());
                 } catch (Exception e) {
                     throw new ServerRuntimeException("Failed to generate key", e);

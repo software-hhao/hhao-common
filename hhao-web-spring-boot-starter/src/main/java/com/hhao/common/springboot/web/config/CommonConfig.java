@@ -16,6 +16,8 @@
 
 package com.hhao.common.springboot.web.config;
 
+import com.hhao.common.springboot.AppContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
@@ -44,9 +46,21 @@ public class CommonConfig extends AbstractBaseMvcConfig {
 
     @RestController
     public static class Hello {
+        AppContext appContext;
+
+        @Autowired
+        public Hello(AppContext appContext) {
+            this.appContext=appContext;
+        }
+
         @GetMapping("/hello")
         public String hello() {
             return "Nice to use hhao software, more information can visit https://github.com/software-hhao/hhao-common.";
+        }
+
+        @GetMapping("/health")
+        public String health() {
+            return appContext.getAppStatus();
         }
     }
 }

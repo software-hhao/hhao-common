@@ -64,4 +64,8 @@ public class PageMetaData {
      * The constant SUPPORT_MULTI_QUERIES.
      */
     public static Boolean SUPPORT_MULTI_QUERIES=true;
+    /**
+     * 默认的count查询的mappedStatementId后缀
+     */
+    public static String DEFAULT_COUNT_MAPPED_STATEMENT_ID_SUFFIX="_count";
 }

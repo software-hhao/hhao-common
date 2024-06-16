@@ -19,6 +19,8 @@ package com.hhao.common.mybatis.page.executor.sql.dialect;
 
 import com.hhao.common.mybatis.page.PageInfo;
 import com.hhao.common.mybatis.page.exception.MyBatisException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -30,6 +32,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @since 2021 /11/27 10:03
  */
 public class DialectFactory {
+    private static final Logger log = LoggerFactory.getLogger(DialectFactory.class);
     private static List<Dialect> dialects = new CopyOnWriteArrayList<>();
 
     /**
@@ -42,6 +45,7 @@ public class DialectFactory {
     public static Dialect getDialect(PageInfo pageInfo,String dbName){
         for(Dialect dialect:dialects){
             if (dialect.support(pageInfo,dbName)){
+                log.info("Dialect:{}",dialect.getClass().getName());
                 return dialect;
             }
         }

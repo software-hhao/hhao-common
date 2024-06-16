@@ -32,7 +32,7 @@ public abstract class Dto implements Serializable {
     /**
      * 版本
      */
-    private String version= Context.getInstance().getVersion().toFullString();
+    private String version= Context.getInstance().getVersion().getCachedVersionString();
 
     /**
      * Gets version.

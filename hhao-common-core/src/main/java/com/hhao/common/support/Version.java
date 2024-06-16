@@ -20,6 +20,11 @@ package com.hhao.common.support;
 import com.hhao.common.log.Logger;
 import com.hhao.common.log.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 /**
  * The type Version.
  * 版本信息格式如下：
@@ -29,13 +34,17 @@ import com.hhao.common.log.LoggerFactory;
  * @since 2021 /12/23 14:35
  */
 public class Version implements Comparable<Version>, java.io.Serializable {
+    /**
+     * The Logger.
+     */
     protected final Logger logger = LoggerFactory.getLogger(Version.class);
+    private static final String VERSION_FILE="VERSION";
     private static final long serialVersionUID = 1L;
     private final static String SEPARATOR=":";
     private final static String VERSION_SEPARATOR=".";
     private final static String VERSION_SNAPSHOT_SEPARATOR="-";
-
     private final static Version UNKNOWN_VERSION = new Version(0, 0, 0, null, null, null);
+    private String cachedVersionString;
 
     /**
      * The Major version.
@@ -170,6 +179,22 @@ public class Version implements Comparable<Version>, java.io.Serializable {
         return _groupId + SEPARATOR + _artifactId + SEPARATOR + toString();
     }
 
+    /**
+     * Get cached version string string.
+     *
+     * @return the string
+     */
+    public String getCachedVersionString(){
+        if (cachedVersionString == null) {
+            synchronized (this) {
+                if (cachedVersionString == null) {
+                    cachedVersionString = toFullString();
+                }
+            }
+        }
+        return cachedVersionString;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -233,10 +258,10 @@ public class Version implements Comparable<Version>, java.io.Serializable {
      * 将字符串解析为版本信息
      * groupId:artifactId:_majorVersion._minorVersion._patchLevel-_snapshotInfo
      *
-     * @param versionInfo
-     * @return
+     * @param versionInfo the version info
+     * @return version
      */
-    public static Version of(String versionInfo){
+    public static Version parseVersion(String versionInfo){
         if (versionInfo==null || versionInfo.length()<=0){
             return Version.UNKNOWN_VERSION;
         }
@@ -290,6 +315,36 @@ public class Version implements Comparable<Version>, java.io.Serializable {
         return new Version(majorVersion,minorVersion,patchLevel,snapshotInfo,groupId,artifactId);
     }
 
+    /**
+     * Of version.
+     *
+     * @param versionInfo the version info
+     * @return the version
+     */
+    public static Version of(String versionInfo){
+        if (versionInfo==null || versionInfo.isBlank()){
+            versionInfo=readFromVersionFile();
+        }
+        return parseVersion(versionInfo);
+    }
+
+    private static String readFromVersionFile() {
+        try (InputStream inputStream = Version.class.getClassLoader().getResourceAsStream(VERSION_FILE);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            if (reader != null) {
+                return reader.readLine(); // 直接返回读取的第一行
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Main.
+     *
+     * @param args the args
+     */
     public static void main(String [] args){
         String str="::0.0.0";
         System.out.println(Version.of(str).toFullString());

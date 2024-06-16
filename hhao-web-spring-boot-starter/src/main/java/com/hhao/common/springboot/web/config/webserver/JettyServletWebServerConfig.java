@@ -23,6 +23,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
+import org.springframework.boot.web.server.Shutdown;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -67,6 +68,7 @@ public class JettyServletWebServerConfig extends AbstractBaseMvcConfig {
          */
         @Override
         public void customize(JettyServletWebServerFactory factory) {
+            factory.setShutdown(Shutdown.GRACEFUL);
             // customize the factory here
             jettyServletWebServerFactory(factory);
         }

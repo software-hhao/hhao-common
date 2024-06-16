@@ -1,4 +1,4 @@
-# 扩展点模块
+# HHAO扩展点模块
 
 基于Spring Boot的扩展点实现。
 
@@ -53,13 +53,13 @@ public <R, T extends ExtensionPoint> R multiCallback(ExtensionCoordinate extensi
 public <T extends ExtensionPoint> void multiCallbackVoid(Class<T> targetClz, BizScenario bizScenario, Consumer<List<T>> exeFunction) ;
 public <T extends ExtensionPoint> void multiCallbackVoid(ExtensionCoordinate extensionCoordinate, Consumer<List<T>> exeFunction) ;
 
-注：
+以上接口参数：
 Class<? extends ExtensionPoint<Void,C>> targetClz：扩展点类型。
 BizScenario bizScenario：客户端传入的扩展点座标。
 C context：上下文对象。
 InterruptionStrategy：在组合代理执行器中,每个扩展点执行完毕后，验证是否继续执行的规则。
 
-# 使用方法
+# 使用方法示例
 
 1. 导入依赖
 
@@ -108,17 +108,27 @@ InterruptionStrategy：在组合代理执行器中,每个扩展点执行完毕�
    ```
 4. 扩展点调用
 
+   调用单一扩展器代理执行接口：
+
    ```
            String str1 = executor.execute(DoExtension.class, BizScenario.valueOf("test", "say"), "wang");
            System.out.println(str1);
    ```
    输出：my do:wang
 
+   ---
+
+   调用组合扩展器代理执行接口：
+
    ```
     List<String> results1 = executor.multiExecute(DoExtension.class, BizScenario.valueOf("test", "say"), "wang");
            System.out.println(results1);
    ```
    输出：[my do:wang, she do:wang]
+
+   ---
+
+   调用单一扩展器函数回调执行接口：
 
    ```
            String str2 = executor.callback(DoExtension.class, BizScenario.valueOf("test", "say"), ext -> {
@@ -127,6 +137,10 @@ InterruptionStrategy：在组合代理执行器中,每个扩展点执行完毕�
            System.out.println(str2);
    ```
    输出：my do:call back
+
+   ---
+
+   调用组合扩展器函数回调执行接口：
 
    ```
          List<String> results2 = executor.multiCallback(DoExtension.class, BizScenario.valueOf("test", "say"), exps -> {

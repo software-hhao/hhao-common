@@ -16,14 +16,13 @@
 
 package com.hhao.common.mybatis.page.executor;
 
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
 import com.hhao.common.mybatis.page.PageInfo;
-import com.hhao.common.mybatis.page.PageMetaData;
 import com.hhao.common.mybatis.page.executor.sql.SqlExecutor;
 import com.hhao.common.mybatis.page.executor.sql.SqlPageModel;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.logging.Log;
-import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ParameterMapping;
@@ -52,7 +51,7 @@ public class MultiQueriesDynamicPageExecutor extends AbstractPageExecutor {
     /**
      * The Logger.
      */
-    protected final Log logger = LogFactory.getLog(this.getClass());
+    private static final Logger log = LoggerFactory.getLogger(MultiQueriesDynamicPageExecutor.class);
     /**
      * 拦截处理过程
      */

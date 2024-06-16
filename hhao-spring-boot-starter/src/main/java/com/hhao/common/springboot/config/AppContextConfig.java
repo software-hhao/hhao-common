@@ -54,9 +54,10 @@ public class AppContextConfig extends AbstractBaseConfig {
      *
      * @return the context
      */
-    protected Context configureContext() {
-        return Context.ContextFactory.setContext(new AppContext() {
+    protected AppContext configureContext() {
+        return (AppContext)Context.ContextFactory.setContext(new AppContext() {
             protected final Log logger = LogFactory.getLog(AppContext.class);
+            protected String appStatus = "";
 
             @Override
             public ApplicationContext applicationContext() {
@@ -83,6 +84,16 @@ public class AppContextConfig extends AbstractBaseConfig {
             public String getMessage(String code, Object[] args, Locale locale) {
                 return applicationContext().getMessage(code,args,locale);
             }
+
+            @Override
+            public String getAppStatus() {
+                return this.appStatus;
+            }
+
+            @Override
+            public void setAppStatus(String status) {
+                this.appStatus = status;
+            }
         });
     }
 
@@ -93,7 +104,7 @@ public class AppContextConfig extends AbstractBaseConfig {
      * @return the context
      */
     @Bean
-    public Context appContext() {
+    public AppContext appContext() {
         return configureContext();
     }
 }

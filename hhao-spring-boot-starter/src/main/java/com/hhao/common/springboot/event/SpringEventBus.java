@@ -15,14 +15,10 @@
  */
 package com.hhao.common.springboot.event;
 
-import com.hhao.common.Context;
 import com.hhao.common.log.Logger;
 import com.hhao.common.log.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.function.Consumer;
 
 /**
@@ -72,68 +68,10 @@ public class SpringEventBus{
             logger.error(e.getMessage());
             if (errorConsumer!=null) {
                 errorConsumer.accept(e);
+            }else {
+                this.publish(new EventPublishErrorEvent(e, event));
             }
-            this.publish(new EventPublishErrorEvent(e,event));
             return false;
-        }
-    }
-
-    /**
-     * 待完成
-     *
-     * @param event
-     * @return
-     */
-    public boolean store(SpringEvent event){
-        return false;
-    }
-
-    public EventBuilder eventBuilderInstance(Object source){
-        return new EventBuilder(source);
-    }
-
-    public static class EventBuilder{
-        private String version= Context.getInstance().getVersion().toFullString();
-        private Object source;
-        private long id=-1;
-        private long occurredTime=-1;
-
-        public EventBuilder(Object source){
-            this.source=source;
-        }
-
-        public EventBuilder setVersion(String version) {
-            this.version = version;
-            return this;
-        }
-
-        public EventBuilder setSource(Object source) {
-            this.source = source;
-            return this;
-        }
-
-        public EventBuilder setId(long id) {
-            this.id = id;
-            return this;
-        }
-
-        public EventBuilder setOccurredTime(long occurredTime) {
-            this.occurredTime = occurredTime;
-            return this;
-        }
-
-        public SpringEvent build(){
-            SpringEvent springEvent;
-
-            if (this.occurredTime!=-1){
-                springEvent=new SpringEvent(source, Clock.fixed(Instant.ofEpochMilli(this.occurredTime), ZoneOffset.UTC));
-            }else{
-                springEvent=new SpringEvent(source);
-            }
-            springEvent.setEventId(id);
-            springEvent.setVersion(version);
-
-            return springEvent;
         }
     }
 }

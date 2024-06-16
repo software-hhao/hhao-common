@@ -26,6 +26,11 @@ import org.springframework.context.ApplicationContext;
  * @since 1.0.0
  */
 public interface AppContext extends Context {
+    String APP_STATUS_STARTING="starting";
+    String APP_STATUS_RUNNING="running";
+    String APP_STATUS_STOPPING="stopping";
+    String APP_STATUS_STOPPED="stopped";
+
     /**
      * Application context application context.
      *
@@ -33,6 +38,19 @@ public interface AppContext extends Context {
      */
     ApplicationContext applicationContext();
 
+    /**
+     * Sets app status.
+     *
+     * @param status the status
+     */
+    void setAppStatus(String status);
+
+    /**
+     * Gets app status.
+     *
+     * @return the app status
+     */
+    String getAppStatus();
 
     /***
      * 获取上下文对象，需要先调用工厂类初始化

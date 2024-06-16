@@ -52,7 +52,6 @@ public class MonetaryAmountAnnotationFormatterFactory implements AnnotationForma
         return formatter;
     }
 
-
     @Override
     public Printer<?> getPrinter(MoneyFormat annotation, Class<?> fieldType) {
         return getFormatter(annotation);

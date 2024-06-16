@@ -20,26 +20,21 @@ package com.hhao.common.springboot.config.redis.session;
 
 import com.hhao.common.log.Logger;
 import com.hhao.common.log.LoggerFactory;
-import com.hhao.common.springboot.config.redis.cache.CacheConfig;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.session.config.annotation.web.server.EnableSpringWebSession;
 import org.springframework.session.data.redis.ReactiveRedisSessionRepository;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisIndexedHttpSession;
 import org.springframework.session.data.redis.config.annotation.web.http.RedisIndexedHttpSessionConfiguration;
 import org.springframework.session.data.redis.config.annotation.web.server.EnableRedisWebSession;
-import reactor.core.publisher.Flux;
 
 /**
  * 相关类：
@@ -96,6 +91,7 @@ public class SessionConfig {
     @EnableRedisIndexedHttpSession
     @ConditionalOnWebApplication(type= ConditionalOnWebApplication.Type.SERVLET)
     @ConditionalOnMissingBean({RedisIndexedSessionRepository.class})
+    @Order(Ordered.LOWEST_PRECEDENCE)
     public static class EnableRedisHttpSession{
         /**
          * The Logger.
@@ -114,6 +110,7 @@ public class SessionConfig {
     @EnableRedisWebSession
     @ConditionalOnWebApplication(type= ConditionalOnWebApplication.Type.REACTIVE)
     @ConditionalOnMissingBean({ReactiveRedisSessionRepository.class})
+    @Order(Ordered.LOWEST_PRECEDENCE)
     public static class EnableReactiveRedisWebSession{
         /**
          * The Logger.

@@ -17,15 +17,15 @@
 package com.hhao.common.mybatis.page.interceptor;
 
 import com.hhao.common.mybatis.page.PageInfo;
-import com.hhao.common.mybatis.page.PageInfoWithCount;
+import com.hhao.common.mybatis.page.PageInfoWithCountMappedStatement;
 import com.hhao.common.mybatis.page.PageMetaData;
 import com.hhao.common.mybatis.page.executor.MultiQueriesDynamicPageExecutor;
 import com.hhao.common.mybatis.page.executor.SingleQueryDynamicPageExecutor;
 import com.hhao.common.mybatis.page.executor.SingleQueryStaticPageExecutor;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.logging.Log;
-import org.apache.ibatis.logging.LogFactory;
+import com.hhao.common.log.LoggerFactory;
+import com.hhao.common.log.Logger;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.Intercepts;
@@ -49,7 +49,7 @@ import java.util.Properties;
         @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class})
 })
 public class PageInterceptor implements Interceptor {
-    private static final Log log = LogFactory.getLog(PageInterceptor.class);
+    private static final Logger log = LoggerFactory.getLogger(PageInterceptor.class);
     private final String DEFAULT_PAGE_INFO_PARAM_NAME = PageMetaData.PAGE_INFO_PARAM_NAME;
     private Properties properties;
 
@@ -63,20 +63,17 @@ public class PageInterceptor implements Interceptor {
             //3、如果开启多查询支持，优先使用MultiQueriesDynamicPageExecutor
             //4、使用SingleQueryDynamicPageExecutor
             if (pageInfo.getPageExecutor()==null) {
-                if (pageInfo instanceof PageInfoWithCount) {
-                    if (((PageInfoWithCount) pageInfo).getCountMappedStatementId() != null) {
+                if (pageInfo instanceof PageInfoWithCountMappedStatement) {
+                    if (((PageInfoWithCountMappedStatement) pageInfo).getCountMappedStatementId() != null) {
                         pageInfo.setPageExecutor(new SingleQueryStaticPageExecutor());
                     }
-                }
-            }
-            if (pageInfo.getPageExecutor()==null) {
-                if (PageMetaData.SUPPORT_MULTI_QUERIES){
+                }else if (PageMetaData.SUPPORT_MULTI_QUERIES){
                     pageInfo.setPageExecutor(new MultiQueriesDynamicPageExecutor());
                 }else{
                     pageInfo.setPageExecutor(new SingleQueryDynamicPageExecutor());
                 }
             }
-            log.debug("Use PageExecutor:" + pageInfo.getPageExecutor());
+            log.info("Use PageExecutor:" + pageInfo.getPageExecutor());
 
             Object result =pageInfo.getPageExecutor().execute(invocation,pageInfo);
             return result;

@@ -1,4 +1,4 @@
-# Jackson模块
+# HHAO Jackson增强模块
 
 封装了Jackson的处理，提供日期、时间、Enum等数据类型的支持。
 

@@ -18,6 +18,7 @@ package com.hhao.common.springboot.config;
 
 import com.hhao.common.log.Logger;
 import com.hhao.common.log.LoggerFactory;
+import com.hhao.common.springboot.AppContext;
 import com.hhao.common.springboot.lifecycle.SmartLifecycleHandler;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -83,7 +84,7 @@ public class AppSmartLifecycleConfig extends AbstractBaseConfig {
          */
         @Override
         public int getPhase() {
-            return Integer.MAX_VALUE;
+            return Integer.MIN_VALUE;
         }
 
         /**
@@ -103,10 +104,12 @@ public class AppSmartLifecycleConfig extends AbstractBaseConfig {
          */
         @Override
         public void start() {
+            AppContext.getInstance().setAppStatus(AppContext.APP_STATUS_STARTING);
             //启动行为在这里
             logger.info("================start=================");
             doStart(this.applicationArguments);
             isRunning = true;
+            AppContext.getInstance().setAppStatus(AppContext.APP_STATUS_RUNNING);
         }
 
         /**
@@ -132,10 +135,12 @@ public class AppSmartLifecycleConfig extends AbstractBaseConfig {
          */
         @Override
         public void stop(Runnable callback) {
+            AppContext.getInstance().setAppStatus(AppContext.APP_STATUS_STOPPING);
             logger.info("================stop begin=================");
             stop();
             logger.info("================stop end=================");
             callback.run();
+            AppContext.getInstance().setAppStatus(AppContext.APP_STATUS_STOPPED);
         }
 
 
@@ -159,7 +164,11 @@ public class AppSmartLifecycleConfig extends AbstractBaseConfig {
          */
         protected void doStop(ApplicationArguments applicationArguments) {
             for(int i=smartLifecycleHandlers.size();i>0;i--){
-                smartLifecycleHandlers.get(i-1).stop(applicationArguments);
+                try {
+                    smartLifecycleHandlers.get(i - 1).stop(applicationArguments);
+                }catch (Exception e){
+                    logger.error(e.getMessage());
+                }
             }
         }
 

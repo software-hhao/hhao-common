@@ -18,6 +18,7 @@
 package com.hhao.common.mybatis.config;
 
 import com.hhao.common.mybatis.page.PageMetaData;
+import com.hhao.common.mybatis.page.executor.sql.dialect.DefaultDialect;
 import com.hhao.common.mybatis.page.executor.sql.dialect.Dialect;
 import com.hhao.common.mybatis.page.executor.sql.dialect.DialectFactory;
 import com.hhao.common.mybatis.page.executor.sql.dialect.MySqlDialect;
@@ -81,7 +82,6 @@ public class MyBatisAutoConfig implements ApplicationContextAware {
         addInterceptor();
         //初始化注册分页执行器和SQL执行器
         init(this.myBatisProperties);
-
     }
 
     /**
@@ -94,6 +94,7 @@ public class MyBatisAutoConfig implements ApplicationContextAware {
         PageMetaData.POST_CACHED_PAGE= myBatisProperties.getPostCachedPage();
         PageMetaData.PAGE_SIZE_LIMIT=myBatisProperties.getPageSizeLimit();
         PageMetaData.SUPPORT_MULTI_QUERIES=myBatisProperties.getSupportMultiQueries();
+        PageMetaData.DEFAULT_COUNT_MAPPED_STATEMENT_ID_SUFFIX=myBatisProperties.getDefaultCountMappedStatementIdSuffix();
 
         //注册sql方言
         if (myBatisProperties.getSqlDialects()!=null){
@@ -103,11 +104,15 @@ public class MyBatisAutoConfig implements ApplicationContextAware {
                     Dialect dialect = (Dialect) BeanUtils.instantiateClass(clazz);
                     DialectFactory.register(dialect);
                 } catch (Exception e) {
+                    logger.info("Fail to register dialect:" + name);
                     e.printStackTrace();
                 }
             }
         }
         DialectFactory.register(new MySqlDialect());
+        if (myBatisProperties.getSupportDefaultDialect()) {
+            DialectFactory.register(new DefaultDialect());
+        }
     }
 
     /**

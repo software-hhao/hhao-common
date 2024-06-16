@@ -23,6 +23,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.server.Shutdown;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -71,6 +72,7 @@ public class TomcatServletWebServerConfig extends AbstractBaseMvcConfig {
          */
         @Override
         public void customize(TomcatServletWebServerFactory factory) {
+            factory.setShutdown(Shutdown.GRACEFUL);
             // customize the factory here
             //factory.addAdditionalTomcatConnectors(createSslConnector());
             tomcatServletWebServerFactory(factory);

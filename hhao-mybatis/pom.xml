@@ -13,6 +13,10 @@
             <groupId>io.github.software-hhao</groupId>
             <artifactId>hhao-utils</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.github.software-hhao</groupId>
+            <artifactId>hhao-log</artifactId>
+        </dependency>
         <!--MyBatis-->
         <!--https://mybatis.org/mybatis-3/index.html-->
         <dependency>

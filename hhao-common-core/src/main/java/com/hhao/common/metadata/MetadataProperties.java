@@ -23,7 +23,7 @@ public class MetadataProperties {
     //context:走上下文
     //语言-国家如zh-CN,en-US
     private String locale = "zh-CN";
-    private String version = "::1.1.1-SNAPSHOT";
+    private String version = "";
     private MonetaryConfig monetaryConfig = new MonetaryConfig();
 
     public Formatters getFormatters() {

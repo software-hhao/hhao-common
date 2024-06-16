@@ -17,13 +17,13 @@
 
 package com.hhao.common.mybatis.page.executor;
 
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
 import com.hhao.common.mybatis.page.PageInfo;
-import com.hhao.common.mybatis.page.PageInfoWithCount;
-import com.hhao.common.utils.StringUtils;
+import com.hhao.common.mybatis.page.PageInfoWithCountMappedStatement;
+import com.hhao.common.mybatis.page.PageMetaData;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.logging.Log;
-import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.plugin.Invocation;
@@ -45,7 +45,10 @@ import java.util.List;
  * @since 2021 /11/22 20:23
  */
 public class SingleQueryStaticPageExecutor extends AbstractPageExecutor {
-    protected final Log logger = LogFactory.getLog(this.getClass());
+    /**
+     * The Logger.
+     */
+    private static final Logger log = LoggerFactory.getLogger(SingleQueryStaticPageExecutor.class);
     private final String DOT=".";
 
     @Override
@@ -53,7 +56,7 @@ public class SingleQueryStaticPageExecutor extends AbstractPageExecutor {
         //取出各种参数
         Executor executor=this.getExecutor(invocation);
         if (executor==null){
-            logger.debug("SingleQueryStaticPageExecutor need org.apache.ibatis.executor.Executor,Please change other PageExecutor.");
+            log.info("SingleQueryStaticPageExecutor need org.apache.ibatis.executor.Executor,Please change other PageExecutor.");
             return invocation.proceed();
         }
         MappedStatement mappedStatement=this.getMappedStatement(invocation);
@@ -64,7 +67,7 @@ public class SingleQueryStaticPageExecutor extends AbstractPageExecutor {
         List<Object> parameterMappings= Collections.unmodifiableList(boundSql.getParameterMappings());
         if (pageInfo.isIncludeTotalRows()) {
             //获取count的MappedStatement
-            MappedStatement countMs = findCountMappedStatement(mappedStatement, ((PageInfoWithCount) pageInfo).getCountMappedStatementId());
+            MappedStatement countMs = findCountMappedStatement(mappedStatement, pageInfo);
             if (countMs != null) {
                 BoundSql countSql = countMs.getBoundSql(parameter);
                 CacheKey cacheKey = executor.createCacheKey(countMs, parameter, rowBounds, countSql);
@@ -81,23 +84,30 @@ public class SingleQueryStaticPageExecutor extends AbstractPageExecutor {
     /**
      * Find count mapped statement mapped statement.
      *
-     * @param ms      the ms
-     * @param countId the count id
+     * @param ms       the ms
+     * @param pageInfo the page info
      * @return the mapped statement
      */
-    protected MappedStatement findCountMappedStatement(MappedStatement ms, String countId) {
-        if (StringUtils.hasText(countId)) {
-            final String id = ms.getId();
-            if (!countId.contains(DOT)) {
-                countId = id.substring(0, id.lastIndexOf(DOT) + 1) + countId;
-            }
-            final Configuration configuration = ms.getConfiguration();
-            try {
-                return configuration.getMappedStatement(countId, false);
-            } catch (Exception e) {
-                logger.warn(String.format("can not find this countId: [\"%s\"]", countId));
-            }
+    protected MappedStatement findCountMappedStatement(MappedStatement ms,PageInfo pageInfo) {
+        String countId="";
+        if (pageInfo instanceof PageInfoWithCountMappedStatement){
+            countId=((PageInfoWithCountMappedStatement) pageInfo).getCountMappedStatementId();
         }
-        return null;
+        // 计算默认的countId
+        if (countId==null || countId.isBlank()){
+            countId= ms.getId() + PageMetaData.DEFAULT_COUNT_MAPPED_STATEMENT_ID_SUFFIX;
+        }
+        // 补齐
+        if (!countId.contains(DOT)) {
+            final String id = ms.getId();
+            countId = id.substring(0, id.lastIndexOf(DOT) + 1) + countId;
+        }
+        final Configuration configuration = ms.getConfiguration();
+        try {
+            return configuration.getMappedStatement(countId, false);
+        } catch (Exception e) {
+            log.info(String.format("can not find count mappedStatementId: [\"%s\"]", countId));
+            throw e;
+        }
     }
 }

@@ -18,10 +18,7 @@ package com.hhao.common.mybatis.page;
 
 import com.hhao.common.ddd.dto.request.PageQuery;
 import com.hhao.common.ddd.dto.response.PageResponse;
-import com.hhao.common.mybatis.page.executor.MultiQueriesDynamicPageExecutor;
-import com.hhao.common.mybatis.page.executor.MultiQueriesStaticPageExecutor;
-import com.hhao.common.mybatis.page.executor.PageExecutor;
-import com.hhao.common.mybatis.page.executor.SingleQueryDynamicPageExecutor;
+import com.hhao.common.mybatis.page.executor.*;
 import com.hhao.common.page.Page;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SqlColumn;
@@ -344,6 +341,15 @@ public class PageInfo<T> implements Page {
     }
 
     /**
+     * Empty page response.
+     *
+     * @return the page response
+     */
+    public PageResponse<T> empty(){
+        return PageResponse.ok(new HashMap<>(),pageNum,pageSize,preCachedPage,postCachedPage,totalRow,includeTotalRows,orderDirection,orderColumns);
+    }
+
+    /**
      * The type Order table.
      */
     public static class OrderTable{
@@ -445,6 +451,7 @@ public class PageInfo<T> implements Page {
          * The Page info.
          */
         protected PageInfo pageInfo;
+
 
         /**
          * Instantiates a new Builder.
@@ -660,6 +667,16 @@ public class PageInfo<T> implements Page {
         }
 
         /**
+         * With single query static page executor builder.
+         *
+         * @return the builder
+         */
+        public Builder withSingleQueryStaticPageExecutor(){
+            pageInfo.setPageExecutor(new SingleQueryStaticPageExecutor());
+            return this;
+        }
+
+        /**
          * With page query builder.
          *
          * @param pageQuery the page query
@@ -682,6 +699,17 @@ public class PageInfo<T> implements Page {
          * @return the page info
          */
         public PageInfo build(){
+            return build(PageInfo.class);
+        }
+
+        /**
+         * Build page info.
+         *
+         * @param <M>   the type parameter
+         * @param clazz the clazz
+         * @return the page info
+         */
+        public <M extends PageInfo> M build(Class<M> clazz){
             //动态order sql处理
             if (pageInfo.getOrderColumns()!=null && this.orderTables!=null && !pageInfo.getOrderDirection().equals(OrderDirection.NO)){
                 StringBuffer orderSql=new StringBuffer();
@@ -728,7 +756,7 @@ public class PageInfo<T> implements Page {
                 }
             }
 
-            return pageInfo;
+            return (M)pageInfo;
         }
     }
 }

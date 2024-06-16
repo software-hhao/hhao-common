@@ -35,10 +35,32 @@ public class MyBatisProperties {
     // 页面溢出是否跳转到最后一页
     private Boolean pageOverflowToLast=true;
     // 是否支持多语句
-    private Boolean supportMultiQueries=true;
+    private Boolean supportMultiQueries=false;
+    // 是否支持默认万用的方言
+    private Boolean supportDefaultDialect=true;
+    // 默认的count查询语句id后缀
+    private String defaultCountMappedStatementIdSuffix="-count";
     // 支持的数据库方言
     private String [] sqlDialects;
 
+
+    /**
+     * Gets support default dialect.
+     *
+     * @return the support default dialect
+     */
+    public Boolean getSupportDefaultDialect() {
+        return supportDefaultDialect;
+    }
+
+    /**
+     * Sets support default dialect.
+     *
+     * @param supportDefaultDialect the support default dialect
+     */
+    public void setSupportDefaultDialect(Boolean supportDefaultDialect) {
+        this.supportDefaultDialect = supportDefaultDialect;
+    }
 
     /**
      * jdbc是否支持多语句
@@ -137,6 +159,24 @@ public class MyBatisProperties {
      */
     public String[] getSqlDialects() {
         return sqlDialects;
+    }
+
+    /**
+     * Gets default count mapped statement id suffix.
+     *
+     * @return the default count mapped statement id suffix
+     */
+    public String getDefaultCountMappedStatementIdSuffix() {
+        return defaultCountMappedStatementIdSuffix;
+    }
+
+    /**
+     * Sets default count mapped statement id suffix.
+     *
+     * @param defaultCountMappedStatementIdSuffix the default count mapped statement id suffix
+     */
+    public void setDefaultCountMappedStatementIdSuffix(String defaultCountMappedStatementIdSuffix) {
+        this.defaultCountMappedStatementIdSuffix = defaultCountMappedStatementIdSuffix;
     }
 
     /**

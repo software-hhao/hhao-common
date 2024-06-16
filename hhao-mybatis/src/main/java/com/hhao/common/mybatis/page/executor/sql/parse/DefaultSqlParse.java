@@ -16,10 +16,10 @@
 
 package com.hhao.common.mybatis.page.executor.sql.parse;
 
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
 import com.hhao.common.mybatis.page.executor.sql.token.SqlToken;
 import com.hhao.common.mybatis.page.executor.sql.token.Token;
-import org.apache.ibatis.logging.Log;
-import org.apache.ibatis.logging.LogFactory;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ public class DefaultSqlParse implements SqlParse {
     /**
      * The Logger.
      */
-    protected final Log logger = LogFactory.getLog(this.getClass());
+    private static final Logger log = LoggerFactory.getLogger(DefaultSqlParse.class);
 
     private TokenParse tokenParse;
 
@@ -97,7 +97,7 @@ public class DefaultSqlParse implements SqlParse {
         if (tokenBuffer.length()>0) {
             tokenParse.parseToken(new SqlToken(tokenBuffer.toString()));
         }
-        logger.debug(tokenParse.getTokenInfos().toString());
+        log.debug(tokenParse.getTokenInfos().toString());
         return tokenParse.getTokenInfos();
     }
 

@@ -52,9 +52,9 @@ public interface Event<T> {
     T getSource();
 
     /**
-     * 事件对象类型
+     * 事件类型
      *
      * @return the source type
      */
-    String getSourceType();
+    String getEventType();
 }

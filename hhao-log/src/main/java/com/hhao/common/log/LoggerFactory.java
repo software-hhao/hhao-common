@@ -23,6 +23,18 @@ package com.hhao.common.log;
  * @since 1.0.0
  */
 public class LoggerFactory {
+    private static ILoggerFactory loggerFactory=new DefaultLoggerFactory();
+
+    /**
+     * Sets logger factory.
+     *
+     * @param customLoggerFactory the custom logger factory
+     */
+    public static void setLoggerFactory(ILoggerFactory customLoggerFactory) {
+        synchronized (LoggerFactory.class) {
+            loggerFactory = customLoggerFactory;
+        }
+    }
 
     /**
      * Gets logger.
@@ -31,8 +43,6 @@ public class LoggerFactory {
      * @return the logger
      */
     public static Logger getLogger(Class<?> clazz) {
-        org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(clazz);
-        return new Slf4jLogger(logger);
+        return loggerFactory.getLogger(clazz);
     }
-
 }

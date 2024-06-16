@@ -56,11 +56,13 @@ public class SystemMetadata {
     public ZoneId getZoneId() {
         if (zoneId==null){
             synchronized (this) {
-                try {
-                    zoneId = ZoneId.of(metadataProperties.getTimezone());
-                } catch (Exception e) {
-                    logger.warn(e.getMessage());
-                    zoneId = ZoneId.systemDefault();
+                if (zoneId==null) {
+                    try {
+                        zoneId = ZoneId.of(metadataProperties.getTimezone());
+                    } catch (Exception e) {
+                        logger.warn(e.getMessage());
+                        zoneId = ZoneId.systemDefault();
+                    }
                 }
             }
         }
@@ -71,7 +73,9 @@ public class SystemMetadata {
     public Version getVersion() {
         if (version==null){
             synchronized (this) {
-                version = Version.of(metadataProperties.getVersion());
+                if (version==null) {
+                    version = Version.of(metadataProperties.getVersion());
+                }
             }
         }
         return version;
@@ -81,27 +85,29 @@ public class SystemMetadata {
     public Locale getLocale() {
         if (locale==null){
             synchronized (this) {
-                String value=metadataProperties.getLocale();
-                if (value==null){
-                    logger.warn("The locale format is language-country, for example, zh-CN");
-                    locale=Locale.getDefault();
-                }else {
-                    String[] values = value.split("-|_");
-                    if (values == null || values.length != 2) {
-                        logger.debug("The locale format is language-country, for example, zh-CN");
+                if (locale==null) {
+                    String value = metadataProperties.getLocale();
+                    if (value == null) {
+                        logger.warn("The locale format is language-country, for example, zh-CN");
                         locale = Locale.getDefault();
-                    }else {
-                        locale = Arrays.stream(Locale.getAvailableLocales()).filter(locale -> {
-                            if (locale.getLanguage().equals(values[0])) {
-                                return true;
-                            }
-                            return false;
-                        }).filter(locale -> {
-                            if (locale.getCountry().equals(values[1])) {
-                                return true;
-                            }
-                            return false;
-                        }).findFirst().orElse(Locale.getDefault());
+                    } else {
+                        String[] values = value.split("-|_");
+                        if (values == null || values.length != 2) {
+                            logger.debug("The locale format is language-country, for example, zh-CN");
+                            locale = Locale.getDefault();
+                        } else {
+                            locale = Arrays.stream(Locale.getAvailableLocales()).filter(locale -> {
+                                if (locale.getLanguage().equals(values[0])) {
+                                    return true;
+                                }
+                                return false;
+                            }).filter(locale -> {
+                                if (locale.getCountry().equals(values[1])) {
+                                    return true;
+                                }
+                                return false;
+                            }).findFirst().orElse(Locale.getDefault());
+                        }
                     }
                 }
             }
@@ -113,11 +119,13 @@ public class SystemMetadata {
     public DateTimeFormatter getDateFormatter() {
         if (dateFormatter == null) {
             synchronized (this) {
-                String value = metadataProperties.getFormatters().getDate();
-                if (value == null) {
-                    dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                } else {
-                    dateFormatter = DateTimeFormatter.ofPattern(value);
+                if (dateFormatter == null) {
+                    String value = metadataProperties.getFormatters().getDate();
+                    if (value == null) {
+                        dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    } else {
+                        dateFormatter = DateTimeFormatter.ofPattern(value);
+                    }
                 }
             }
         }
@@ -128,11 +136,13 @@ public class SystemMetadata {
     public DateTimeFormatter getDateTimeFormatter() {
         if (dateTimeFormatter==null){
             synchronized (this) {
-                String value = metadataProperties.getFormatters().getDateTime();
-                if (value == null) {
-                    dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                } else {
-                    dateTimeFormatter = DateTimeFormatter.ofPattern(value);
+                if (dateTimeFormatter==null) {
+                    String value = metadataProperties.getFormatters().getDateTime();
+                    if (value == null) {
+                        dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    } else {
+                        dateTimeFormatter = DateTimeFormatter.ofPattern(value);
+                    }
                 }
             }
         }
@@ -143,11 +153,13 @@ public class SystemMetadata {
     public DateTimeFormatter getTimeFormatter() {
         if (timeFormatter==null){
             synchronized (this) {
-                String value = metadataProperties.getFormatters().getTime();
-                if (value == null) {
-                    timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-                } else {
-                    timeFormatter = DateTimeFormatter.ofPattern(value);
+                if (timeFormatter==null) {
+                    String value = metadataProperties.getFormatters().getTime();
+                    if (value == null) {
+                        timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+                    } else {
+                        timeFormatter = DateTimeFormatter.ofPattern(value);
+                    }
                 }
             }
         }
@@ -158,11 +170,13 @@ public class SystemMetadata {
     public Currency getDefaultCurrency() {
         if (defaultCurrency==null){
             synchronized (this) {
-                String currencyCode=metadataProperties.getMonetaryConfig().getDefaultCurrency();
-                if (currencyCode==null){
-                    defaultCurrency=Currency.getInstance(Locale.getDefault());
-                }else {
-                    defaultCurrency=Currency.getInstance(currencyCode);
+                if (defaultCurrency==null) {
+                    String currencyCode = metadataProperties.getMonetaryConfig().getDefaultCurrency();
+                    if (currencyCode == null) {
+                        defaultCurrency = Currency.getInstance(Locale.getDefault());
+                    } else {
+                        defaultCurrency = Currency.getInstance(currencyCode);
+                    }
                 }
             }
         }

@@ -16,14 +16,14 @@
 
 package com.hhao.common.mybatis.page.executor;
 
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
 import com.hhao.common.mybatis.page.PageInfo;
 import com.hhao.common.mybatis.page.PageMetaData;
 import com.hhao.common.mybatis.page.exception.MyBatisException;
 import com.hhao.common.mybatis.page.executor.sql.SqlExecutor;
 import com.hhao.common.mybatis.page.executor.sql.SqlExecutorFactory;
 import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.logging.Log;
-import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.*;
 import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.reflection.MetaObject;
@@ -48,7 +48,7 @@ public abstract class AbstractPageExecutor implements PageExecutor {
     /**
      * The Logger.
      */
-    protected final Log logger = LogFactory.getLog(this.getClass());
+    private static final Logger log = LoggerFactory.getLogger(AbstractPageExecutor.class);
 
     @Override
     public SqlExecutor getSqlExecutor(PageInfo pageInfo,String dbName){
@@ -318,7 +318,7 @@ public abstract class AbstractPageExecutor implements PageExecutor {
                 boolean containLimitParam=false;
                 boolean containOffsetParam=false;
                 for(ParameterMapping p:parameterMappings){
-                    logger.debug("params:"+p.toString());
+                    log.info("params:"+p.toString());
                     if(p.getProperty().equalsIgnoreCase(pageInfo.getLimitParamName())){
                         containLimitParam=true;
                     }else if(p.getProperty().equalsIgnoreCase(pageInfo.getOffsetParamName())){
@@ -326,7 +326,7 @@ public abstract class AbstractPageExecutor implements PageExecutor {
                     }
                 }
                 if (!containLimitParam || !containOffsetParam){
-                    logger.debug("can't find limit or offset param name");
+                    log.info("can't find limit or offset param name");
                     return false;
 
                 }
@@ -335,9 +335,9 @@ public abstract class AbstractPageExecutor implements PageExecutor {
                 pageBoundSql.setAdditionalParameter(pageInfo.getLimitParamName(), pageInfo.getLimit());
                 pageBoundSql.setAdditionalParameter(pageInfo.getOffsetParamName(),pageInfo.getOffset());
 
-                logger.debug(pageBoundSql.getSql());
-                logger.debug(pageBoundSql.getAdditionalParameter(pageInfo.getLimitParamName()).toString());
-                logger.debug(pageBoundSql.getAdditionalParameter(pageInfo.getOffsetParamName()).toString());
+                log.info(pageBoundSql.getSql());
+                log.info(pageBoundSql.getAdditionalParameter(pageInfo.getLimitParamName()).toString());
+                log.info(pageBoundSql.getAdditionalParameter(pageInfo.getOffsetParamName()).toString());
 
                 return true;
             }
@@ -376,7 +376,7 @@ public abstract class AbstractPageExecutor implements PageExecutor {
                         value = metaObject.getValue(propertyName);
                     }
                     boundSql.setAdditionalParameter(propertyName,value);
-                    logger.debug(propertyName + ":" + value);
+                    log.info(propertyName + ":" + value);
                 }
             }
         }

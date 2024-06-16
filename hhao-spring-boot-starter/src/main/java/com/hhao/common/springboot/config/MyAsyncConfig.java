@@ -15,15 +15,23 @@
  */
 package com.hhao.common.springboot.config;
 
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
 import com.hhao.common.springboot.ansy.ExecutorProperties;
+import com.hhao.common.springboot.lifecycle.SmartLifecycleHandler;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.AdviceMode;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
@@ -40,8 +48,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 @ConditionalOnMissingBean(MyAsyncConfig.class)
 @ConditionalOnProperty(prefix = "com.hhao.config.async",name = "enable",havingValue = "true",matchIfMissing = true)
 @EnableConfigurationProperties(ExecutorProperties.class)
-public class MyAsyncConfig implements AsyncConfigurer{
+public class MyAsyncConfig implements SmartLifecycleHandler {
+    final Logger logger = LoggerFactory.getLogger(MyAsyncConfig.class);
     private ExecutorProperties executorProperties;
+    private ThreadPoolTaskExecutor executor=null;
 
     /**
      * Instantiates a new My async configurer.
@@ -53,9 +63,9 @@ public class MyAsyncConfig implements AsyncConfigurer{
         this.executorProperties=executorProperties;
     }
 
-    @Override
-    public Executor getAsyncExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    @Bean("asyncExecutor")
+    public Executor asyncExecutor() {
+        executor = new ThreadPoolTaskExecutor();
         executor.initialize();
 
         executor.setCorePoolSize(executorProperties.getCorePoolSize());
@@ -74,12 +84,75 @@ public class MyAsyncConfig implements AsyncConfigurer{
         //ThreadPoolExecutor.DiscardOldestPolicy 丢弃队列最前面的任务，然后重新尝试执行任务
         //ThreadPoolExecutor.CallerRunsPolic 由调用线程处理该任务
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        logger.info("ThreadPoolTaskExecutor init success");
         return executor;
     }
 
-    // 异常处理器
     @Override
-    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
-        return new SimpleAsyncUncaughtExceptionHandler();
+    public void stop(ApplicationArguments applicationArguments) {
+        executor.shutdown();
+        logger.info("ThreadPoolTaskExecutor shutdown success");
+    }
+
+    @Override
+    public int getOrder() {
+        return 0;
+    }
+
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnMissingBean(AsyncConfiguration.class)
+    @ConditionalOnProperty(prefix = "com.hhao.config.async",name = "enable",havingValue = "true",matchIfMissing = true)
+    public static class AsyncConfiguration implements AsyncConfigurer {
+        private Executor executor;
+
+        @Autowired
+        public AsyncConfiguration(@Qualifier("asyncExecutor") Executor executor) {
+            this.executor=executor;
+        }
+
+        @Override
+        public Executor getAsyncExecutor() {
+            return this.executor;
+        }
+
+        // 异常处理器
+        @Override
+        public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+            return new SimpleAsyncUncaughtExceptionHandler();
+        }
+    }
+
+    @Configuration
+    @EnableAsync(mode = AdviceMode.ASPECTJ)
+    @ConditionalOnProperty(prefix = "com.hhao.config.async",name = "mode",havingValue = "ASPECTJ")
+    public static class EnableAsyncWithAspectj{
+        /**
+         * The Logger.
+         */
+        final Logger logger = LoggerFactory.getLogger(EnableAsyncWithAspectj.class);
+
+        /**
+         * Instantiates a new Enable caching with aspectj.
+         */
+        public EnableAsyncWithAspectj(){
+            logger.info("Enable async with aspectj.");
+        }
+    }
+
+    @Configuration
+    @EnableAsync(mode = AdviceMode.PROXY)
+    @ConditionalOnProperty(prefix = "com.hhao.config.async",name = "mode",havingValue = "PROXY")
+    public static class EnableAsyncWithProxy{
+        /**
+         * The Logger.
+         */
+        final Logger logger = LoggerFactory.getLogger(EnableAsyncWithProxy.class);
+
+        /**
+         * Instantiates a new Enable caching with aspectj.
+         */
+        public EnableAsyncWithProxy(){
+            logger.info("Enable async with proxy.");
+        }
     }
 }

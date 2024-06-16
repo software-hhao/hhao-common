@@ -15,6 +15,8 @@
  */
 package com.hhao.common.mybatis.page.executor.sql;
 
+import com.hhao.common.log.Logger;
+import com.hhao.common.log.LoggerFactory;
 import com.hhao.common.mybatis.page.PageInfo;
 import com.hhao.common.mybatis.page.executor.sql.dialect.Dialect;
 import com.hhao.common.mybatis.page.executor.sql.dialect.DialectFactory;
@@ -22,8 +24,6 @@ import com.hhao.common.mybatis.page.executor.sql.parse.SqlParse;
 import com.hhao.common.mybatis.page.executor.sql.parse.TokenInfo;
 import com.hhao.common.mybatis.page.executor.sql.token.ParamToken;
 import com.hhao.common.mybatis.page.executor.sql.token.Token;
-import org.apache.ibatis.logging.Log;
-import org.apache.ibatis.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ import java.util.List;
  * @since 1.0.0
  */
 public class DefaultSqlExecutor implements SqlExecutor {
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private static final Logger log = LoggerFactory.getLogger(DefaultSqlExecutor.class);
 
     @Override
     public SqlPageModel generalSqlPageModel(PageInfo pageInfo, String sql, List<Object> paramMappings,String dbName){
